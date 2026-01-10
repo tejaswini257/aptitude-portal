@@ -1,9 +1,12 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { UserRole } from '@prisma/client'; // ✅ CORRECT
 import { JwtService } from '@nestjs/jwt';
-
-type UserRole = 'ADMIN' | 'USER' | 'MANAGER';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +16,12 @@ export class AuthService {
   ) {}
 
   // Register new user
-  async register(email: string, password: string, role: UserRole, orgId: string) {
+  async register(
+    email: string,
+    password: string,
+    role: UserRole,   // ✅ Prisma enum
+    orgId: string,
+  ) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -28,7 +36,7 @@ export class AuthService {
       data: {
         email,
         password: hashedPassword,
-        role,
+        role, // ✅ Prisma enum
         orgId,
       },
     });
