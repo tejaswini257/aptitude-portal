@@ -1,0 +1,80 @@
+# =========================
+# Node & Package Managers
+# =========================
+# node_modules/
+# frontend/node_modules/
+frontend/.next
+frontend/node_modules
+
+# =========================
+# Build Outputs
+# =========================
+dist/
+build/
+frontend/.next/
+frontend/out/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# =========================
+# Coverage & Tests
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDEs & Editors
+# =========================
+.idea/
+.project
+.classpath
+.c9/
+.settings/
+*.launch
+*.sublime-workspace
+
+# VS Code (keep settings)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# =========================
+# Temp & Runtime
+# =========================
+.temp/
+.tmp/
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# Prisma
+# =========================
+generated/prisma/
