@@ -92,3 +92,101 @@ enum CollegeType {
   POLYTECHNIC
   OTHER
 }
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  type      OrgType
+  createdAt DateTime @default(now())
+
+  users   User[]
+  college College[]
+}
+
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
+  role     UserRole
+
+  orgId    String
+  branchId String?
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  students Student[]
+}
+
+model College {
+  id    String @id @default(uuid())
+  orgId String 
+
+  collegeName String
+  collegeType CollegeType
+  address     String
+
+  contactPerson String
+  contactEmail  String
+  mobile        String
+
+  maxStudents Int
+  isApproved  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  departments Department[]
+  students    Student[]
+
+  @@index([orgId])
+}
+
+model Department {
+  id   String @id @default(uuid())
+  name String
+
+  collegeId String
+  college   College @relation(fields: [collegeId], references: [id])
+
+  students Student[]
+
+  createdAt DateTime @default(now())
+
+  @@index([collegeId])
+  @@unique([name, collegeId])
+
+}
+
+model Student {
+  id     String @id @default(uuid())
+  rollNo String
+  year   Int
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  collegeId String
+  college   College @relation(fields: [collegeId], references: [id])
+
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([collegeId])
+  @@index([departmentId])
+  @@unique([rollNo, collegeId])
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
