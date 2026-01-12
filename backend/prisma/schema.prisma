@@ -85,6 +85,8 @@ model Department {
   createdAt DateTime @default(now())
 
   @@index([collegeId])
+  @@unique([name, collegeId])
+
 }
 
 model Student {
@@ -105,6 +107,8 @@ model Student {
 
   @@index([collegeId])
   @@index([departmentId])
+  @@unique([rollNo, collegeId])
+
 }
 
 datasource db {

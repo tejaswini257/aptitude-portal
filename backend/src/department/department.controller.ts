@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 
@@ -12,13 +12,17 @@ export class DepartmentController {
   }
 
   @Get()
-  findByCollege(@Query('collegeId') collegeId: string) {
+  find(@Query('collegeId') collegeId: string) {
     return this.departmentService.findByCollege(collegeId);
   }
 
+  @Put(':id')
+  update(@Param('id') id: string, @Body('name') name: string) {
+    return this.departmentService.update(id, name);
+  }
+
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  delete(@Param('id') id: string) {
     return this.departmentService.delete(id);
   }
 }
-

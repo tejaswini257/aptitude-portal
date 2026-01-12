@@ -1,12 +1,21 @@
-import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { OrganizationService } from './organization.service';
+import { CreateOrganizationDto } from './dto/create-organization.dto';
 
 @Controller('organizations')
 export class OrganizationController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly organizationService: OrganizationService) {}
+
+  @Post()
+  create(@Body() body: CreateOrganizationDto) {   // ✅ typed DTO
+    return this.organizationService.create(body);
+  }
 
   @Get()
-  async getAll() {
-    return this.prisma.organization.findMany();
+  findAll() {
+    return this.organizationService.findAll();
   }
 }
+
+
+
