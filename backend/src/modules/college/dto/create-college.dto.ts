@@ -1,11 +1,32 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsString,
+  Min,
+} from 'class-validator';
+import { CollegeType } from '@prisma/client';
 
 export class CreateCollegeDto {
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  collegeName: string;
+
+  @IsEnum(CollegeType)
+  collegeType: CollegeType;
 
   @IsString()
-  @IsNotEmpty()
-  code: string;
+  address: string;
+
+  @IsString()
+  contactPerson: string;
+
+  @IsEmail()
+  contactEmail: string;
+
+  @IsString()
+  mobile: string;
+
+  @IsInt()
+  @Min(1)
+  maxStudents: number;
 }

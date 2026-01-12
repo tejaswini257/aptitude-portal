@@ -1,11 +1,43 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { CollegeType } from '@prisma/client';
 
 export class UpdateCollegeDto {
-  @IsString()
   @IsOptional()
-  name?: string;
+  @IsString()
+  collegeName?: string;
 
-  @IsString()
   @IsOptional()
-  code?: string;
+  @IsEnum(CollegeType)
+  collegeType?: CollegeType;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsString()
+  contactPerson?: string;
+
+  @IsOptional()
+  @IsEmail()
+  contactEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  mobile?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  maxStudents?: number;
+
+  @IsOptional()
+  isApproved?: boolean;
 }

@@ -8,15 +8,13 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { DepartmentModule } from './department/department.module';
 import { OrganizationModule } from './organization/organization.module';
-import { CollegeModule } from './college/college.module';
 
 @Module({
   imports: [
     PrismaModule,
     AuthModule,
     DepartmentModule,
-    OrganizationModule,  
-    CollegeModule,
+    OrganizationModule,
   ],
 })
 export class AppModule {}
