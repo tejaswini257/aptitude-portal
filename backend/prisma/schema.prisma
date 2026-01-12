@@ -12,7 +12,7 @@ model Organization {
   name      String
   type      OrgType
   createdAt DateTime @default(now())
-  college   College?
+  college   College[]
   users     User[]
 }
 
@@ -30,7 +30,7 @@ model User {
 
 model College {
   id            String       @id @default(uuid())
-  orgId         String       @unique
+  orgId         String       
   collegeName   String
   collegeType   CollegeType
   address       String
