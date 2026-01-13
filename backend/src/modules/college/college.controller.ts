@@ -4,50 +4,46 @@ import {
   Post,
   Put,
   Delete,
-  Param,
   Body,
+  Param,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+
 import { CollegesService } from './college.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
 import { UpdateCollegeDto } from './dto/update-college.dto';
+
 import { JwtGuard } from '../../common/guards/jwt.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 
-@Controller('college')
+@Controller('colleges')
 @UseGuards(JwtGuard, RolesGuard)
 export class CollegesController {
-  constructor(private collegesService: CollegesService) {}
+  constructor(private service: CollegesService) {}
 
   @Get()
   getAll() {
-    return this.collegesService.getAllColleges();
-  }
-
-  @Get(':id')
-  getOne(@Param('id') id: string) {
-    return this.collegesService.getCollegeById(id);
+    return this.service.getAllColleges();
   }
 
   @Post()
   @Roles(UserRole.SUPER_ADMIN)
-  createCollege(@Body() dto: CreateCollegeDto) {
-    return this.collegesService.createCollege(dto, 'orgId');
+  create(@Body() dto: CreateCollegeDto, @Req() req) {
+    return this.service.createCollege(dto, req.user.orgId);
   }
 
   @Put(':id')
   @Roles(UserRole.SUPER_ADMIN)
-  update(@Param('id') id: string, 
-  @Body() dto: UpdateCollegeDto,
-  ) {
-    return this.collegesService.updateCollege(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateCollegeDto) {
+    return this.service.updateCollege(id, dto);
   }
 
-   @Roles(UserRole.SUPER_ADMIN)
-@Delete(':id')
-deleteCollege(@Param('id') id: string) {
-  return this.collegesService.deleteCollege(id);
-}
+  @Delete(':id')
+  @Roles(UserRole.SUPER_ADMIN)
+  delete(@Param('id') id: string) {
+    return this.service.deleteCollege(id);
+  }
 }

@@ -5,22 +5,10 @@ import { UpdateCollegeDto } from './dto/update-college.dto';
 
 @Injectable()
 export class CollegesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async getAllColleges() {
+  getAllColleges() {
     return this.prisma.college.findMany();
-  }
-
-  async getCollegeById(id: string) {
-    const college = await this.prisma.college.findUnique({
-      where: { id },
-    });
-
-    if (!college) {
-      throw new NotFoundException('College not found');
-    }
-
-    return college;
   }
 
   async createCollege(dto: CreateCollegeDto, orgId: string) {
@@ -34,23 +22,13 @@ export class CollegesService {
   }
 
   async updateCollege(id: string, dto: UpdateCollegeDto) {
-    await this.getCollegeById(id);
-
     return this.prisma.college.update({
       where: { id },
-      data: {
-        ...dto,
-        isApproved: true,
-      },
+      data: dto,
     });
   }
 
-  async deleteCollege(id: string) {
-    await this.getCollegeById(id);
-
-    return this.prisma.college.delete({
-      where: { id },
-    });
+  deleteCollege(id: string) {
+    return this.prisma.college.delete({ where: { id } });
   }
 }
-
