@@ -14,7 +14,7 @@ export class StudentsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateStudentDto) {
-    // 🔹 Validate College
+    // 1️⃣ Validate College
     const college = await this.prisma.college.findUnique({
       where: { id: dto.collegeId },
       select: { orgId: true },
@@ -24,7 +24,13 @@ export class StudentsService {
       throw new NotFoundException('College not found');
     }
 
-    // 🔹 Validate Department
+    if (!college.orgId) {
+      throw new BadRequestException(
+        'College is not linked to any organization',
+      );
+    }
+
+    // 2️⃣ Validate Department
     const department = await this.prisma.department.findUnique({
       where: { id: dto.departmentId },
     });
@@ -33,7 +39,7 @@ export class StudentsService {
       throw new NotFoundException('Department not found');
     }
 
-    // 🔹 Prevent duplicate student
+    // 3️⃣ Prevent duplicate student
     const existingStudent = await this.prisma.student.findFirst({
       where: {
         rollNo: dto.rollNo,
@@ -45,24 +51,26 @@ export class StudentsService {
       throw new BadRequestException('Student already exists');
     }
 
+    // 4️⃣ Create USER first
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    // 🔹 Create User + Student together
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hashedPassword,
+        role: UserRole.STUDENT,
+        orgId: college.orgId,
+      },
+    });
+
+    // 5️⃣ Create STUDENT with userId
     return this.prisma.student.create({
       data: {
         rollNo: dto.rollNo,
         year: dto.year,
         collegeId: dto.collegeId,
         departmentId: dto.departmentId,
-
-        user: {
-          create: {
-            email: dto.email,
-            password: hashedPassword,
-            role: UserRole.STUDENT,
-            orgId: college.orgId,
-          },
-        },
+        userId: user.id,
       },
       include: {
         user: true,
