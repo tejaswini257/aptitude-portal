@@ -1,14 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { CollegeService } from './college.service';
 
 import { CollegesService } from './college.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
@@ -24,25 +15,10 @@ import { UserRole } from '@prisma/client';
 export class CollegesController {
   constructor(private service: CollegesService) {}
 
-  @Get()
-  getAll() {
-    return this.service.getAllColleges();
-  }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN)
   @Post()
-  @Roles(UserRole.SUPER_ADMIN)
-  create(@Body() dto: CreateCollegeDto, @Req() req) {
-    return this.service.createCollege(dto, req.user.orgId);
+  create(@Body() dto: any) {
+    return this.collegeService.create(dto);
   }
-
-  @Put(':id')
-  @Roles(UserRole.SUPER_ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateCollegeDto, @Req() req) {
-    return this.service.update(id, dto, req.user.orgId);
-  }
-
-  @Delete(':id')
-delete(@Param('id') id: string, @Req() req) {
-  return this.service.delete(id, req.user.orgId);
-}
 }

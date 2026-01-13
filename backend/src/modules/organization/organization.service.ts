@@ -8,27 +8,11 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 export class OrganizationService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.organization.findMany();
-  }
-
-  async findById(id: string) {
-    const org = await this.prisma.organization.findUnique({
-      where: { id },
-    });
-
-    if (!org) throw new NotFoundException('Organization not found');
-    return org;
-  }
-
-  create(dto: CreateOrganizationDto) {
-    return this.prisma.organization.create({
-      data: {
-        name: dto.name,
-        type: dto.type,   // ✅ now typed as OrgType
-      },
-    });
-  }
+  async create(dto: CreateOrganizationDto) {
+  return this.prisma.organization.create({
+    data: dto,
+  });
+}
 
    async update(id: string, dto: UpdateOrganizationDto) {
     await this.findById(id);
@@ -46,6 +30,8 @@ export class OrganizationService {
       where: { id },
     });
   }
+  
+
 }
 
   
