@@ -37,13 +37,12 @@ export class CollegesController {
 
   @Put(':id')
   @Roles(UserRole.SUPER_ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateCollegeDto) {
-    return this.service.updateCollege(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateCollegeDto, @Req() req) {
+    return this.service.update(id, dto, req.user.orgId);
   }
 
   @Delete(':id')
-  @Roles(UserRole.SUPER_ADMIN)
-  delete(@Param('id') id: string) {
-    return this.service.deleteCollege(id);
-  }
+delete(@Param('id') id: string, @Req() req) {
+  return this.service.delete(id, req.user.orgId);
+}
 }

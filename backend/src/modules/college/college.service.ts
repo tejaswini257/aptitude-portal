@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
 import { UpdateCollegeDto } from './dto/update-college.dto';
@@ -21,14 +21,37 @@ export class CollegesService {
     });
   }
 
-  async updateCollege(id: string, dto: UpdateCollegeDto) {
-    return this.prisma.college.update({
-      where: { id },
-      data: dto,
-    });
+  async update(id: string, dto: UpdateCollegeDto, orgId: string) {
+  const college = await this.prisma.college.findUnique({
+    where: { id },
+  });
+
+  if (!college) throw new NotFoundException('College not found');
+
+  if (college.orgId !== orgId) {
+    throw new ForbiddenException('Access denied');
   }
 
-  deleteCollege(id: string) {
-    return this.prisma.college.delete({ where: { id } });
+  return this.prisma.college.update({
+    where: { id },
+    data: dto,
+  });
+}
+
+
+ async delete(id: string, orgId: string) {
+  const college = await this.prisma.college.findUnique({
+    where: { id },
+  });
+
+  if (!college) throw new NotFoundException('College not found');
+
+  if (college.orgId !== orgId) {
+    throw new ForbiddenException('Access denied');
   }
+
+  return this.prisma.college.delete({
+    where: { id },
+  });
+}
 }
