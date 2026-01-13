@@ -1,20 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { OrganizationController } from './modules/organization/organization.controller';
 import { DepartmentModule } from './modules/department/department.module';
 import { OrganizationModule } from './modules/organization/organization.module';
 import { CollegeModule } from './modules/college/college.module';
+import { StudentsModule } from './modules/students/students.module';
+
+// 👇 ADD THIS
+import { OrganizationController } from './modules/organization/organization.controller';
 
 @Module({
   imports: [
     PrismaModule,
     AuthModule,
     DepartmentModule,
-    OrganizationModule,  
+    OrganizationModule,
     CollegeModule,
+    StudentsModule,
   ],
+
+  // 👇 TEMPORARY TEST
+  controllers: [OrganizationController],
 })
 export class AppModule {}

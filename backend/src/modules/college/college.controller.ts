@@ -1,4 +1,4 @@
-import { Controller, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { CollegeService } from './college.service';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,10 +11,9 @@ export class CollegeController {
   constructor(private readonly collegeService: CollegeService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.SUPER_ADMIN)
-@Patch(':id/approve')
-approveCollege(@Param('id') id: string) {
-  return this.collegeService.approveCollege(id);
-}
-
+  @Roles(UserRole.SUPER_ADMIN)
+  @Post()
+  create(@Body() dto: any) {
+    return this.collegeService.create(dto);
+  }
 }

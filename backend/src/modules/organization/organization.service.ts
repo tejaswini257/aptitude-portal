@@ -6,18 +6,17 @@ import { Injectable } from '@nestjs/common'
 export class OrganizationService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateOrganizationDto) {
-    return this.prisma.organization.create({
-      data: {
-        name: data.name,
-        type: data.type,   // ✅ now typed as OrgType
-      },
-    });
-  }
+  async create(dto: CreateOrganizationDto) {
+  return this.prisma.organization.create({
+    data: dto,
+  });
+}
 
   findAll() {
     return this.prisma.organization.findMany();
   }
+  
+
 }
 
 
