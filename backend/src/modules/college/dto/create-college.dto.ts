@@ -3,11 +3,15 @@ import {
   IsEnum,
   IsInt,
   IsString,
+  IsUUID,
   Min,
 } from 'class-validator';
 import { CollegeType } from '@prisma/client';
 
 export class CreateCollegeDto {
+  @IsUUID()
+  orgId: string;
+
   @IsString()
   collegeName: string;
 

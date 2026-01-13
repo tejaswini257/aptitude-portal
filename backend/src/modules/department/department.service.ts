@@ -1,12 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
 
 @Injectable()
 export class DepartmentService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateDepartmentDto) {
+  async create(dto: CreateDepartmentDto) {
+    const college = await this.prisma.college.findUnique({
+      where: { id: dto.collegeId },
+    });
+
+    if (!college) {
+      throw new NotFoundException('College not found');
+    }
+
     return this.prisma.department.create({
       data: {
         name: dto.name,
@@ -21,14 +34,14 @@ export class DepartmentService {
     });
   }
 
-  update(id: string, name: string) {
+  async update(id: string, dto: UpdateDepartmentDto) {
     return this.prisma.department.update({
       where: { id },
-      data: { name },
+      data: dto,
     });
   }
 
-  delete(id: string) {
+  async delete(id: string) {
     return this.prisma.department.delete({
       where: { id },
     });

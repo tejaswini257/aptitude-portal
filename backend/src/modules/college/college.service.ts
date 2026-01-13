@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
 import { UpdateCollegeDto } from './dto/update-college.dto';
@@ -8,24 +12,58 @@ export class CollegesService {
   constructor(private prisma: PrismaService) {}
 
   // ✅ CREATE COLLEGE
-  async create(dto: any) {
+  async create(dto: CreateCollegeDto) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: dto.orgId },
+    });
+
+    if (!org) {
+      throw new NotFoundException('Organization not found');
+    }
+
     return this.prisma.college.create({
-      data: dto,
+      data: {
+        ...dto,
+        isApproved: false,
+      },
     });
   }
 
   // ✅ GET ALL COLLEGES
   findAll() {
-    return this.prisma.college.findMany();
+    return this.prisma.college.findMany({
+      include: {
+        organization: true,
+      },
+    });
+  }
+
+  // ✅ GET COLLEGE BY ID
+  async findOne(id: string) {
+    const college = await this.prisma.college.findUnique({
+      where: { id },
+    });
+
+    if (!college) {
+      throw new NotFoundException('College not found');
+    }
+
+    return college;
+  }
+
+  // ✅ UPDATE COLLEGE
+  update(id: string, dto: UpdateCollegeDto) {
+    return this.prisma.college.update({
+      where: { id },
+      data: dto,
+    });
   }
 
   // ✅ APPROVE COLLEGE
-  async approveCollege(id: string) {
+  approveCollege(id: string) {
     return this.prisma.college.update({
       where: { id },
-      data: {
-        isApproved: true,
-      },
+      data: { isApproved: true },
     });
   }
 }

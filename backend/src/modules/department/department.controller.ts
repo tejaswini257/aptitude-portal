@@ -9,39 +9,41 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-
 import { DepartmentService } from './department.service';
-
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { JwtGuard } from '../../common/guards/jwt.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 
-// TEMPORARY: If DTO file exists, import it properly
-import { CreateDepartmentDto } from './dto/create-department.dto';
-
-
-
 @Controller('departments')
+@UseGuards(JwtGuard, RolesGuard)
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
-  @UseGuards(JwtAuthGuard, RolesGuard)
+
+  // ✅ CREATE DEPARTMENT
   @Roles(UserRole.COLLEGE_ADMIN)
   @Post()
-  create(@Body() dto: any) {
+  create(@Body() dto: CreateDepartmentDto) {
     return this.departmentService.create(dto);
   }
 
+  // ✅ GET DEPARTMENTS BY COLLEGE
   @Get()
   find(@Query('collegeId') collegeId: string) {
     return this.departmentService.findByCollege(collegeId);
   }
 
+  // ✅ UPDATE DEPARTMENT
+  @Roles(UserRole.COLLEGE_ADMIN)
   @Put(':id')
-  update(@Param('id') id: string, @Body('name') name: string) {
-    return this.departmentService.update(id, name);
+  update(@Param('id') id: string, @Body() dto: UpdateDepartmentDto) {
+    return this.departmentService.update(id, dto);
   }
 
+  // ✅ DELETE DEPARTMENT
+  @Roles(UserRole.COLLEGE_ADMIN)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.departmentService.delete(id);

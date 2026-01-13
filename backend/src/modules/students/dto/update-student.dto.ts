@@ -1,11 +1,8 @@
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class UpdateStudentDto {
   @IsOptional()
-  @IsString()
-  rollNo?: string;
-
-  @IsOptional()
   @IsInt()
+  @Min(1)
   year?: number;
 }

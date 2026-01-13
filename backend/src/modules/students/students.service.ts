@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from '@prisma/client';
 
@@ -9,52 +14,99 @@ export class StudentsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateStudentDto) {
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    // 🔹 Validate College
+    const college = await this.prisma.college.findUnique({
+      where: { id: dto.collegeId },
+      select: { orgId: true },
+    });
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        password: hashedPassword,
-        role: UserRole.STUDENT,
-        orgId: null,
+    if (!college) {
+      throw new NotFoundException('College not found');
+    }
+
+    // 🔹 Validate Department
+    const department = await this.prisma.department.findUnique({
+      where: { id: dto.departmentId },
+    });
+
+    if (!department) {
+      throw new NotFoundException('Department not found');
+    }
+
+    // 🔹 Prevent duplicate student
+    const existingStudent = await this.prisma.student.findFirst({
+      where: {
+        rollNo: dto.rollNo,
+        collegeId: dto.collegeId,
       },
     });
 
+    if (existingStudent) {
+      throw new BadRequestException('Student already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // 🔹 Create User + Student together
     return this.prisma.student.create({
       data: {
         rollNo: dto.rollNo,
         year: dto.year,
         collegeId: dto.collegeId,
         departmentId: dto.departmentId,
-        userId: user.id,
+
+        user: {
+          create: {
+            email: dto.email,
+            password: hashedPassword,
+            role: UserRole.STUDENT,
+            orgId: college.orgId,
+          },
+        },
       },
       include: {
         user: true,
+        college: true,
+        department: true,
       },
     });
   }
 
-  async findAll() {
+  findAll() {
     return this.prisma.student.findMany({
-      include: { user: true },
+      include: {
+        user: true,
+        college: true,
+        department: true,
+      },
     });
   }
 
   async findOne(id: string) {
-    return this.prisma.student.findUnique({
+    const student = await this.prisma.student.findUnique({
       where: { id },
-      include: { user: true },
+      include: {
+        user: true,
+        college: true,
+        department: true,
+      },
     });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    return student;
   }
 
-  async update(id: string, data: Partial<CreateStudentDto>) {
+  update(id: string, dto: UpdateStudentDto) {
     return this.prisma.student.update({
       where: { id },
-      data,
+      data: dto,
     });
   }
 
-  async delete(id: string) {
+  delete(id: string) {
     return this.prisma.student.delete({
       where: { id },
     });

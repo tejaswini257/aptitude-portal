@@ -1,40 +1,28 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateOrganizationDto } from './dto/update-organization.dto';
-
+import { Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class OrganizationService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateOrganizationDto) {
-  return this.prisma.organization.create({
-    data: dto,
-  });
-}
+    const existing = await this.prisma.organization.findFirst({
+      where: {
+        name: dto.name,
+      },
+    });
 
-   async update(id: string, dto: UpdateOrganizationDto) {
-    await this.findById(id);
+    if (existing) {
+      throw new BadRequestException('Organization already exists');
+    }
 
-    return this.prisma.organization.update({
-      where: { id },
+    return this.prisma.organization.create({
       data: dto,
     });
   }
 
-  async delete(id: string) {
-    await this.findById(id);
-
-    return this.prisma.organization.delete({
-      where: { id },
-    });
+  findAll() {
+    return this.prisma.organization.findMany();
   }
-  
-
 }
-
-  
-
-
-
