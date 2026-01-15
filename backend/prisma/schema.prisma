@@ -14,6 +14,7 @@ model Organization {
   createdAt DateTime  @default(now())
   college   College[]
   users     User[]
+  tests     Test[]
 }
 
 model User {
@@ -26,11 +27,12 @@ model User {
   createdAt    DateTime      @default(now())
   students     Student?
   organization Organization? @relation(fields: [orgId], references: [id])
+  tests        Test[]
 }
 
 model College {
   id            String       @id @default(uuid())
-  orgId         String
+  orgId         String       @unique
   collegeName   String
   collegeType   CollegeType
   address       String
@@ -76,6 +78,45 @@ model Student {
   @@index([departmentId])
 }
 
+model Test {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  type        TestType
+  duration    Int // in minutes
+  status      TestStatus @default(DRAFT)
+
+  // Flags
+  showResultImmediately Boolean @default(false)
+  proctoringEnabled     Boolean @default(false)
+
+  // JSON configs (flexible)
+  eligibilityCriteria Json?
+  proctoringConfig    Json?
+
+  // Relations
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  sections TestSection[]
+
+  createdAt DateTime @default(now())
+}
+
+model TestSection {
+  id        String @id @default(uuid())
+  name      String
+  timeLimit Int // minutes
+
+  testId String
+  test   Test   @relation(fields: [testId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
 enum OrgType {
   COLLEGE
   COMPANY
@@ -93,4 +134,16 @@ enum CollegeType {
   DEGREE
   POLYTECHNIC
   OTHER
+}
+
+enum TestType {
+  APTITUDE
+  CODING
+  MIXED
+}
+
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
