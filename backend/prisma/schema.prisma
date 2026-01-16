@@ -27,7 +27,7 @@ model User {
   createdAt    DateTime      @default(now())
   students     Student?
   organization Organization? @relation(fields: [orgId], references: [id])
-  tests        Test[]
+  testsCreated Test[]
 }
 
 model College {
@@ -102,6 +102,7 @@ model Test {
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
   sections TestSection[]
+  questions Question[]
 
   createdAt DateTime @default(now())
 }
@@ -113,8 +114,41 @@ model TestSection {
 
   testId String
   test   Test   @relation(fields: [testId], references: [id])
-
+  questions Question[]
   createdAt DateTime @default(now())
+}
+
+model Question {
+  id            String   @id @default(uuid())
+
+  testId        String
+  sectionId     String?
+
+  type           QuestionType
+  difficulty     DifficultyLevel
+
+  title          String
+  description    String?
+
+  options         Json?     // MCQ options
+  correctAnswer   Json?     // MCQ / Aptitude answers
+  evaluationConfig Json?    // Coding test cases, constraints
+
+  marks           Int
+  timeLimitSec    Int?
+
+  order           Int
+
+  explanation     String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  test        Test        @relation(fields: [testId], references: [id])
+  section     TestSection? @relation(fields: [sectionId], references: [id])
+
+  @@index([testId])
+  @@index([sectionId])
 }
 
 enum OrgType {
@@ -146,4 +180,16 @@ enum TestStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+enum QuestionType {
+  MCQ
+  CODING
+  APTITUDE
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
 }
