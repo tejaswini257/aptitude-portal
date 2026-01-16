@@ -1,28 +1,33 @@
-import { IsBoolean, IsEnum, IsNumber, IsString } from 'class-validator';
-
-export enum TestType {
-  APTITUDE = 'APTITUDE',
-  CODING = 'CODING',
-  MIXED = 'MIXED',
-}
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { TestType } from '@prisma/client';
 
 export class CreateTestDto {
   @IsString()
   name: string;
 
+  @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 
   @IsEnum(TestType)
   type: TestType;
 
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   duration: number;
 
+  @IsOptional()
   @IsBoolean()
-  showResultImmediately: boolean;
+  showResultImmediately?: boolean = false;
 
+  @IsOptional()
   @IsBoolean()
-  proctoringEnabled: boolean;
+  proctoringEnabled?: boolean = false;
 }
-

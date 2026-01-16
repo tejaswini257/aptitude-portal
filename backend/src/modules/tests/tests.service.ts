@@ -8,32 +8,39 @@ import { TestStatus } from '@prisma/client';
 export class TestsService {
   constructor(private prisma: PrismaService) {}
 
+  // ✅ CREATE
   async create(dto: CreateTestDto, userId: string) {
-  return this.prisma.test.create({
-    data: {
-      name: dto.name,
-      description: dto.description,
-      type: dto.type,
-      duration: dto.duration,
-      showResultImmediately: dto.showResultImmediately,
-      proctoringEnabled: dto.proctoringEnabled,
-      status: 'DRAFT',
-
-      // ✅ FIX — pass creator properly
-      createdById: userId,
-    },
-  });
-}
-
-
-  async findAll() {
-    return this.prisma.test.findMany({
-      orderBy: { createdAt: 'desc' },
+    return this.prisma.test.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        type: dto.type,
+        duration: dto.duration,
+        showResultImmediately: dto.showResultImmediately,
+        proctoringEnabled: dto.proctoringEnabled,
+        status: TestStatus.DRAFT,
+        createdById: userId,
+      },
     });
   }
 
+  // ✅ READ ALL
+  async findAll() {
+    return this.prisma.test.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        createdBy: {
+          select: { id: true, email: true, role: true },
+        },
+      },
+    });
+  }
+
+  // ✅ READ ONE
   async findOne(id: string) {
-    const test = await this.prisma.test.findUnique({ where: { id } });
+    const test = await this.prisma.test.findUnique({
+      where: { id },
+    });
 
     if (!test) {
       throw new NotFoundException('Test not found');
@@ -42,6 +49,7 @@ export class TestsService {
     return test;
   }
 
+  // ✅ UPDATE
   async update(id: string, dto: UpdateTestDto) {
     return this.prisma.test.update({
       where: { id },
@@ -49,6 +57,7 @@ export class TestsService {
     });
   }
 
+  // ✅ DELETE
   async remove(id: string) {
     return this.prisma.test.delete({
       where: { id },
