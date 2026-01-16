@@ -1,20 +1,19 @@
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
-
-export enum QuestionType {
-  MCQ = 'MCQ',
-  CODING = 'CODING',
-  APTITUDE = 'APTITUDE',
-}
-
-export enum DifficultyLevel {
-  EASY = 'EASY',
-  MEDIUM = 'MEDIUM',
-  HARD = 'HARD',
-}
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { DifficultyLevel, QuestionType } from '@prisma/client';
 
 export class CreateQuestionDto {
   @IsString()
   testId: string;
+
+  @IsOptional()
+  @IsString()
+  sectionId?: string;
 
   @IsEnum(QuestionType)
   type: QuestionType;
@@ -26,6 +25,7 @@ export class CreateQuestionDto {
   title: string;
 
   @IsOptional()
+  @IsString()
   description?: string;
 
   @IsOptional()
@@ -34,13 +34,22 @@ export class CreateQuestionDto {
   @IsOptional()
   correctAnswer?: any;
 
+  @IsOptional()
+  evaluationConfig?: any;
+
   @IsInt()
+  @Min(1)
   marks: number;
 
   @IsOptional()
-  negativeMarks?: number;
+  @IsInt()
+  timeLimitSec?: number;
 
   @IsInt()
   @Min(1)
   order: number;
+
+  @IsOptional()
+  @IsString()
+  explanation?: string;
 }
