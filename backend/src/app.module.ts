@@ -7,9 +7,11 @@ import { DepartmentModule } from './modules/department/department.module';
 import { OrganizationModule } from './modules/organization/organization.module';
 import { CollegesModule } from './modules/college/college.module';
 import { StudentsModule } from './modules/students/students.module';
+import { TestsModule } from './modules/tests/tests.module';
 
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
+import { QuestionsModule } from './modules/questions/questions.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { OrganizationController } from './modules/organization/organization.cont
     OrganizationModule,
     CollegesModule,
     StudentsModule,
+    TestsModule,
+    QuestionsModule,
   ],
 
   // 👇 TEMPORARY TEST
