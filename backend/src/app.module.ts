@@ -10,6 +10,7 @@ import { StudentsModule } from './modules/students/students.module';
 
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
+import { TestsModule } from './modules/tests/tests.module';
 
 @Module({
   imports: [
@@ -19,8 +20,8 @@ import { OrganizationController } from './modules/organization/organization.cont
     OrganizationModule,
     CollegesModule,
     StudentsModule,
+    TestsModule,
   ],
-
   // 👇 TEMPORARY TEST
   controllers: [OrganizationController],
 })

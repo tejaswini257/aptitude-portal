@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
         email: dto.email,
         password,
         role: dto.role,
-        orgId: dto.orgId,
+        orgId: dto.role === UserRole.SUPER_ADMIN ? null : dto.orgId,
       },
     });
 
