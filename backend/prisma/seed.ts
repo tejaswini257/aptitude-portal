@@ -1,9 +1,10 @@
-import { PrismaClient, UserRole, OrgType, CollegeType } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { PrismaClient, UserRole, OrgType, CollegeType } from '@prisma/client'
+import * as bcrypt from 'bcrypt'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
+<<<<<<< HEAD
   console.log('🌱 Seeding database...');
 
   // 🏢 Organization
@@ -12,15 +13,28 @@ async function main() {
     update: {},
     create: {
       name: 'Pallotti College',
+=======
+
+  // ORGANIZATION
+  const organization = await prisma.organization.create({
+    data: {
+      name: "Pallotti College",
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
       type: OrgType.COLLEGE,
     },
-  });
+  })
 
+<<<<<<< HEAD
   // 🏫 College
   const college = await prisma.college.upsert({
     where: { orgId: organization.id },
     update: {},
     create: {
+=======
+  // COLLEGE
+  const college = await prisma.college.create({
+    data: {
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
       orgId: organization.id,
       collegeName: 'St. Vincent Pallotti College of Engineering',
       collegeType: CollegeType.ENGINEERING,
@@ -31,8 +45,9 @@ async function main() {
       maxStudents: 500,
       isApproved: true,
     },
-  });
+  })
 
+<<<<<<< HEAD
   // 🏬 Department
   const department = await prisma.department.upsert({
     where: {
@@ -43,25 +58,34 @@ async function main() {
     },
     update: {},
     create: {
+=======
+  // DEPARTMENT
+  const department = await prisma.department.create({
+    data: {
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
       name: 'Computer Science',
       collegeId: college.id,
     },
-  });
+  })
 
+<<<<<<< HEAD
   // 🔑 SUPER ADMIN
   const adminPassword = await bcrypt.hash('Admin@123', 10);
+=======
+  // SUPER ADMIN USER
+  const adminPassword = await bcrypt.hash('Admin@123', 10)
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
 
-  const superAdmin = await prisma.user.upsert({
-    where: { email: 'admin@pallotti.edu' },
-    update: {},
-    create: {
+  const superAdmin = await prisma.user.create({
+    data: {
       email: 'admin@pallotti.edu',
       password: adminPassword,
       role: UserRole.SUPER_ADMIN,
       orgId: organization.id,
     },
-  });
+  })
 
+<<<<<<< HEAD
   // 🧑‍💼 COLLEGE ADMIN (IMPORTANT FOR TESTS)
   const collegeAdminPassword = await bcrypt.hash('College@123', 10);
 
@@ -78,31 +102,40 @@ async function main() {
 
   // 🎓 STUDENT USER
   const studentPassword = await bcrypt.hash('Student@123', 10);
+=======
+  // STUDENT USER
+  const studentPassword = await bcrypt.hash('Student@123', 10)
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
 
-  const studentUser = await prisma.user.upsert({
-    where: { email: 'student1@test.com' },
-    update: {},
-    create: {
+  const studentUser = await prisma.user.create({
+    data: {
       email: 'student1@test.com',
       password: studentPassword,
       role: UserRole.STUDENT,
       orgId: organization.id,
     },
-  });
+  })
 
+<<<<<<< HEAD
   // 🎓 STUDENT PROFILE
   const student = await prisma.student.upsert({
     where: { userId: studentUser.id },
     update: {},
     create: {
+=======
+  // STUDENT PROFILE
+  const student = await prisma.student.create({
+    data: {
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
       rollNo: 'CS001',
       year: 2,
       userId: studentUser.id,
       collegeId: college.id,
       departmentId: department.id,
     },
-  });
+  })
 
+<<<<<<< HEAD
   console.log('✅ Seed completed successfully');
   console.log({
     organization,
@@ -123,3 +156,11 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+=======
+  console.log('✅ Seed completed successfully')
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect())
+>>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
