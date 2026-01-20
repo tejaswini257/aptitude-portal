@@ -1,0 +1,22 @@
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui;
+}
+
+.page {
+  padding: 1.25rem;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}

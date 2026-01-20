@@ -1,0 +1,79 @@
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.btn {
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--college);
+  color: black;
+}
+
+.department-card {
+  max-width: 320px;
+  width: 100%;
+}
+.input {
+  background: #020617;
+  border: 1px solid var(--border);
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  width: 100%;
+  color: white;
+}
+.department-card:hover {
+  transform: translateY(-2px);
+}
+.department-card .label {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+@media (max-width: 640px) {
+  .department-card {
+    margin-bottom: 1rem;
+  }
+}
+.input {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.badge-green {
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.badge-yellow {
+  background: #fef3c7;
+  color: #2b1202;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.badge-red {
+  background: #fee2e2;
+  color: #722e2e;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
