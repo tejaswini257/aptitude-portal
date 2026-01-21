@@ -12,22 +12,37 @@ export class CollegesService {
   constructor(private prisma: PrismaService) {}
 
   // ✅ CREATE COLLEGE
-  async create(dto: CreateCollegeDto) {
-    const org = await this.prisma.organization.findUnique({
-      where: { id: dto.orgId },
-    });
+async create(dto: CreateCollegeDto) {
+  const org = await this.prisma.organization.findUnique({
+    where: { id: dto.orgId },
+  });
 
-    if (!org) {
-      throw new NotFoundException('Organization not found');
-    }
-
-    return this.prisma.college.create({
-      data: {
-        ...dto,
-        isApproved: false,
-      },
-    });
+  if (!org) {
+    throw new NotFoundException('Organization not found');
   }
+
+  return this.prisma.college.create({
+    data: {
+      // scalar fields
+      orgId: dto.orgId,
+      collegeName: dto.collegeName,
+      collegeType: dto.collegeType,
+      address: dto.address,
+      contactPerson: dto.contactPerson,
+      contactEmail: dto.contactEmail,
+      mobile: dto.mobile,
+      maxStudents: dto.maxStudents,
+      isApproved: false,
+
+      // ✅ REQUIRED RELATION
+      organization: {
+        connect: {
+          id: dto.orgId,
+        },
+      },
+    },
+  });
+}
 
   // ✅ GET ALL COLLEGES
   findAll() {

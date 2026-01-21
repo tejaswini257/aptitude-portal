@@ -5,55 +5,62 @@ const prisma = new PrismaClient()
 
 async function main() {
 
-  // ORGANIZATION
+  // 1️⃣ ORGANIZATION
   const organization = await prisma.organization.create({
     data: {
-      name: "Pallotti College",
+      name: 'Pallotti College',
       type: OrgType.COLLEGE,
     },
   })
 
-<<<<<<< HEAD
-  // 🏫 College
-  const college = await prisma.college.upsert({
-    where: { orgId: organization.id },
-    update: {},
-    create: {
-=======
-  // COLLEGE
-  const college = await prisma.college.create({
-    data: {
->>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
-      maxStudents: 500,
-      isApproved: true,
-    },
+// 2️⃣ COLLEGE (FINAL CORRECT VERSION)
+const college = await prisma.college.create({
+  data: {
+    // ✅ REQUIRED SCALAR
+    orgId: organization.id,
 
-<<<<<<< HEAD
-  // 🏬 Department
-  const department = await prisma.department.upsert({
-    where: {
-      name_collegeId: {
-        name: 'Computer Science',
-        collegeId: college.id,
+    // ✅ REQUIRED RELATION
+    organization: {
+      connect: {
+        id: organization.id,
       },
     },
-    update: {},
-    create: {
-=======
-  // DEPARTMENT
+
+    collegeName: 'St. Vincent Pallotti College of Engineering',
+    collegeType: CollegeType.ENGINEERING,
+    address: 'Nagpur, Maharashtra',
+    contactPerson: 'Dr. John Doe',
+    contactEmail: 'contact@pallotti.edu',
+    mobile: '9876543210',
+    maxStudents: 500,
+    isApproved: true,
+  },
+})
+
+
+
+
+  // 3️⃣ DEPARTMENT
   const department = await prisma.department.create({
     data: {
->>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
       name: 'Computer Science',
       collegeId: college.id,
     },
+  })
+
+  // 4️⃣ SUPER ADMIN USER
+  const adminPassword = await bcrypt.hash('Admin@123', 10)
+
+  const superAdmin = await prisma.user.create({
+    data: {
       email: 'admin@pallotti.edu',
       password: adminPassword,
       role: UserRole.SUPER_ADMIN,
+      orgId: organization.id,
     },
   })
 
-  // STUDENT USER
+  // 5️⃣ STUDENT USER
   const studentPassword = await bcrypt.hash('Student@123', 10)
 
   const studentUser = await prisma.user.create({
@@ -65,32 +72,21 @@ async function main() {
     },
   })
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  console.log('✅ Seed completed successfully');
+  console.log('✅ Seed completed successfully')
+  console.log({
     organization,
     college,
     department,
     superAdmin,
-    collegeAdmin,
     studentUser,
-    student,
-  });
+  })
 }
 
 main()
   .catch((err) => {
-    console.error('❌ Seed failed', err);
-    process.exit(1);
+    console.error('❌ Seed failed', err)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
-=======
-  console.log('✅ Seed completed successfully')
-}
-
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
->>>>>>> 5231ac343f14862984660c9ee374256fe9ee8a30
+    await prisma.$disconnect()
+  })

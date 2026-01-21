@@ -42,7 +42,8 @@ model College {
   maxStudents   Int
   isApproved    Boolean      @default(false)
   createdAt     DateTime     @default(now())
-  organization  Organization @relation(fields: [orgId], references: [id])
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
   departments   Department[]
   students      Student[]
 
