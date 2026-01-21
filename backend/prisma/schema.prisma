@@ -8,13 +8,13 @@ datasource db {
 }
 
 model Organization {
-  id        String    @id @default(uuid())
-  name      String    @unique
+  id        String   @id @default(uuid())
+  name      String
   type      OrgType
-  createdAt DateTime  @default(now())
-  college   College[]
-  users     User[]
+  createdAt DateTime @default(now())
+  College   College?
   tests     Test[]
+  users     User[]
 }
 
 model User {
@@ -26,8 +26,8 @@ model User {
   branchId     String?
   createdAt    DateTime      @default(now())
   students     Student?
-  organization Organization? @relation(fields: [orgId], references: [id])
   testsCreated Test[]
+  organization Organization? @relation(fields: [orgId], references: [id])
 }
 
 model College {
@@ -42,8 +42,7 @@ model College {
   maxStudents   Int
   isApproved    Boolean      @default(false)
   createdAt     DateTime     @default(now())
-  organizationId String
-  organization   Organization  @relation(fields: [organizationId], references: [id])
+  Organization  Organization @relation(fields: [orgId], references: [id])
   departments   Department[]
   students      Student[]
 
@@ -80,78 +79,58 @@ model Student {
 }
 
 model Test {
-  id          String     @id @default(uuid())
-  name        String
-  description String?
-  type        TestType
-  duration    Int // in minutes
-  status      TestStatus @default(DRAFT)
-
-  // Flags
-  showResultImmediately Boolean @default(false)
-  proctoringEnabled     Boolean @default(false)
-
-  // JSON configs (flexible)
-  eligibilityCriteria Json?
-  proctoringConfig    Json?
-
-  // Relations
-  createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id])
-
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-
-  sections TestSection[]
-  questions Question[]
-
-  createdAt DateTime @default(now())
+  id                    String        @id @default(uuid())
+  name                  String
+  description           String?
+  type                  TestType
+  duration              Int
+  status                TestStatus    @default(DRAFT)
+  showResultImmediately Boolean       @default(false)
+  proctoringEnabled     Boolean       @default(false)
+  eligibilityCriteria   Json?
+  proctoringConfig      Json?
+  createdById           String
+  organizationId        String?
+  createdAt             DateTime      @default(now())
+  questions             Question[]
+  createdBy             User          @relation(fields: [createdById], references: [id])
+  organization          Organization? @relation(fields: [organizationId], references: [id])
+  sections              TestSection[]
 }
 
 model TestSection {
-  id        String @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  timeLimit Int // minutes
-
-  testId String
-  test   Test   @relation(fields: [testId], references: [id])
+  timeLimit Int
+  testId    String
+  createdAt DateTime   @default(now())
   questions Question[]
-  createdAt DateTime @default(now())
+  test      Test       @relation(fields: [testId], references: [id])
 }
 
 model Question {
-  id            String   @id @default(uuid())
-
-  testId        String
-  sectionId     String?
-
-  type           QuestionType
-  difficulty     DifficultyLevel
-
-  title          String
-  description    String?
-
-  options         Json?     // MCQ options
-  correctAnswer   Json?     // MCQ / Aptitude answers
-  evaluationConfig Json?    // Coding test cases, constraints
-
-  marks           Int
-  timeLimitSec    Int?
-
-  order           Int
-
-  explanation     String?
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  test        Test        @relation(fields: [testId], references: [id])
-  section     TestSection? @relation(fields: [sectionId], references: [id])
+  id               String          @id @default(uuid())
+  testId           String
+  sectionId        String?
+  type             QuestionType
+  difficulty       DifficultyLevel
+  title            String
+  description      String?
+  options          Json?
+  correctAnswer    Json?
+  evaluationConfig Json?
+  marks            Int
+  timeLimitSec     Int?
+  order            Int
+  explanation      String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  section          TestSection?    @relation(fields: [sectionId], references: [id])
+  test             Test            @relation(fields: [testId], references: [id])
 
   @@index([testId])
   @@index([sectionId])
 }
-
 
 enum OrgType {
   COLLEGE

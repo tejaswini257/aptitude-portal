@@ -1,0 +1,26 @@
+.form {
+  max-width: 420px;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form h2 {
+  text-align: center;
+}
+
+.form input,
+.form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.form button {
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
