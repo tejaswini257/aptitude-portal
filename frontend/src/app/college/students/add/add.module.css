@@ -1,0 +1,15 @@
+.form {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .form {
+    padding: 12px;
+  }
+}
