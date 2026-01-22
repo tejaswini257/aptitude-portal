@@ -6,86 +6,142 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 🏢 Organization
+  // -----------------------------
+  // CLEANUP (optional for dev)
+  // -----------------------------
+await prisma.submissionAnswer.deleteMany();
+await prisma.submission.deleteMany();
+await prisma.question.deleteMany();       // ✅ NEW
+await prisma.testSection.deleteMany();    // ✅ NEW
+await prisma.test.deleteMany();
+await prisma.student.deleteMany();
+await prisma.department.deleteMany();
+await prisma.college.deleteMany();
+await prisma.user.deleteMany();
+await prisma.organization.deleteMany();
+
+  // -----------------------------
+  // ORGANIZATION
+  // -----------------------------
   const organization = await prisma.organization.create({
     data: {
-      name: 'Pallotti College',
+      name: 'Demo College Organization',
       type: OrgType.COLLEGE,
     },
   });
 
-  // 🏫 College
-  const college = await prisma.college.create({
-    data: {
-      orgId: organization.id,
-      collegeName: 'St. Vincent Pallotti College of Engineering',
-      collegeType: CollegeType.ENGINEERING,
-      address: 'Nagpur',
-      contactPerson: 'Admin',
-      contactEmail: 'admin@pallotti.edu',
-      mobile: '9999999999',
-      maxStudents: 500,
-      isApproved: true,
-    },
-  });
+  console.log('✅ Organization created:', organization.id);
 
-  // 🏬 Department
-  const department = await prisma.department.create({
-    data: {
-      name: 'Computer Science',
-      collegeId: college.id,
-    },
-  });
-
-  // 🔑 SUPER ADMIN
+  // -----------------------------
+  // ADMIN USER
+  // -----------------------------
   const adminPassword = await bcrypt.hash('Admin@123', 10);
 
-  const superAdmin = await prisma.user.create({
+  const adminUser = await prisma.user.create({
     data: {
-      email: 'admin@pallotti.edu',
+      email: 'admin@demo.com',
       password: adminPassword,
       role: UserRole.SUPER_ADMIN,
       orgId: organization.id,
     },
   });
 
-  // 🎓 STUDENT USER
+  console.log('✅ Admin user created:', adminUser.email);
+
+  // -----------------------------
+  // COLLEGE
+  // -----------------------------
+  const college = await prisma.college.create({
+    data: {
+      orgId: organization.id,
+      collegeName: 'Demo Engineering College',
+      collegeType: CollegeType.ENGINEERING,
+      address: 'Nagpur, Maharashtra',
+      contactPerson: 'Principal Demo',
+      contactEmail: 'principal@demo.com',
+      mobile: '9999999999',
+      maxStudents: 500,
+      isApproved: true,
+    },
+  });
+
+  console.log('✅ College created:', college.collegeName);
+
+  // -----------------------------
+  // DEPARTMENTS
+  // -----------------------------
+  const cseDept = await prisma.department.create({
+    data: {
+      name: 'Computer Science',
+      collegeId: college.id,
+    },
+  });
+
+  const mechDept = await prisma.department.create({
+    data: {
+      name: 'Mechanical',
+      collegeId: college.id,
+    },
+  });
+
+  console.log('✅ Departments created');
+
+  // -----------------------------
+  // STUDENT USERS
+  // -----------------------------
   const studentPassword = await bcrypt.hash('Student@123', 10);
 
-  const studentUser = await prisma.user.create({
+  const studentUser1 = await prisma.user.create({
     data: {
-      email: 'student1@test.com',
+      email: 'student1@demo.com',
       password: studentPassword,
       role: UserRole.STUDENT,
       orgId: organization.id,
     },
   });
 
-  // 🎓 STUDENT PROFILE
-  const student = await prisma.student.create({
+  const studentUser2 = await prisma.user.create({
     data: {
-      rollNo: 'CS001',
-      year: 2,
-      userId: studentUser.id,
-      collegeId: college.id,
-      departmentId: department.id,
+      email: 'student2@demo.com',
+      password: studentPassword,
+      role: UserRole.STUDENT,
+      orgId: organization.id,
     },
   });
 
-  console.log('✅ Seed completed successfully');
-  console.log({
-    organization,
-    college,
-    department,
-    superAdmin,
-    studentUser,
-    student,
+  console.log('✅ Student users created');
+
+  // -----------------------------
+  // STUDENT PROFILES
+  // -----------------------------
+  await prisma.student.create({
+    data: {
+      rollNo: 'CSE101',
+      year: 2,
+      userId: studentUser1.id,
+      collegeId: college.id,
+      departmentId: cseDept.id,
+    },
   });
+
+  await prisma.student.create({
+    data: {
+      rollNo: 'MECH201',
+      year: 3,
+      userId: studentUser2.id,
+      collegeId: college.id,
+      departmentId: mechDept.id,
+    },
+  });
+
+  console.log('✅ Student profiles created');
+
+  console.log('🌱 Seeding completed successfully.');
 }
 
 main()
-  .catch((err) => {
-    console.error('❌ Seed failed', err);
+  .catch((e) => {
+    console.error('❌ Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {
