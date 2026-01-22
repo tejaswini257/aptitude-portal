@@ -45,13 +45,17 @@ async create(dto: CreateCollegeDto) {
 }
 
   // ✅ GET ALL COLLEGES
-  findAll() {
-    return this.prisma.college.findMany({
-      include: {
-        organization: true,
-      },
-    });
+  findAll(user) {
+  if (user.role === 'SUPER_ADMIN') {
+    return this.prisma.college.findMany();   // no filter
   }
+
+  return this.prisma.college.findMany({
+    where: {
+      orgId: user.orgId,
+    },
+  });
+}
 
   // ✅ GET COLLEGE BY ID
   async findOne(id: string) {

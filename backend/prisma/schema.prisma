@@ -62,16 +62,17 @@ model Department {
 }
 
 model Student {
-  id           String     @id @default(uuid())
+  id           String       @id @default(uuid())
   rollNo       String
   year         Int
-  userId       String     @unique
+  userId       String       @unique
   collegeId    String
   departmentId String
-  createdAt    DateTime   @default(now())
-  college      College    @relation(fields: [collegeId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
-  user         User       @relation(fields: [userId], references: [id])
+  createdAt    DateTime     @default(now())
+  college      College      @relation(fields: [collegeId], references: [id])
+  department   Department   @relation(fields: [departmentId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  submissions  Submission[]
 
   @@unique([rollNo, collegeId])
   @@index([collegeId])
@@ -79,57 +80,111 @@ model Student {
 }
 
 model Test {
-  id                    String        @id @default(uuid())
-  name                  String
-  description           String?
-  type                  TestType
-  duration              Int
-  status                TestStatus    @default(DRAFT)
-  showResultImmediately Boolean       @default(false)
-  proctoringEnabled     Boolean       @default(false)
-  eligibilityCriteria   Json?
-  proctoringConfig      Json?
-  createdById           String
-  organizationId        String?
-  createdAt             DateTime      @default(now())
-  questions             Question[]
-  createdBy             User          @relation(fields: [createdById], references: [id])
-  organization          Organization? @relation(fields: [organizationId], references: [id])
-  sections              TestSection[]
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  type        TestType
+  duration    Int // in minutes
+  status      TestStatus @default(DRAFT)
+
+  // Flags
+  showResultImmediately Boolean @default(false)
+  proctoringEnabled     Boolean @default(false)
+
+  // JSON configs (flexible)
+  eligibilityCriteria Json?
+  proctoringConfig    Json?
+
+  // Relations
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  sections    TestSection[]
+  questions   Question[]
+  submissions Submission[]
+
+  createdAt DateTime @default(now())
 }
 
 model TestSection {
   id        String     @id @default(uuid())
   name      String
-  timeLimit Int
+  timeLimit Int // minutes
+
   testId    String
-  createdAt DateTime   @default(now())
-  questions Question[]
   test      Test       @relation(fields: [testId], references: [id])
+  questions Question[]
+  createdAt DateTime   @default(now())
 }
 
 model Question {
-  id               String          @id @default(uuid())
-  testId           String
-  sectionId        String?
-  type             QuestionType
-  difficulty       DifficultyLevel
-  title            String
-  description      String?
-  options          Json?
-  correctAnswer    Json?
-  evaluationConfig Json?
-  marks            Int
-  timeLimitSec     Int?
-  order            Int
-  explanation      String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  section          TestSection?    @relation(fields: [sectionId], references: [id])
-  test             Test            @relation(fields: [testId], references: [id])
+  id String @id @default(uuid())
+
+  testId    String
+  sectionId String?
+
+  type       QuestionType
+  difficulty DifficultyLevel
+
+  title       String
+  description String?
+
+  options          Json? // MCQ options
+  correctAnswer    Json? // MCQ / Aptitude answers
+  evaluationConfig Json? // Coding test cases, constraints
+
+  marks        Int
+  timeLimitSec Int?
+
+  order Int
+
+  explanation String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  test              Test               @relation(fields: [testId], references: [id])
+  section           TestSection?       @relation(fields: [sectionId], references: [id])
+  submissionAnswers SubmissionAnswer[]
 
   @@index([testId])
   @@index([sectionId])
+}
+
+model Submission {
+  id          String           @id @default(uuid())
+  studentId   String
+  testId      String
+  status      SubmissionStatus @default(IN_PROGRESS)
+  score       Int              @default(0)
+  startedAt   DateTime         @default(now())
+  submittedAt DateTime?
+  evaluatedAt DateTime?
+
+  student Student            @relation(fields: [studentId], references: [id])
+  test    Test               @relation(fields: [testId], references: [id])
+  answers SubmissionAnswer[]
+
+  @@unique([studentId, testId]) // Prevent multiple attempts (optional)
+  @@index([studentId])
+  @@index([testId])
+}
+
+model SubmissionAnswer {
+  id             String   @id @default(uuid())
+  submissionId   String
+  questionId     String
+  selectedAnswer String?
+  isCorrect      Boolean?
+  marksObtained  Int      @default(0)
+
+  submission Submission @relation(fields: [submissionId], references: [id])
+  question   Question   @relation(fields: [questionId], references: [id])
+
+  @@unique([submissionId, questionId])
 }
 
 enum OrgType {
@@ -173,4 +228,10 @@ enum DifficultyLevel {
   EASY
   MEDIUM
   HARD
+}
+
+enum SubmissionStatus {
+  IN_PROGRESS
+  SUBMITTED
+  EVALUATED
 }
