@@ -7,9 +7,9 @@ type Props = {
 
 export default function StatCard({ label, value }: Props) {
   return (
-    <div className={styles.statCard}>
-      <h3>{value}</h3>
-      <p>{label}</p>
-    </div>
+   <div className={styles.statCard}>
+  <p className={styles.statLabel}>{label}</p>
+  <h3 className={styles.statValue}>{value}</h3>
+</div>
   );
 }
