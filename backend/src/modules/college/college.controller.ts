@@ -1,12 +1,14 @@
 import {
   Controller,
-  Post,
   Get,
+  Post,
   Put,
-  Param,
   Body,
+  Param,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CollegesService } from './college.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
 import { UpdateCollegeDto } from './dto/update-college.dto';
@@ -26,10 +28,10 @@ export class CollegesController {
     return this.service.create(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.service.findAll();
-  }
+
+findAll(@Req() req: any) {
+  return this.service.findAll(req.user);
+}
 
   @Get(':id')
   findOne(@Param('id') id: string) {
