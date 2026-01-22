@@ -22,7 +22,7 @@ export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
   // ✅ Create Student
-  @Roles(UserRole.COLLEGE_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Post()
   create(@Body() dto: CreateStudentDto) {
     return this.studentsService.create(dto);
@@ -41,14 +41,14 @@ export class StudentsController {
   }
 
   // ✅ Update Student
-  @Roles(UserRole.COLLEGE_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
     return this.studentsService.update(id, dto);
   }
 
   // ✅ Delete Student
-  @Roles(UserRole.COLLEGE_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.studentsService.delete(id);

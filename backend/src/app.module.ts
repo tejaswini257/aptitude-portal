@@ -12,6 +12,7 @@ import { TestsModule } from './modules/tests/tests.module';
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
 import { QuestionsModule } from './modules/questions/questions.module';
+import { SubmissionsModule } from './modules/submissions/submissions.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { QuestionsModule } from './modules/questions/questions.module';
     StudentsModule,
     TestsModule,
     QuestionsModule,
+    SubmissionsModule,
   ],
 
   // 👇 TEMPORARY TEST

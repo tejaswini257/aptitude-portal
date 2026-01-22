@@ -23,7 +23,7 @@ export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
 
   // ✅ CREATE DEPARTMENT
-  @Roles(UserRole.COLLEGE_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Post()
   create(@Body() dto: CreateDepartmentDto) {
     return this.departmentService.create(dto);
