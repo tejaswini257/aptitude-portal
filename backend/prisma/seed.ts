@@ -1,142 +1,124 @@
-import { PrismaClient, UserRole, OrgType, CollegeType } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { PrismaClient, UserRole, CollegeType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // -----------------------------
-  // CLEANUP (optional for dev)
-  // -----------------------------
-await prisma.submissionAnswer.deleteMany();
-await prisma.submission.deleteMany();
-await prisma.question.deleteMany();       // ✅ NEW
-await prisma.testSection.deleteMany();    // ✅ NEW
-await prisma.test.deleteMany();
-await prisma.student.deleteMany();
-await prisma.department.deleteMany();
-await prisma.college.deleteMany();
-await prisma.user.deleteMany();
-await prisma.organization.deleteMany();
+  /**
+   * ⚠️ DELETE ORDER (CHILD → PARENT)
+   */
+  await prisma.submissionAnswer.deleteMany();
+  await prisma.submission.deleteMany();
+  await prisma.question.deleteMany();
+  await prisma.testSection.deleteMany();
+  await prisma.test.deleteMany();
+  await prisma.student.deleteMany();
+  await prisma.department.deleteMany();
+  await prisma.college.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.organization.deleteMany();
 
-  // -----------------------------
-  // ORGANIZATION
-  // -----------------------------
-  const organization = await prisma.organization.create({
+  console.log('🧹 Database cleaned');
+
+  /**
+   * 🏢 Organization
+   */
+  const org = await prisma.organization.create({
     data: {
-      name: 'Demo College Organization',
-      type: OrgType.COLLEGE,
+      name: 'Demo Education Org',
+      type: 'COLLEGE',
     },
   });
 
-  console.log('✅ Organization created:', organization.id);
-
-  // -----------------------------
-  // ADMIN USER
-  // -----------------------------
-  const adminPassword = await bcrypt.hash('Admin@123', 10);
-
-  const adminUser = await prisma.user.create({
-    data: {
-      email: 'admin@demo.com',
-      password: adminPassword,
-      role: UserRole.SUPER_ADMIN,
-      orgId: organization.id,
-    },
-  });
-
-  console.log('✅ Admin user created:', adminUser.email);
-
-  // -----------------------------
-  // COLLEGE
-  // -----------------------------
+  /**
+   * 🏫 College
+   */
   const college = await prisma.college.create({
     data: {
-      orgId: organization.id,
+      orgId: org.id,
       collegeName: 'Demo Engineering College',
       collegeType: CollegeType.ENGINEERING,
-      address: 'Nagpur, Maharashtra',
-      contactPerson: 'Principal Demo',
-      contactEmail: 'principal@demo.com',
+      address: 'Nagpur',
+      contactPerson: 'Principal',
+      contactEmail: 'principal@demo.edu',
       mobile: '9999999999',
       maxStudents: 500,
       isApproved: true,
     },
   });
 
-  console.log('✅ College created:', college.collegeName);
-
-  // -----------------------------
-  // DEPARTMENTS
-  // -----------------------------
-  const cseDept = await prisma.department.create({
+  /**
+   * 🏢 Departments
+   */
+  const cse = await prisma.department.create({
     data: {
       name: 'Computer Science',
       collegeId: college.id,
     },
   });
 
-  const mechDept = await prisma.department.create({
+  const it = await prisma.department.create({
     data: {
-      name: 'Mechanical',
+      name: 'Information Technology',
       collegeId: college.id,
     },
   });
 
-  console.log('✅ Departments created');
+  /**
+   * 👤 Admin User
+   */
+  const admin = await prisma.user.create({
+    data: {
+      email: 'admin@demo.com',
+      password: '$2b$10$abcdefghijklmnopqrstuv', // dummy hash
+      role: UserRole.SUPER_ADMIN,
+      orgId: org.id,
+    },
+  });
 
-  // -----------------------------
-  // STUDENT USERS
-  // -----------------------------
-  const studentPassword = await bcrypt.hash('Student@123', 10);
-
+  /**
+   * 🎓 Students
+   */
   const studentUser1 = await prisma.user.create({
     data: {
       email: 'student1@demo.com',
-      password: studentPassword,
+      password: '$2b$10$abcdefghijklmnopqrstuv',
       role: UserRole.STUDENT,
-      orgId: organization.id,
+      orgId: org.id,
     },
   });
 
   const studentUser2 = await prisma.user.create({
     data: {
       email: 'student2@demo.com',
-      password: studentPassword,
+      password: '$2b$10$abcdefghijklmnopqrstuv',
       role: UserRole.STUDENT,
-      orgId: organization.id,
+      orgId: org.id,
     },
   });
 
-  console.log('✅ Student users created');
-
-  // -----------------------------
-  // STUDENT PROFILES
-  // -----------------------------
   await prisma.student.create({
     data: {
       rollNo: 'CSE101',
       year: 2,
       userId: studentUser1.id,
       collegeId: college.id,
-      departmentId: cseDept.id,
+      departmentId: cse.id,
     },
   });
 
   await prisma.student.create({
     data: {
-      rollNo: 'MECH201',
+      rollNo: 'IT201',
       year: 3,
       userId: studentUser2.id,
       collegeId: college.id,
-      departmentId: mechDept.id,
+      departmentId: it.id,
     },
   });
 
-  console.log('✅ Student profiles created');
-
-  console.log('🌱 Seeding completed successfully.');
+  console.log('✅ Seed completed successfully');
 }
 
 main()
