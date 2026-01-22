@@ -3,7 +3,7 @@ import "../styles/tailwind.css"
 import "../styles/global.css"
 import "../styles/theme.css"
 import "../styles/components.css"
-import "../styles/forms.css"
+import "../styles/forms.module.css"
 import "../styles/tables.css"
 
 export const metadata: Metadata = {
