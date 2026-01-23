@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 
 import { useParams } from "next/navigation"
@@ -133,4 +134,48 @@ function Pipeline({ label, value }: { label: string; value: number }) {
       <div className="text-xl font-semibold mt-2">{value}</div>
     </div>
   )
+=======
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function EditDepartmentPage() {
+  const router = useRouter();
+  const [name, setName] = useState("Computer Science");
+
+  return (
+    <div className="p-8 max-w-md">
+      <h1 className="text-2xl font-semibold mb-6">
+        Edit Department
+      </h1>
+
+      <form className="space-y-4">
+        <input
+          type="text"
+          className="input w-full"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="btn btn-secondary w-full"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-primary w-full"
+          >
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+>>>>>>> 0a3f4bc (feat: add department UI screens (list, create, edit))
 }

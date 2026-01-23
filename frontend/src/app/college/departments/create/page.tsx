@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 
 import { useState } from "react"
@@ -86,19 +87,72 @@ export default function CreateDepartmentPage() {
             type="button"
             onClick={() => router.back()}
             className="px-4 py-2 rounded-lg border border-gray-300 dark:border-[#1f2937]"
+=======
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function CreateDepartmentPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [collegeId, setCollegeId] = useState("");
+
+  return (
+    <div className="p-8 max-w-md">
+      <h1 className="text-2xl font-semibold mb-6">
+        Create Department
+      </h1>
+
+      <form className="space-y-4">
+        <input
+          type="text"
+          placeholder="Department name"
+          className="input w-full"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <select
+          className="input w-full"
+          value={collegeId}
+          onChange={(e) => setCollegeId(e.target.value)}
+        >
+          <option value="">Select college</option>
+          <option value="1">ABC Engineering College</option>
+          <option value="2">XYZ Institute of Technology</option>
+        </select>
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="btn btn-secondary w-full"
+>>>>>>> 0a3f4bc (feat: add department UI screens (list, create, edit))
           >
             Cancel
           </button>
 
           <button
+<<<<<<< HEAD
             type="submit"
             disabled={loading}
             className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create Department"}
+=======
+            type="button"
+            className="btn btn-primary w-full"
+          >
+            Create
+>>>>>>> 0a3f4bc (feat: add department UI screens (list, create, edit))
           </button>
         </div>
       </form>
     </div>
+<<<<<<< HEAD
   )
+=======
+  );
+>>>>>>> 0a3f4bc (feat: add department UI screens (list, create, edit))
 }
