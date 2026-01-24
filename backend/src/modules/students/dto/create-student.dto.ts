@@ -1,19 +1,25 @@
-import { IsInt, IsString, Min } from 'class-validator';
+import { IsEmail, IsString, IsInt } from 'class-validator';
 
 export class CreateStudentDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  password: string;
+
   @IsString()
   rollNo: string;
 
   @IsInt()
-  @Min(1)
   year: number;
-
-  @IsString()
-  userId: string;
 
   @IsString()
   collegeId: string;
 
   @IsString()
   departmentId: string;
+
+  @IsString()
+  orgId: string;
 }
+
