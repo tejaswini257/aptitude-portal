@@ -1,54 +1,62 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import api from "@/lib/api"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 type Department = {
-  id: string
-  name: string
-  studentsCount: number
-  verifiedCount: number
-  activeTests: number
-  placement: number
-  status: string
-}
+  id: string;
+  name: string;
+  studentsCount: number;
+  verifiedCount: number;
+  activeTests: number;
+  placement: number;
+  status: string;
+};
 
 export default function DepartmentsPage() {
-  const [departments, setDepartments] = useState<Department[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const router = useRouter()
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const fetchDepartments = async () => {
+    try {
+      const colleges = await api("/colleges");
+      const collegeId = colleges[0]?.id;
+
+      if (!collegeId) {
+        throw new Error("No college found");
+      }
+
+      const data = await api(`/departments?collegeId=${collegeId}`);
+      setDepartments(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to load departments");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken")
+    const token = localStorage.getItem("accessToken");
 
     // 🔐 Guard: no token → go to login
     if (!token) {
-      router.replace("/login")
-      return
+      router.replace("/login");
+      return;
     }
 
-    // ✅ Token exists → fetch departments
-    api("/departments")
-      .then((data) => {
-        setDepartments(data)
-      })
-      .catch((err) => {
-        setError(err.message || "Unauthorized")
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [router])
+    fetchDepartments();
+  }, [router]);
 
   if (loading) {
-    return <div className="p-10 text-gray-500">Loading departments...</div>
+    return <div className="p-10 text-gray-500">Loading departments...</div>;
   }
 
   if (error) {
-    return <div className="p-10 text-red-500">Failed to load: {error}</div>
+    return <div className="p-10 text-red-500">Failed to load: {error}</div>;
   }
 
   return (
@@ -68,7 +76,6 @@ export default function DepartmentsPage() {
         {departments.map((d) => (
           <div key={d.id} className="flex justify-center">
             <div className="department-card bg-white dark:bg-[#121826] rounded-xl border border-gray-200 dark:border-[#1f2937] shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
-              
               {/* Header */}
               <div className="p-5">
                 <div className="flex justify-between items-center mb-3">
@@ -115,6 +122,34 @@ export default function DepartmentsPage() {
                 >
                   Students
                 </Link>
+                <button
+  onClick={async () => {
+    if (!confirm("Delete this department?")) return;
+
+    try {
+      await api(`/departments/${d.id}`, {
+        method: "DELETE",
+      });
+
+      setDepartments((prev) =>
+        prev.filter((item) => item.id !== d.id)
+      );
+    } catch (err: any) {
+      alert(err.message || "Failed to delete department");
+    }
+  }}
+  className="text-sm text-red-500 hover:text-red-700"
+>
+  Delete
+</button>
+<button
+  onClick={() =>
+    router.push(`/college/departments/${d.id}`)
+  }
+  className="text-sm text-blue-500 hover:text-blue-700"
+>
+  Edit
+</button>
               </div>
 
               <div className="h-1 bg-green-500" />
@@ -123,5 +158,5 @@ export default function DepartmentsPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }
