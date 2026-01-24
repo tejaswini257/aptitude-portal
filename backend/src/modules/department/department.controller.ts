@@ -12,40 +12,50 @@ import {
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
-import { JwtGuard } from '../../common/guards/jwt.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
+
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 
+@UseGuards(JwtAuthGuard)
 @Controller('departments')
-@UseGuards(JwtGuard, RolesGuard)
 export class DepartmentController {
-  constructor(private readonly departmentService: DepartmentService) {}
+  constructor(private readonly service: DepartmentService) {}
 
-  // ✅ CREATE DEPARTMENT
+  // ✅ CREATE (Admin)
+  @UseGuards(RolesGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Post()
   create(@Body() dto: CreateDepartmentDto) {
-    return this.departmentService.create(dto);
+    return this.service.create(dto);
   }
 
-  // ✅ GET DEPARTMENTS BY COLLEGE
+  // ✅ GET BY COLLEGE
   @Get()
-  find(@Query('collegeId') collegeId: string) {
-    return this.departmentService.findByCollege(collegeId);
+  findByCollege(@Query('collegeId') collegeId: string) {
+    return this.service.findByCollege(collegeId);
   }
 
-  // ✅ UPDATE DEPARTMENT
-  @Roles(UserRole.COLLEGE_ADMIN)
+  // ✅ GET SINGLE (EDIT)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(id);
+  }
+
+  // ✅ UPDATE (Admin)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateDepartmentDto) {
-    return this.departmentService.update(id, dto);
+    return this.service.update(id, dto);
   }
 
-  // ✅ DELETE DEPARTMENT
-  @Roles(UserRole.COLLEGE_ADMIN)
+  // ✅ DELETE (Admin)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.departmentService.delete(id);
+    return this.service.delete(id);
   }
 }
