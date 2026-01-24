@@ -28,10 +28,11 @@ export class CollegesController {
     return this.service.create(dto);
   }
 
-
-findAll(@Req() req: any) {
-  return this.service.findAll(req.user);
-}
+  // ✅ THIS WAS MISSING
+  @Get()
+  findAll(@Req() req: any) {
+    return this.service.findAll(req.user);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
