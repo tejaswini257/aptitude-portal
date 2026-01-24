@@ -33,13 +33,6 @@ async create(dto: CreateCollegeDto) {
       mobile: dto.mobile,
       maxStudents: dto.maxStudents,
       isApproved: false,
-
-      // ✅ REQUIRED RELATION
-      organization: {
-        connect: {
-          id: dto.orgId,
-        },
-      },
     },
   });
 }

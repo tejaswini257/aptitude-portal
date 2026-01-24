@@ -1,16 +1,17 @@
 import { PrismaClient, UserRole, CollegeType } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const passwordHash = await bcrypt.hash('Admin@123', 10);
+const studentPasswordHash = await bcrypt.hash('Student@123', 10);
+
   console.log('🌱 Seeding database...');
 
   /**
    * ⚠️ DELETE ORDER (CHILD → PARENT)
    */
-  await prisma.submission.deleteMany();
-  await prisma.submissionAnswer.deleteMany();
-  await prisma.questionOption.deleteMany();
   await prisma.question.deleteMany();
   await prisma.testSection.deleteMany();
   await prisma.test.deleteMany();
@@ -70,34 +71,34 @@ async function main() {
    * 👤 Admin User
    */
   const admin = await prisma.user.create({
-    data: {
-      email: 'admin@demo.com',
-      password: '$2b$10$abcdefghijklmnopqrstuv', // dummy hash
-      role: UserRole.SUPER_ADMIN,
-      orgId: org.id,
-    },
-  });
+  data: {
+    email: 'admin@demo.com',
+    password: passwordHash,
+    role: UserRole.SUPER_ADMIN,
+    orgId: org.id,
+  },
+});
 
   /**
    * 🎓 Students
    */
   const studentUser1 = await prisma.user.create({
-    data: {
-      email: 'student1@demo.com',
-      password: '$2b$10$abcdefghijklmnopqrstuv',
-      role: UserRole.STUDENT,
-      orgId: org.id,
-    },
-  });
+  data: {
+    email: 'student1@demo.com',
+    password: studentPasswordHash,
+    role: UserRole.STUDENT,
+    orgId: org.id,
+  },
+});
 
   const studentUser2 = await prisma.user.create({
-    data: {
-      email: 'student2@demo.com',
-      password: '$2b$10$abcdefghijklmnopqrstuv',
-      role: UserRole.STUDENT,
-      orgId: org.id,
-    },
-  });
+  data: {
+    email: 'student2@demo.com',
+    password: studentPasswordHash,
+    role: UserRole.STUDENT,
+    orgId: org.id,
+  },
+});
 
   await prisma.student.create({
     data: {
