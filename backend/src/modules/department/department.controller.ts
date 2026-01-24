@@ -29,23 +29,29 @@ export class DepartmentController {
     return this.departmentService.create(dto);
   }
 
-  // ✅ GET DEPARTMENTS BY COLLEGE
+  // ✅ GET DEPARTMENTS BY COLLEGE (Any authenticated user)
   @Get()
   find(@Query('collegeId') collegeId: string) {
     return this.departmentService.findByCollege(collegeId);
   }
 
-  // ✅ UPDATE DEPARTMENT
-  @Roles(UserRole.COLLEGE_ADMIN)
+  // ✅ UPDATE DEPARTMENT (SUPER_ADMIN + COLLEGE_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateDepartmentDto) {
     return this.departmentService.update(id, dto);
   }
 
-  // ✅ DELETE DEPARTMENT
-  @Roles(UserRole.COLLEGE_ADMIN)
+  // ✅ DELETE DEPARTMENT (SUPER_ADMIN + COLLEGE_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.departmentService.delete(id);
+  }
+
+  // ✅ GET SINGLE DEPARTMENT (EDIT PREFILL)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.departmentService.findOne(id);
   }
 }
