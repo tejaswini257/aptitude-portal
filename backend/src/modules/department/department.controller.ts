@@ -48,10 +48,4 @@ export class DepartmentController {
   delete(@Param('id') id: string) {
     return this.departmentService.delete(id);
   }
-
-  // ✅ GET SINGLE DEPARTMENT (EDIT PREFILL)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.departmentService.findOne(id);
-  }
 }

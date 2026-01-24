@@ -1,104 +1,94 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { api } from "@/lib/api"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+
+type College = {
+  id: string;
+  name: string;
+};
 
 export default function CreateDepartmentPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [collegeId, setCollegeId] = useState("");
+  const [colleges, setColleges] = useState<College[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [name, setName] = useState("")
-  const [status, setStatus] = useState("ACTIVE")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  useEffect(() => {
+    api("/colleges")
+      .then(setColleges)
+      .catch(() => alert("Failed to load colleges"));
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+  const handleCreate = async () => {
+    if (!name || !collegeId) {
+      alert("Please enter name and select college");
+      return;
+    }
 
     try {
+      setLoading(true);
       await api("/departments", {
         method: "POST",
         body: JSON.stringify({
           name,
-          status,
+          collegeId,
         }),
-      })
+      });
 
-      // success → go back to list
-      router.push("/college/departments")
+      router.push("/college/departments");
     } catch (err: any) {
-      setError(err.message || "Failed to create department")
+      alert(err.message || "Failed to create department");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="page max-w-xl">
-      <h1 className="page-title mb-6">Create Department</h1>
+    <div className="p-8 max-w-md">
+      <h1 className="text-2xl font-semibold mb-6">Create Department</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-[#121826] rounded-xl border border-gray-200 dark:border-[#1f2937] p-6 space-y-5"
-      >
-        {/* Department Name */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Department Name
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Computer Science"
-            required
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-[#1f2937] bg-transparent outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="Department name"
+          className="input w-full"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-        {/* Status */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Status
-          </label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-[#1f2937] bg-transparent outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
-        </div>
+        <select
+          className="input w-full"
+          value={collegeId}
+          onChange={(e) => setCollegeId(e.target.value)}
+        >
+          <option value="">Select college</option>
+          {colleges.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
-        {/* Error */}
-        {error && (
-          <div className="text-sm text-red-500">
-            {error}
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex gap-3">
           <button
-            type="button"
             onClick={() => router.back()}
-            className="px-4 py-2 rounded-lg border border-gray-300 dark:border-[#1f2937]"
+            className="btn btn-secondary w-full"
           >
             Cancel
           </button>
 
           <button
-            type="submit"
+            onClick={handleCreate}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+            className="btn btn-primary w-full"
           >
-            {loading ? "Creating..." : "Create Department"}
+            {loading ? "Creating..." : "Create"}
           </button>
         </div>
-      </form>
+      </div>
     </div>
-  )
+  );
 }
