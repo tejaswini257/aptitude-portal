@@ -2,17 +2,21 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("accessToken");
+  const token = req.cookies.get("accessToken")?.value;
+  const url = req.nextUrl.clone();
 
-  const isAuthPage = req.nextUrl.pathname.startsWith("/login");
-
-  if (!token && !isAuthPage) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (url.pathname.startsWith("/college/students")) {
+    if (!token) {
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/college/:path*"],
+  matcher: ["/college/students/:path*"],
 };
+
+

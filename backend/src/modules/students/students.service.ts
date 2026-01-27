@@ -14,7 +14,25 @@ export class StudentsService {
   constructor(private prisma: PrismaService) {}
 
   // ✅ CREATE STUDENT (User + Student)
-  async create(dto: CreateStudentDto) {
+  async create(dto: CreateStudentDto, orgId: string) {
+    // Validate college
+    const college = await this.prisma.college.findUnique({
+      where: { id: dto.collegeId },
+    });
+
+    if (!college) {
+      throw new BadRequestException('Invalid collegeId');
+    }
+
+    // Validate department and ensure it belongs to the same college
+    const department = await this.prisma.department.findUnique({
+      where: { id: dto.departmentId },
+    });
+
+    if (!department || department.collegeId !== college.id) {
+      throw new BadRequestException('Invalid departmentId for this college');
+    }
+
     // Check duplicate email
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -33,7 +51,7 @@ export class StudentsService {
         email: dto.email,
         password: hashedPassword,
         role: UserRole.STUDENT,
-        orgId: dto.orgId,
+        orgId: orgId,
       },
     });
 
@@ -85,17 +103,65 @@ export class StudentsService {
   }
 
   // ✅ UPDATE STUDENT
-  update(id: string, dto: UpdateStudentDto) {
+  async update(id: string, dto: UpdateStudentDto) {
+    const existing = await this.prisma.student.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('Student not found');
+    }
+
+    // If department is changing, validate it and keep college consistent
+    let departmentId = existing.departmentId;
+
+    if (dto.departmentId) {
+      const newDept = await this.prisma.department.findUnique({
+        where: { id: dto.departmentId },
+      });
+
+      if (!newDept || newDept.collegeId !== existing.collegeId) {
+        throw new BadRequestException(
+          'Invalid departmentId for this student college',
+        );
+      }
+
+      departmentId = dto.departmentId;
+    }
+
     return this.prisma.student.update({
       where: { id },
-      data: dto,
+      data: {
+        rollNo: dto.rollNo ?? existing.rollNo,
+        year: dto.year ?? existing.year,
+        departmentId,
+      },
+      include: {
+        user: true,
+        college: true,
+        department: true,
+      },
     });
   }
 
   // ✅ DELETE STUDENT
-  delete(id: string) {
-    return this.prisma.student.delete({
+  async delete(id: string) {
+    const student = await this.prisma.student.findUnique({
       where: { id },
+      include: { user: true },
     });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.student.delete({ where: { id } }),
+      this.prisma.user.delete({ where: { id: student.userId } }),
+    ]);
+
+    return {
+      message: 'Student deleted successfully',
+    };
   }
 }
