@@ -8,7 +8,9 @@ import {
   Param,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -25,8 +27,10 @@ export class StudentsController {
   // ✅ CREATE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Post()
-  create(@Body() dto: CreateStudentDto) {
-    return this.studentsService.create(dto);
+  create(@Body() dto: CreateStudentDto, @Req() req: Request) {
+    const orgId = (req as any).user?.orgId as string;
+
+    return this.studentsService.create(dto, orgId);
   }
 
   // ✅ GET STUDENTS (optionally by department)

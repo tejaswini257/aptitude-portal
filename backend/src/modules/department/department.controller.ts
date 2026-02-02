@@ -48,4 +48,10 @@ export class DepartmentController {
   delete(@Param('id') id: string) {
     return this.departmentService.delete(id);
   }
+
+  // ✅ GET DEPARTMENT BY ID
+@Get(':id')
+findOne(@Param('id') id: string) {
+return this.departmentService.findOne(id);
+}
 }

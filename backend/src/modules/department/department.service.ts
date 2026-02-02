@@ -52,7 +52,13 @@ export class DepartmentService {
       where: { id },
       data: dto,
     });
+    
   }
+  async findById(id: string) {
+return this.prisma.department.findUnique({
+where: { id },
+});
+}
 
   async delete(id: string) {
     return this.prisma.department.delete({

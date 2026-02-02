@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./confirmModal.module.css";
+import styles from "./confirmModel.module.css";
 
 type Props = {
   title: string;

@@ -38,18 +38,11 @@ export default function DepartmentsPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+  fetchDepartments();
+}, []);
 
-    // 🔐 Guard: no token → go to login
-    if (!token) {
-      router.replace("/login");
-      return;
-    }
-
-    fetchDepartments();
-  }, [router]);
+  
 
   if (loading) {
     return <div className="p-10 text-gray-500">Loading departments...</div>;
