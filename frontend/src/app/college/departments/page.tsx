@@ -42,14 +42,24 @@ export default function DepartmentsPage() {
   fetchDepartments();
 }, []);
 
+<<<<<<< HEAD
   
+=======
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    fetchDepartments();
+  }, [router]);
+>>>>>>> ed282d721940524eb89082657dfb526151026c6a
 
   if (loading) {
-    return <div className="p-10 text-gray-500">Loading departments...</div>;
+    return <div className="page text-gray-500">Loading departments...</div>;
   }
 
   if (error) {
-    return <div className="p-10 text-red-500">Failed to load: {error}</div>;
+    return <div className="page text-red-500">Failed to load: {error}</div>;
   }
 
   return (
@@ -68,11 +78,11 @@ export default function DepartmentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {departments.map((d) => (
           <div key={d.id} className="flex justify-center">
-            <div className="department-card bg-white dark:bg-[#121826] rounded-xl border border-gray-200 dark:border-[#1f2937] shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+            <div className="department-card">
               {/* Header */}
               <div className="p-5">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1f2937]">
+                  <span className="department-badge">
                     {d.status}
                   </span>
                   <span className="text-sm text-gray-400">#{d.id}</span>
@@ -80,7 +90,7 @@ export default function DepartmentsPage() {
 
                 <h2 className="font-semibold text-lg mb-2">{d.name}</h2>
 
-                <div className="text-sm text-gray-500 space-y-1">
+                <div className="department-meta">
                   <div>{d.studentsCount} Students</div>
                   <div>{d.verifiedCount} Verified</div>
                   <div>{d.activeTests} Active Tests</div>
@@ -92,9 +102,9 @@ export default function DepartmentsPage() {
                     <span>Placement</span>
                     <span>{d.placement}%</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-200 dark:bg-[#1f2937] rounded-full overflow-hidden">
+                  <div className="progress-track">
                     <div
-                      className="h-full bg-green-500"
+                      className="progress-fill"
                       style={{ width: `${d.placement}%` }}
                     />
                   </div>
@@ -105,44 +115,47 @@ export default function DepartmentsPage() {
               <div className="mt-auto flex justify-between items-center px-5 py-4 border-t dark:border-[#1f2937]">
                 <Link
                   href={`/college/departments/${d.id}`}
-                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black"
+                  className="btn-link"
                 >
                   Open →
                 </Link>
+
                 <Link
                   href={`/college/departments/${d.id}/students`}
-                  className="text-sm text-gray-400 hover:text-black"
+                  className="btn-link"
                 >
                   Students
                 </Link>
+
                 <button
-  onClick={async () => {
-    if (!confirm("Delete this department?")) return;
+                  onClick={async () => {
+                    if (!confirm("Delete this department?")) return;
 
-    try {
-      await api(`/departments/${d.id}`, {
-        method: "DELETE",
-      });
+                    try {
+                      await api(`/departments/${d.id}`, {
+                        method: "DELETE",
+                      });
 
-      setDepartments((prev) =>
-        prev.filter((item) => item.id !== d.id)
-      );
-    } catch (err: any) {
-      alert(err.message || "Failed to delete department");
-    }
-  }}
-  className="text-sm text-red-500 hover:text-red-700"
->
-  Delete
-</button>
-<button
-  onClick={() =>
-    router.push(`/college/departments/${d.id}`)
-  }
-  className="text-sm text-blue-500 hover:text-blue-700"
->
-  Edit
-</button>
+                      setDepartments((prev) =>
+                        prev.filter((item) => item.id !== d.id)
+                      );
+                    } catch (err: any) {
+                      alert(err.message || "Failed to delete department");
+                    }
+                  }}
+                  className="btn btn-danger"
+                >
+                  Delete
+                </button>
+
+                <button
+                  onClick={() =>
+                    router.push(`/college/departments/${d.id}`)
+                  }
+                  className="btn-link"
+                >
+                  Edit
+                </button>
               </div>
 
               <div className="h-1 bg-green-500" />
