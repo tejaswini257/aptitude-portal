@@ -96,6 +96,7 @@ export default function EditStudentPage() {
       <input
         type="email"
         name="email"
+        placeholder="Email"
         value={form.email}
         readOnly
         className={styles.readonly}
@@ -103,6 +104,7 @@ export default function EditStudentPage() {
       <input
         type="text"
         name="collegeName"
+        placeholder="College Name"
         value={form.collegeName}
         readOnly
         className={styles.readonly}
@@ -129,7 +131,9 @@ export default function EditStudentPage() {
         required
       />
 
+      <label htmlFor="departmentId">Department</label>
       <select
+        id="departmentId"
         name="departmentId"
         value={form.departmentId}
         onChange={handleChange}
