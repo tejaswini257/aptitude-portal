@@ -111,7 +111,9 @@ export default function AddStudentPage() {
       />
 
       {/* Year */}
+      <label htmlFor="year-input">Year</label>
       <input
+        id="year-input"
         name="year"
         type="number"
         min={1}
@@ -119,10 +121,13 @@ export default function AddStudentPage() {
         value={form.year}
         onChange={handleChange}
         required
+        placeholder="Year"
       />
 
       {/* College */}
+      <label htmlFor="college-select">College</label>
       <select
+        id="college-select"
         name="collegeId"
         value={form.collegeId}
         onChange={handleChange}
@@ -137,7 +142,9 @@ export default function AddStudentPage() {
       </select>
 
       {/* Department */}
+      <label htmlFor="department-select">Department</label>
       <select
+        id="department-select"
         name="departmentId"
         value={form.departmentId}
         onChange={handleChange}
