@@ -2,15 +2,46 @@
   padding: 20px;
 }
 
-.title {
-  font-size: 22px;
-  font-weight: 600;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.card {
-  padding: 12px;
-  border: 1px solid #ddd;
+.addBtn {
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: #1d4ed8;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.deleteBtn {
+  background: #dc2626;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  background: #b91c1c;
 }
