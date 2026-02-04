@@ -1,69 +1,72 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
 import { OrgType, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CompanyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  // ✅ CREATE COMPANY + ADMIN
+  // ✅ CREATE COMPANY + COMPANY ADMIN
   async create(dto: CreateCompanyDto) {
     const hashedPassword = await bcrypt.hash(dto.adminPassword, 10);
 
-    return this.prisma.organization.create({
+    // 1️⃣ Create Company Organization
+    const company = await this.prisma.organization.create({
       data: {
         name: dto.name,
         type: OrgType.COMPANY,
-        users: {
-          create: {
-            email: dto.adminEmail,
-            password: hashedPassword,
-            role: UserRole.COMPANY_ADMIN,
-          },
-        },
       },
     });
+
+    // 2️⃣ Create Company Admin User
+    await this.prisma.user.create({
+      data: {
+        email: dto.adminEmail,
+        password: hashedPassword,
+        role: UserRole.COMPANY_ADMIN,
+        orgId: company.id,
+      },
+    });
+
+    return {
+      message: 'Company created successfully',
+      companyId: company.id,
+    };
   }
 
-  // ✅ GET ALL COMPANIES
-  findAll() {
-    return this.prisma.organization.findMany({
-      where: { type: OrgType.COMPANY },
-      include: {
-        users: {
-          select: { id: true, email: true, role: true },
-        },
-      },
-    });
-  }
+  // ✅ COMPANY DASHBOARD (FOR COMPANY ADMIN)
+  async dashboard(user: any) {
+    const orgId = user.orgId;
 
-  // ✅ GET COMPANY BY ID
-  async findOne(id: string) {
-    const company = await this.prisma.organization.findUnique({
-      where: { id },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!company || company.type !== OrgType.COMPANY) {
-      throw new NotFoundException('Company not found');
+    if (!orgId) {
+      throw new NotFoundException('Organization not found');
     }
 
-    return company;
-  }
-
-  // ✅ UPDATE COMPANY
-  async update(id: string, dto: UpdateCompanyDto) {
-    return this.prisma.organization.update({
-      where: { id },
-      data: dto,
+    const totalTests = await this.prisma.test.count({
+      where: { organizationId: orgId },
     });
+
+    const activeTests = await this.prisma.test.count({
+      where: {
+        organizationId: orgId,
+        status: 'PUBLISHED',
+      },
+    });
+
+    const totalCandidates = await this.prisma.submission.count({
+      where: {
+        test: {
+          organizationId: orgId,
+        },
+      },
+    });
+
+    return {
+      totalTests,
+      activeTests,
+      totalCandidates,
+    };
   }
 }
