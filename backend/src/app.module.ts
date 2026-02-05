@@ -10,11 +10,13 @@ import { StudentsModule } from './modules/students/students.module';
 import { TestsModule } from './modules/tests/tests.module';
 import { CompanyModule } from './modules/company/company.module';
 import { CompanyTestsModule } from './modules/company-tests/company-tests.module';
+import { DrivesModule } from './modules/drives/drives.module';
 
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
+
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { SubmissionsModule } from './modules/submissions/submissions.module';
     SubmissionsModule,
     CompanyModule,
     CompanyTestsModule,
+    DrivesModule,
   ],
   // 👇 TEMPORARY TEST
   controllers: [OrganizationController],
