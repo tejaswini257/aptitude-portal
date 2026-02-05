@@ -9,6 +9,7 @@ import { CollegesModule } from './modules/college/college.module';
 import { StudentsModule } from './modules/students/students.module';
 import { TestsModule } from './modules/tests/tests.module';
 import { CompanyModule } from './modules/company/company.module';
+import { CompanyTestsModule } from './modules/company-tests/company-tests.module';
 
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
@@ -27,6 +28,7 @@ import { SubmissionsModule } from './modules/submissions/submissions.module';
     QuestionsModule,
     SubmissionsModule,
     CompanyModule,
+    CompanyTestsModule,
   ],
   // 👇 TEMPORARY TEST
   controllers: [OrganizationController],
