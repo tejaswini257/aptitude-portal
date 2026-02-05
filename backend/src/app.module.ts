@@ -7,6 +7,7 @@ import { CollegesModule } from './modules/college/college.module';
 import { StudentsModule } from './modules/students/students.module';
 import { TestsModule } from './modules/tests/tests.module';
 import { CompanyModule } from './modules/company/company.module';
+import { CompanyTestsModule } from './modules/company-tests/company-tests.module';
 
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
@@ -26,6 +27,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
     QuestionsModule,
     SubmissionsModule,
     CompanyModule,
+    CompanyTestsModule,
   ],
 })
 export class AppModule {}
