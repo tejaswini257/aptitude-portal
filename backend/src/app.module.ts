@@ -8,12 +8,14 @@ import { StudentsModule } from './modules/students/students.module';
 import { TestsModule } from './modules/tests/tests.module';
 import { CompanyModule } from './modules/company/company.module';
 import { CompanyTestsModule } from './modules/company-tests/company-tests.module';
+import { DrivesModule } from './modules/drives/drives.module';
 
 // 👇 ADD THIS
 import { OrganizationController } from './modules/organization/organization.controller';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
 import { CompaniesModule } from './modules/companies/companies.module';
+
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
     SubmissionsModule,
     CompanyModule,
     CompanyTestsModule,
+    DrivesModule,
   ],
 })
 export class AppModule {}
