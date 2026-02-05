@@ -38,10 +38,10 @@ export default function DepartmentsPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
+    // 🔐 Guard: no token → go to login
     if (!token) {
       router.replace("/login");
       return;

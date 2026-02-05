@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "../../../lib/api";
+import api from "@/interceptors/axios";
 
 
 export default function LoginPage() {
@@ -12,25 +12,33 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    try {
-      const res = await api("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const res = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
-      // 🔑 store token
-      console.log("LOGIN RESPONSE 👉", res);
-      localStorage.setItem("accessToken", res.accessToken);
+    // Axios returns data directly
+    const data = res.data;
 
-      // redirect after login
-      router.push("/college/departments");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
-    }
-  };
+    console.log("LOGIN RESPONSE:", data);
+
+    // Store token using the same key the rest of the app expects
+    localStorage.setItem("accessToken", data.accessToken);
+    document.cookie = `accessToken=${data.accessToken}; path=/`;
+
+    console.log("Token saved:", data.accessToken);
+
+    // redirect after login
+    window.location.href = "/college/departments";
+  } catch (err: any) {
+    console.error(err);
+    setError("Login failed");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center">
