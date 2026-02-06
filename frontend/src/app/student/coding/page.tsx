@@ -12,7 +12,7 @@ export default function CodingPage() {
     <>
       <h2 className={styles.title}>Coding Challenges</h2>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div className={styles.challengesContainer}>
         {challenges.map((challenge, index) => (
           <div key={index} className={styles.challengeCard}>
             
