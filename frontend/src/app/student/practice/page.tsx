@@ -3,6 +3,7 @@
 import styles from "../student.module.css";
 import Link from "next/link";
 import { Calculator, Brain, BookText } from "lucide-react";
+import "./practice.module.css";
 
 const topics = [
   {
@@ -56,10 +57,9 @@ export default function PracticePage() {
                   {topic.desc}
                 </div>
 
-                <div className={styles.progressBar} style={{ "--progress": `${topic.progress}%` } as React.CSSProperties}>
+                <div className={styles.progressBar} data-progress={topic.progress}>
                   <div
                     className={styles.progressFill}
-                    style={{ width: `${topic.progress}%` }}
                   />
                 </div>
 
