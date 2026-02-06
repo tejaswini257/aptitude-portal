@@ -29,67 +29,35 @@ export default function DashboardPage() {
       </div>
 
       {/* SECOND ROW */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: "24px",
-          marginTop: "30px",
-        }}
-      >
+      <div className={styles.secondRow}>
         {/* PROGRESS CARD */}
         <div className={styles.chartCard}>
-          <h3 style={{ marginBottom: "16px" }}>
+          <h3 className={styles.cardTitle}>
             Weekly Performance
           </h3>
 
-          <p style={{ color: "#64748b" }}>
+          <p className={styles.cardDescription}>
             You improved 12% compared to last week.
           </p>
 
-          <div style={{ marginTop: "20px" }}>
-            <div
-              style={{
-                marginBottom: "6px",
-                fontSize: "14px",
-              }}
-            >
+          <div className={styles.progressSection}>
+            <div className={styles.progressLabel}>
               Overall Accuracy
             </div>
 
-            <div
-              style={{
-                height: "8px",
-                background: "#e5e7eb",
-                borderRadius: "999px",
-              }}
-            >
-              <div
-                style={{
-                  width: "78%",
-                  height: "100%",
-                  borderRadius: "999px",
-                  background:
-                    "linear-gradient(90deg,#2563eb,#7c3aed)",
-                }}
-              />
+            <div className={styles.progressBar}>
+              <div className={styles.progressFill} />
             </div>
           </div>
         </div>
 
         {/* QUICK ACTIONS */}
         <div className={styles.chartCard}>
-          <h3 style={{ marginBottom: "16px" }}>
+          <h3 className={styles.cardTitle}>
             Quick Actions
           </h3>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-            }}
-          >
+          <div className={styles.actionContainer}>
             <ActionButton
               label="Start Practice"
               href="/student/practice"
@@ -109,20 +77,12 @@ export default function DashboardPage() {
       </div>
 
       {/* RECENT ACTIVITY */}
-      <div
-        className={styles.chartCard}
-        style={{ marginTop: "30px" }}
-      >
-        <h3 style={{ marginBottom: "16px" }}>
+      <div className={styles.recentActivity}>
+        <h3 className={styles.cardTitle}>
           Recent Activity
         </h3>
 
-        <ul
-          style={{
-            color: "#64748b",
-            fontSize: "14px",
-          }}
-        >
+        <ul className={styles.activityList}>
           <li>✔ Completed Logical Reasoning Test</li>
           <li>✔ Scored 82% in Quant Practice</li>
           <li>✔ Attempted 2 Coding Challenges</li>
@@ -145,14 +105,7 @@ function KpiCard({
 }) {
   return (
     <div className={styles.kpiCard}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          color: "#64748b",
-        }}
-      >
+      <div className={styles.kpiLabel}>
         {icon}
         {label}
       </div>
@@ -172,23 +125,8 @@ function ActionButton({
   href: string;
 }) {
   return (
-    <Link
-      href={href}
-      style={{ textDecoration: "none" }}
-    >
-      <div
-        style={{
-          padding: "12px 16px",
-          borderRadius: "12px",
-          background:
-            "linear-gradient(90deg,#2563eb,#7c3aed)",
-          color: "white",
-          textAlign: "center",
-          fontWeight: 500,
-          cursor: "pointer",
-          transition: "0.3s",
-        }}
-      >
+    <Link href={href} className={styles.actionLink}>
+      <div className={styles.actionButtonStyle}>
         {label}
       </div>
     </Link>

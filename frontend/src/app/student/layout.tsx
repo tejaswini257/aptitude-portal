@@ -8,10 +8,10 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className={styles.container}>
       <StudentSidebar />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div className={styles.mainContent}>
         <StudentHeader />
 
         <div className={styles.wrapper}>
