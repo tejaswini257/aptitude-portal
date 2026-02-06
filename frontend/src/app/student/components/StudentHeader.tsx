@@ -1,60 +1,117 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
 import Image from "next/image";
+import { Bell, Search } from "lucide-react";
 
 export default function StudentHeader() {
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
+
   return (
-    <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
-      
-      {/* Left Section */}
-      <div>
-        <h1 className="text-xl font-semibold text-gray-800">
-          Student Dashboard
-        </h1>
-        <p className="text-sm text-gray-500">
-          Welcome back 👋
-        </p>
-      </div>
+    <header
+      style={{
+        padding: "24px 40px",
+        background:
+          "linear-gradient(135deg, #ffffff 0%, #f1f5ff 100%)",
+        borderBottom: "1px solid #e5e7eb",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {/* LEFT SECTION */}
+        <div>
+          <h1
+            style={{
+              fontSize: "26px",
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            Welcome back 👋
+          </h1>
 
-      {/* Center Section (Search) */}
-      <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2 w-96">
-        <Search size={18} className="text-gray-500 mr-2" />
-        <input
-          type="text"
-          placeholder="Search tests, practice, coding..."
-          className="bg-transparent outline-none w-full text-sm"
-        />
-      </div>
+          <div
+            style={{
+              fontSize: "14px",
+              color: "#64748b",
+              marginTop: "6px",
+            }}
+          >
+            {today} • Track your performance and stay consistent.
+          </div>
+        </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-4">
-        
-        {/* Notification */}
-        <button className="relative p-2 rounded-full hover:bg-gray-100 transition">
-          <Bell size={20} className="text-gray-600" />
-          <span className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-            3
-          </span>
-        </button>
+        {/* RIGHT SECTION */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
+          }}
+        >
+          {/* SEARCH */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: "#ffffff",
+              padding: "8px 12px",
+              borderRadius: "10px",
+              border: "1px solid #e5e7eb",
+              width: "220px",
+            }}
+          >
+            <Search size={16} color="#64748b" />
+            <input
+              placeholder="Search..."
+              style={{
+                border: "none",
+                outline: "none",
+                marginLeft: "8px",
+                fontSize: "14px",
+                width: "100%",
+              }}
+            />
+          </div>
 
-        {/* Profile */}
-        <div className="flex items-center gap-3 cursor-pointer">
+          {/* NOTIFICATION */}
+          <div style={{ position: "relative", cursor: "pointer" }}>
+            <Bell size={20} color="#475569" />
+            <span
+              style={{
+                position: "absolute",
+                top: "-4px",
+                right: "-6px",
+                background: "#ef4444",
+                color: "white",
+                fontSize: "10px",
+                padding: "2px 6px",
+                borderRadius: "999px",
+              }}
+            >
+              3
+            </span>
+          </div>
+
+          {/* PROFILE */}
           <Image
             src="https://i.pravatar.cc/40"
             alt="Profile"
             width={40}
             height={40}
-            className="rounded-full"
+            style={{
+              borderRadius: "50%",
+              border: "2px solid #2563eb",
+            }}
           />
-          <div className="hidden md:block">
-            <p className="text-sm font-medium text-gray-700">
-              Komal
-            </p>
-            <p className="text-xs text-gray-500">
-              CSE Department
-            </p>
-          </div>
         </div>
       </div>
     </header>
