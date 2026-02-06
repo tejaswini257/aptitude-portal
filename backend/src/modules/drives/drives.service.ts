@@ -13,7 +13,7 @@ export class DrivesService {
   // CREATE DRIVE (already exists)
   // -----------------------------
   async createDrive(dto: any, companyId: string) {
-    return this.prisma.drives.create({
+    return this.prisma.drive.create({
       data: {
         companyId,
         testId: dto.testId,
@@ -34,7 +34,7 @@ export class DrivesService {
     companyId: string,
   ) {
     // 1️⃣ Validate drive belongs to company
-    const drive = await this.prisma.drives.findUnique({
+    const drive = await this.prisma.drive.findUnique({
       where: { id: driveId },
     });
 

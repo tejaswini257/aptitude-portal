@@ -1,41 +1,15 @@
-import StatCard from "../components/StatCard";
-import styles from "../student.module.css";
+import StatsCard from "../components/StatCard";
 
-export default function StudentDashboard() {
+export default function DashboardPage() {
   return (
-    <div className={styles.dashboard}>
-      {/* Header */}
-      <div className={styles.dashboardHeader}>
-        <h2>Welcome back 👋</h2>
-        <p>Here’s your learning progress</p>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatsCard title="Tests Attempted" value="12" />
+        <StatsCard title="Average Score" value="78%" />
+        <StatsCard title="Active Drives" value="3" />
       </div>
-
-      {/* Stats Section */}
-      <section>
-        <div className={styles.statsGrid}>
-          <StatCard label="Tests Attempted" value={12} />
-          <StatCard label="Accuracy" value="78%" />
-          <StatCard label="Coding Problems" value={34} />
-          <StatCard label="Rank" value={124} />
-        </div>
-      </section>
-
-      {/* Actions Section */}
-      <section>
-        <h3 className={styles.sectionTitle}>Quick Actions</h3>
-
-        <div className={styles.actionsGrid}>
-          <a href="/student/practice" className={styles.actionCard}>
-            📘 Practice Tests
-          </a>
-          <a href="/student/coding" className={styles.actionCard}>
-            💻 Coding Practice
-          </a>
-          <a href="/student/mocks" className={styles.actionCard}>
-            📝 Mock Tests
-          </a>
-        </div>
-      </section>
     </div>
   );
 }
