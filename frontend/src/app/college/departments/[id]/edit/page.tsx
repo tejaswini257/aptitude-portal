@@ -21,6 +21,7 @@ export default function EditDepartmentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");

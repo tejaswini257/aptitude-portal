@@ -1,46 +1,8 @@
-/* Tailwind MUST be first */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* =========================
-   GLOBAL THEME
-========================= */
-:root {
-  --bg: #ffffff;
-  --text: #111827;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-}
-
-/* =========================
-   PAGE LAYOUT
-========================= */
-.page {
-  padding: 2rem;
-  max-width: 80rem;
-  margin: 0 auto;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
 }
