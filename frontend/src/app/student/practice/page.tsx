@@ -56,10 +56,10 @@ export default function PracticePage() {
                   {topic.desc}
                 </div>
 
-                <div className={styles.progressBar}>
+                <div className={styles.progressBar} style={{ "--progress": `${topic.progress}%` } as React.CSSProperties}>
                   <div
                     className={styles.progressFill}
-                    style={{ "--progress": `${topic.progress}%` } as React.CSSProperties}
+                    style={{ width: `${topic.progress}%` }}
                   />
                 </div>
 
