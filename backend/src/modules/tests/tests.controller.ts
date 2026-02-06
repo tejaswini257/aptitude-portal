@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TestsService } from './tests.service';
 import { CreateTestDto } from './dto/create-test.dto';
@@ -22,18 +23,23 @@ import { UserRole } from '@prisma/client';
 export class TestsController {
   constructor(private readonly testsService: TestsService) {}
 
-  // ✅ CREATE TEST — ONLY COLLEGE_ADMIN
+  // ✅ CREATE TEST — COLLEGE_ADMIN or COMPANY_ADMIN
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN)
-  create(@Body() dto: CreateTestDto, @Req() req) {
-    return this.testsService.create(dto, req.user.userId);
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
+  create(@Body() dto: CreateTestDto, @Req() req: any) {
+    const orgId =
+      req.user?.role === 'COMPANY_ADMIN' ? req.user?.orgId : undefined;
+    return this.testsService.create(dto, req.user.userId, orgId);
   }
 
-  // ✅ GET ALL TESTS — ANY LOGGED-IN USER
+  // ✅ GET ALL TESTS — ANY LOGGED-IN USER (optional filter by organizationId for company admin)
   @Get()
-  findAll() {
-    return this.testsService.findAll();
+  findAll(@Query('organizationId') organizationId?: string, @Req() req?: any) {
+    const orgId =
+      organizationId ||
+      (req?.user?.role === 'COMPANY_ADMIN' ? req?.user?.orgId : undefined);
+    return this.testsService.findAll(orgId);
   }
 
   // ✅ GET SINGLE TEST — ANY LOGGED-IN USER
@@ -42,18 +48,18 @@ export class TestsController {
     return this.testsService.findOne(id);
   }
 
-  // ✅ UPDATE TEST — ONLY COLLEGE_ADMIN
+  // ✅ UPDATE TEST — COLLEGE_ADMIN or COMPANY_ADMIN
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN)
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   update(@Param('id') id: string, @Body() dto: UpdateTestDto) {
     return this.testsService.update(id, dto);
   }
 
-  // ✅ DELETE TEST — ONLY COLLEGE_ADMIN
+  // ✅ DELETE TEST — COLLEGE_ADMIN or COMPANY_ADMIN
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN)
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   remove(@Param('id') id: string) {
     return this.testsService.remove(id);
   }

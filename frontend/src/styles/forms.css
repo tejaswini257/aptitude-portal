@@ -1,0 +1,80 @@
+/* Global form styles */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+select,
+textarea {
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--panel, #fff);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--company, #3b82f6);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.primary-btn {
+  background: var(--company, #3b82f6);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  opacity: 0.9;
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.danger-btn {
+  background: var(--admin, #ef4444);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.danger-btn:hover {
+  opacity: 0.9;
+}

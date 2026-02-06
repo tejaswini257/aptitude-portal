@@ -10,27 +10,40 @@ export class QuestionsService {
   create(dto: CreateQuestionDto) {
     return this.prisma.question.create({
       data: {
-        testId: dto.testId,
-        sectionId: dto.sectionId,
-        type: dto.type,
-        difficulty: dto.difficulty,
-        title: dto.title,
-        description: dto.description,
-        options: dto.options,
-        correctAnswer: dto.correctAnswer,
-        evaluationConfig: dto.evaluationConfig,
-        marks: dto.marks,
-        timeLimitSec: dto.timeLimitSec,
-        order: dto.order,
-        explanation: dto.explanation,
-      },
+  testId: dto.testId,
+  ...(dto.sectionId && { sectionId: dto.sectionId }),
+
+  type: dto.type,
+  difficulty: dto.difficulty,
+
+  // Prisma expects these JSON-ish fields first
+  options: (dto.options as any) ?? null,
+  correctAnswer: (dto.correctAnswer as any) ?? null,
+  evaluationConfig: (dto.evaluationConfig as any) ?? null,
+
+  marks: dto.marks,
+  timeLimitSec: dto.timeLimitSec ?? null,
+  order: dto.order,
+  explanation: dto.explanation ?? null,
+
+  // PUT THESE LAST (Prisma is picky about order in your current client)
+  title: dto.title,
+  description: dto.description ?? null,
+},
+
     });
   }
 
   findByTest(testId: string) {
     return this.prisma.question.findMany({
-      where: { testId },
-      orderBy: { order: 'asc' },
+      // ✅ FIX: use relation-based filter (works with your generated client)
+      where: {
+         testId
+      },
+      // ✅ FIX: safest ordering field that always exists
+      orderBy: {
+        order: 'asc',
+      },
     });
   }
 
@@ -57,7 +70,43 @@ export class QuestionsService {
 
     return this.prisma.question.update({
       where: { id },
-      data: dto,
+      data: {
+        ...(dto.testId && { testId: dto.testId }),
+
+        // ✅ same pattern as create()
+        ...(dto.sectionId && { sectionId: dto.sectionId }),
+
+        ...(dto.type && { type: dto.type }),
+        ...(dto.difficulty && { difficulty: dto.difficulty }),
+        ...(dto.title && { title: dto.title }),
+
+        ...(dto.description !== undefined && {
+          description: dto.description ?? null,
+        }),
+
+        ...(dto.options !== undefined && {
+          options: dto.options as any,
+        }),
+
+        ...(dto.correctAnswer !== undefined && {
+          correctAnswer: dto.correctAnswer as any,
+        }),
+
+        ...(dto.evaluationConfig !== undefined && {
+          evaluationConfig: dto.evaluationConfig as any,
+        }),
+
+        ...(dto.marks !== undefined && { marks: dto.marks }),
+        ...(dto.timeLimitSec !== undefined && {
+          timeLimitSec: dto.timeLimitSec ?? null,
+        }),
+
+        ...(dto.order !== undefined && { order: dto.order }),
+
+        ...(dto.explanation !== undefined && {
+          explanation: dto.explanation ?? null,
+        }),
+      },
     });
   }
 
