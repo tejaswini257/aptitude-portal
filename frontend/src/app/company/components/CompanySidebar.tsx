@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const menuItems = [
   { label: "Dashboard", path: "/company/dashboard" },
+  { label: "Companies", path: "/company" },
   { label: "Drives", path: "/company/drives" },
   { label: "Tests", path: "/company/tests" },
   { label: "Questions", path: "/company/questions" },

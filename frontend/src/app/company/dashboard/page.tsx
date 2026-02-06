@@ -1,7 +1,6 @@
 "use client";
 
 import api from "@/interceptors/axios";
-
 import { useEffect, useState } from "react";
 
 type DashboardStats = {
@@ -16,25 +15,21 @@ export default function CompanyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // TEMPORARY — we will replace this with real API later
- const fetchDashboardStats = async () => {
-  try {
-    await new Promise((res) => setTimeout(res, 600)); // simulate delay
-
-    setStats({
-      totalDrives: 0,
-      activeDrives: 0,
-      totalTests: 0,
-      totalCandidates: 0
-    });
-  } catch {
-    setError("Failed to load dashboard stats");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  const fetchDashboardStats = async () => {
+    try {
+      const res = await api.get("/companies/dashboard/stats");
+      setStats(res.data);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.status === 403
+          ? "Access denied. Company admin only."
+          : "Failed to load dashboard stats";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchDashboardStats();

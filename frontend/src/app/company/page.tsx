@@ -24,9 +24,14 @@ export default function CompaniesPage() {
   const fetchCompanies = async () => {
     try {
       const res = await api.get("/companies");
-      setCompanies(res.data);
-    } catch (err) {
-      setError("Failed to load companies");
+      setCompanies(Array.isArray(res.data) ? res.data : []);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          (err?.response?.status === 403
+            ? "Only super admin can view companies."
+            : "Failed to load companies")
+      );
     } finally {
       setLoading(false);
     }
@@ -51,23 +56,32 @@ export default function CompaniesPage() {
       };
 
       await api.post("/companies", payload);
-      alert("Company created successfully");
-
+      alert("Company created successfully. Admin can log in with the email and password you set.");
       setForm({ name: "", adminEmail: "", adminPassword: "" });
       fetchCompanies();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to create company");
+      alert(
+        err?.response?.data?.message ||
+          (err?.response?.status === 403
+            ? "Only super admin can create companies."
+            : "Failed to create company")
+      );
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this company?")) return;
+    if (!confirm("Delete this company? This will remove the organization and its admin user(s).")) return;
 
     try {
       await api.delete(`/companies/${id}`);
       setCompanies((prev) => prev.filter((c) => c.id !== id));
-    } catch {
-      alert("Failed to delete company");
+    } catch (err: any) {
+      alert(
+        err?.response?.data?.message ||
+          (err?.response?.status === 403
+            ? "Only super admin can delete companies."
+            : "Failed to delete company")
+      );
     }
   };
 

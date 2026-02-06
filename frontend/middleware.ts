@@ -19,4 +19,3 @@ export const config = {
   matcher: ["/college/students/:path*"],
 };
 
-
