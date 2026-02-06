@@ -2,19 +2,18 @@ import {
   Controller,
   Post,
   Get,
-  Patch,
+  Delete,
   Body,
   Param,
-  UseGuards,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { DrivesService } from './drives.service';
-import { CreateDriveDto } from './dto/create-drive.dto';
-import { UpdateDriveDto } from './dto/update-drive.dto';
 import { JwtGuard } from '../../common/guards/jwt.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { InviteCollegesDto } from './dto/invite-colleges.dto';
 
 @Controller('company/drives')
 @UseGuards(JwtGuard, RolesGuard)
@@ -22,33 +21,49 @@ import { UserRole } from '@prisma/client';
 export class DrivesController {
   constructor(private readonly drivesService: DrivesService) {}
 
-  // ✅ CREATE DRIVE
-  @Post()
-  create(@Body() dto: CreateDriveDto, @Req() req) {
-    return this.drivesService.create(dto, req.user.orgId);
+  // -----------------------------
+  // INVITE COLLEGES
+  // -----------------------------
+  @Post(':driveId/colleges')
+  inviteColleges(
+    @Param('driveId') driveId: string,
+    @Body() dto: InviteCollegesDto,
+    @Req() req,
+  ) {
+    return this.drivesService.inviteColleges(
+      driveId,
+      dto.collegeIds,
+      req.user.orgId,
+    );
   }
 
-  // ✅ LIST DRIVES
-  @Get()
-  findAll(@Req() req) {
-    return this.drivesService.findAll(req.user.orgId);
+  // -----------------------------
+  // GET INVITED COLLEGES
+  // -----------------------------
+  @Get(':driveId/colleges')
+  getInvitedColleges(
+    @Param('driveId') driveId: string,
+    @Req() req,
+  ) {
+    return this.drivesService.getInvitedColleges(
+      driveId,
+      req.user.orgId,
+    );
   }
 
-  // ✅ GET SINGLE DRIVE
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.drivesService.findOne(id);
-  }
-
-  // ✅ UPDATE DRIVE
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateDriveDto) {
-    return this.drivesService.update(id, dto);
-  }
-
-  // ✅ CLOSE DRIVE
-  @Patch(':id/close')
-  close(@Param('id') id: string) {
-    return this.drivesService.close(id);
+  // -----------------------------
+  // REMOVE COLLEGE FROM DRIVE
+  // -----------------------------
+  @Delete(':driveId/colleges/:collegeId')
+  removeCollege(
+    @Param('driveId') driveId: string,
+    @Param('collegeId') collegeId: string,
+    @Req() req,
+  ) {
+    return this.drivesService.removeCollege(
+      driveId,
+      collegeId,
+      req.user.orgId,
+    );
   }
 }
