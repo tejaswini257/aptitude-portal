@@ -1,31 +1,82 @@
-import Link from "next/link";
+"use client";
+
 import styles from "../student.module.css";
+import Link from "next/link";
+import { Calculator, Brain, BookText } from "lucide-react";
 
 const topics = [
-  { name: "Quantitative Aptitude", slug: "quant" },
-  { name: "Logical Reasoning", slug: "reasoning" },
-  { name: "Verbal Ability", slug: "verbal" },
+  {
+    title: "Quantitative Aptitude",
+    desc: "Master numbers, percentages, ratios & problem solving.",
+    slug: "quant",
+    progress: 65,
+    icon: Calculator,
+  },
+  {
+    title: "Logical Reasoning",
+    desc: "Improve analytical and pattern recognition skills.",
+    slug: "reasoning",
+    progress: 45,
+    icon: Brain,
+  },
+  {
+    title: "Verbal Ability",
+    desc: "Enhance grammar, vocabulary & comprehension.",
+    slug: "verbal",
+    progress: 80,
+    icon: BookText,
+  },
 ];
 
 export default function PracticePage() {
   return (
-    <div className={styles.pageContainer}>
-      <h1 className={styles.sectionTitle}>Practice Topics</h1>
+    <>
+      <h2 className={styles.title}>Practice Modules</h2>
 
-      <div className={styles.grid3}>
-        {topics.map((topic) => (
-          <Link
-            key={topic.slug}
-            href={`/student/practice/${topic.slug}`}
-            className={styles.card}
-          >
-            <h2 className="text-lg font-semibold">{topic.name}</h2>
-            <p className="text-gray-500 mt-2">
-              Start practicing {topic.name}
-            </p>
-          </Link>
-        ))}
+      <div className={styles.grid}>
+        {topics.map((topic, index) => {
+          const Icon = topic.icon;
+
+          return (
+            <Link
+              key={index}
+              href={`/student/practice/${topic.slug}`}
+              style={{ textDecoration: "none" }}
+            >
+              <div className={styles.topicCard}>
+                <div className={styles.topicIcon}>
+                  <Icon size={20} />
+                </div>
+
+                <div className={styles.cardTitle}>
+                  {topic.title}
+                </div>
+
+                <div className={styles.cardSub}>
+                  {topic.desc}
+                </div>
+
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${topic.progress}%` }}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    marginTop: "10px",
+                    fontSize: "12px",
+                    color: "#64748b",
+                  }}
+                >
+                  {topic.progress}% Completed
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
-    </div>
+    </>
   );
 }

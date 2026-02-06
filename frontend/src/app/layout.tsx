@@ -1,6 +1,10 @@
-import "./globals.css";              // main global (Tailwind)
-import "@/styles/global.css";        // extra global styles
-import "@/styles/components.css";    // component-level styles
+import "../styles/tailwind.css"
+import "../styles/global.css"
+import "../styles/theme.css"
+import "../styles/components.css"
+import "../styles/forms.module.css"
+import "../styles/tables.css"
+
 
 export default function RootLayout({
   children,
