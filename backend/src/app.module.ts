@@ -1,5 +1,3 @@
-// 
-
 import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -14,6 +12,7 @@ import { CompanyModule } from './modules/company/company.module';
 import { OrganizationController } from './modules/organization/organization.controller';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
+import { CompaniesModule } from './modules/companies/companies.module';
 
 @Module({
   imports: [
@@ -28,7 +27,5 @@ import { SubmissionsModule } from './modules/submissions/submissions.module';
     SubmissionsModule,
     CompanyModule,
   ],
-  // 👇 TEMPORARY TEST
-  controllers: [OrganizationController],
 })
 export class AppModule {}
