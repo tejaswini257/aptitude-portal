@@ -3,16 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import api from "@/lib/api";
+import api from "@/interceptors/axios";
 
+// ✅ DEFINE CORRECT TYPE (matches your backend)
 type Department = {
   id: string;
   name: string;
-  studentsCount: number;
-  verifiedCount: number;
-  activeTests: number;
-  placement: number;
-  status: string;
+  collegeId: string;
+  createdAt: string;
 };
 
 export default function DepartmentsPage() {
@@ -32,12 +30,15 @@ export default function DepartmentsPage() {
 
   const fetchDepartments = async () => {
     try {
-      const colleges = await api("/colleges");
-      const collegeId = colleges?.[0]?.id;
-      if (!collegeId) throw new Error("No college found");
+      const colleges = await api.get("/colleges");
+      const collegeId = colleges?.data?.[0]?.id;
 
-      const data = await api(`/departments?collegeId=${collegeId}`);
-      setDepartments(data || []);
+      if (!collegeId) {
+        throw new Error("No college found");
+      }
+
+      const res = await api.get(`/departments?collegeId=${collegeId}`);
+      setDepartments(res.data || []);
     } catch (err: any) {
       setError(err.message || "Failed to load departments");
     } finally {
@@ -48,7 +49,7 @@ export default function DepartmentsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this department?")) return;
     try {
-      await api(`/departments/${id}`, { method: "DELETE" });
+      await api.delete(`/departments/${id}`);
       setDepartments((prev) => prev.filter((d) => d.id !== id));
     } catch (err: any) {
       alert(err.message || "Delete failed");
@@ -92,7 +93,7 @@ export default function DepartmentsPage() {
         </button>
       </div>
 
-      {/* Empty */}
+      {/* Empty state */}
       {departments.length === 0 && (
         <div className="text-center text-gray-500 py-24">
           <p className="text-lg font-medium">No departments found</p>
@@ -102,7 +103,7 @@ export default function DepartmentsPage() {
         </div>
       )}
 
-      {/* Cards */}
+      {/* Department Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {departments.map((d) => (
           <div
@@ -110,50 +111,13 @@ export default function DepartmentsPage() {
             className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-2xl transition overflow-hidden"
           >
             <div className="p-6">
-              {/* Status */}
-              <span
-                className={`inline-block mb-4 px-3 py-1 text-xs rounded-full font-medium
-                  ${
-                    d.status === "Inactive"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-green-100 text-green-700"
-                  }`}
-              >
-                {d.status || "Active"}
-              </span>
-
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 {d.name}
               </h2>
 
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex justify-between">
-                  <span>Students</span>
-                  <span className="font-medium">{d.studentsCount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Verified</span>
-                  <span className="font-medium">{d.verifiedCount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Active Tests</span>
-                  <span className="font-medium">{d.activeTests}</span>
-                </div>
-              </div>
-
-              {/* Placement */}
-              <div className="mt-6">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Placement Rate</span>
-                  <span>{d.placement ?? 0}%</span>
-                </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-2 bg-green-500 rounded-full transition-all"
-                    style={{ width: `${d.placement ?? 0}%` }}
-                  />
-                </div>
-              </div>
+              <p className="text-sm text-gray-500">
+                Created: {new Date(d.createdAt).toLocaleDateString()}
+              </p>
             </div>
 
             {/* Footer */}
