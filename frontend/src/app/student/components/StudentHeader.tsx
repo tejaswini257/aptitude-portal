@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Bell, Search } from "lucide-react";
+import styles from "./StudentHeader.module.css";
 
 export default function StudentHeader() {
   const today = new Date().toLocaleDateString("en-US", {
@@ -11,92 +12,34 @@ export default function StudentHeader() {
   });
 
   return (
-    <header
-      style={{
-        padding: "24px 40px",
-        background:
-          "linear-gradient(135deg, #ffffff 0%, #f1f5ff 100%)",
-        borderBottom: "1px solid #e5e7eb",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <header className={styles.header}>
+      <div className={styles.container}>
         {/* LEFT SECTION */}
         <div>
-          <h1
-            style={{
-              fontSize: "26px",
-              fontWeight: 600,
-              color: "#111827",
-            }}
-          >
+          <h1 className={styles.title}>
             Welcome back 👋
           </h1>
 
-          <div
-            style={{
-              fontSize: "14px",
-              color: "#64748b",
-              marginTop: "6px",
-            }}
-          >
+          <div className={styles.subtitle}>
             {today} • Track your performance and stay consistent.
           </div>
         </div>
 
         {/* RIGHT SECTION */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "20px",
-          }}
-        >
+        <div className={styles.rightSection}>
           {/* SEARCH */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              background: "#ffffff",
-              padding: "8px 12px",
-              borderRadius: "10px",
-              border: "1px solid #e5e7eb",
-              width: "220px",
-            }}
-          >
+          <div className={styles.searchBox}>
             <Search size={16} color="#64748b" />
             <input
+              className={styles.searchInput}
               placeholder="Search..."
-              style={{
-                border: "none",
-                outline: "none",
-                marginLeft: "8px",
-                fontSize: "14px",
-                width: "100%",
-              }}
             />
           </div>
 
           {/* NOTIFICATION */}
-          <div style={{ position: "relative", cursor: "pointer" }}>
+          <div className={styles.notification}>
             <Bell size={20} color="#475569" />
-            <span
-              style={{
-                position: "absolute",
-                top: "-4px",
-                right: "-6px",
-                background: "#ef4444",
-                color: "white",
-                fontSize: "10px",
-                padding: "2px 6px",
-                borderRadius: "999px",
-              }}
-            >
+            <span className={styles.badge}>
               3
             </span>
           </div>
@@ -107,10 +50,7 @@ export default function StudentHeader() {
             alt="Profile"
             width={40}
             height={40}
-            style={{
-              borderRadius: "50%",
-              border: "2px solid #2563eb",
-            }}
+            className={styles.profileImage}
           />
         </div>
       </div>

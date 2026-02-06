@@ -8,6 +8,7 @@ import {
   Code,
   BarChart3,
 } from "lucide-react";
+import styles from "./StudentSidebar.module.css";
 
 const menu = [
   {
@@ -36,24 +37,8 @@ export default function StudentSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: "250px",
-        background: "#ffffff",
-        borderRight: "1px solid #e5e7eb",
-        padding: "30px 20px",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "20px",
-          fontWeight: 600,
-          marginBottom: "30px",
-          background: "linear-gradient(90deg,#2563eb,#7c3aed)",
-          WebkitBackgroundClip: "text",
-          color: "transparent",
-        }}
-      >
+    <aside className={styles.sidebar}>
+      <h2 className={styles.title}>
         Student Panel
       </h2>
 
@@ -65,21 +50,7 @@ export default function StudentSidebar() {
           <Link
             key={item.name}
             href={item.href}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "12px 16px",
-              borderRadius: "10px",
-              marginBottom: "12px",
-              textDecoration: "none",
-              fontWeight: 500,
-              transition: "0.3s",
-              color: active ? "#ffffff" : "#374151",
-              background: active
-                ? "linear-gradient(90deg,#2563eb,#7c3aed)"
-                : "transparent",
-            }}
+            className={`${styles.menuLink} ${active ? styles.active : ""}`}
           >
             <Icon size={18} />
             {item.name}
