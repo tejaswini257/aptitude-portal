@@ -66,24 +66,18 @@ export default function PracticeTopicPage() {
       </h2>
 
       {/* Progress */}
-      <div style={{ marginBottom: "24px", color: "#64748b" }}>
+      <div className={styles.progress}>
         {Object.keys(selectedAnswers).length} / {questions.length} answered
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div className={styles.questionsContainer}>
         {questions.map((q, index) => (
           <div key={q.id} className={styles.card}>
-            <div
-              style={{
-                fontWeight: 600,
-                marginBottom: "16px",
-                fontSize: "16px",
-              }}
-            >
+            <div className={styles.questionTitle}>
               Q{index + 1}. {q.question}
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className={styles.optionsContainer}>
               {q.options.map((option) => {
                 const isSelected =
                   selectedAnswers[q.id] === option;
@@ -102,23 +96,14 @@ export default function PracticeTopicPage() {
                     onClick={() =>
                       handleSelect(q.id, option)
                     }
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: "10px",
-                      border: "1px solid #e5e7eb",
-                      background: isCorrect
-                        ? "#dcfce7"
-                        : isWrong
-                        ? "#fee2e2"
-                        : isSelected
-                        ? "#eef2ff"
-                        : "#ffffff",
-                      cursor: submitted
-                        ? "default"
-                        : "pointer",
-                      textAlign: "left",
-                      transition: "0.2s",
-                    }}
+                    className={`${styles.optionButton} ${
+                      isCorrect ? styles.correct : ""
+                    } ${isWrong ? styles.wrong : ""} ${
+                      isSelected && !isCorrect && !isWrong
+                        ? styles.selected
+                        : ""
+                    }`}
+                    disabled={submitted}
                   >
                     {option}
                   </button>
@@ -134,18 +119,9 @@ export default function PracticeTopicPage() {
         <button
           onClick={handleSubmit}
           disabled={!allAnswered}
-          style={{
-            marginTop: "30px",
-            padding: "12px 22px",
-            borderRadius: "10px",
-            background: allAnswered
-              ? "linear-gradient(90deg,#2563eb,#7c3aed)"
-              : "#cbd5e1",
-            color: "#ffffff",
-            border: "none",
-            cursor: allAnswered ? "pointer" : "not-allowed",
-            transition: "0.3s",
-          }}
+          className={`${styles.submitButton} ${
+            allAnswered ? styles.submitEnabled : styles.submitDisabled
+          }`}
         >
           Submit Answers
         </button>
@@ -153,20 +129,11 @@ export default function PracticeTopicPage() {
 
       {/* Result Card */}
       {submitted && (
-        <div
-          style={{
-            marginTop: "30px",
-            padding: "24px",
-            borderRadius: "16px",
-            background: "#ffffff",
-            boxShadow:
-              "0 8px 25px rgba(0,0,0,0.06)",
-          }}
-        >
-          <h3 style={{ fontSize: "18px", fontWeight: 600 }}>
+        <div className={styles.resultCard}>
+          <h3 className={styles.resultTitle}>
             Your Score
           </h3>
-          <p style={{ marginTop: "10px", fontSize: "16px" }}>
+          <p className={styles.resultText}>
             {score} / {questions.length} correct
           </p>
         </div>
