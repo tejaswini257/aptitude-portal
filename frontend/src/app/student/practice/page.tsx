@@ -1,75 +1,35 @@
-"use client";
-
-import styles from "../student.module.css";
 import Link from "next/link";
-import { Calculator, Brain, BookText } from "lucide-react";
-import "./practice.module.css";
 
 const topics = [
-  {
-    title: "Quantitative Aptitude",
-    desc: "Master numbers, percentages, ratios & problem solving.",
-    slug: "quant",
-    progress: 65,
-    icon: Calculator,
-  },
-  {
-    title: "Logical Reasoning",
-    desc: "Improve analytical and pattern recognition skills.",
-    slug: "reasoning",
-    progress: 45,
-    icon: Brain,
-  },
-  {
-    title: "Verbal Ability",
-    desc: "Enhance grammar, vocabulary & comprehension.",
-    slug: "verbal",
-    progress: 80,
-    icon: BookText,
-  },
+  "quantitative",
+  "logical",
+  "verbal",
 ];
 
 export default function PracticePage() {
   return (
     <>
-      <h2 className={styles.title}>Practice Modules</h2>
+      <h2 style={{ fontSize: "24px", marginBottom: "30px" }}>
+        Practice Topics
+      </h2>
 
-      <div className={styles.grid}>
-        {topics.map((topic, index) => {
-          const Icon = topic.icon;
-
-          return (
-            <Link
-              key={index}
-              href={`/student/practice/${topic.slug}`}
-              style={{ textDecoration: "none" }}
+      <div style={{ display: "flex", gap: "20px" }}>
+        {topics.map((topic) => (
+          <Link key={topic} href={`/student/practice/${topic}`}>
+            <div
+              style={{
+                padding: "20px",
+                background: "#fff",
+                borderRadius: "12px",
+                cursor: "pointer",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
+                minWidth: "180px",
+              }}
             >
-              <div className={styles.topicCard}>
-                <div className={styles.topicIcon}>
-                  <Icon size={20} />
-                </div>
-
-                <div className={styles.cardTitle}>
-                  {topic.title}
-                </div>
-
-                <div className={styles.cardSub}>
-                  {topic.desc}
-                </div>
-
-                <div className={styles.progressBar} data-progress={topic.progress}>
-                  <div
-                    className={styles.progressFill}
-                  />
-                </div>
-
-                <div className={styles.progressText}>
-                  {topic.progress}% Completed
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+              {topic.toUpperCase()}
+            </div>
+          </Link>
+        ))}
       </div>
     </>
   );

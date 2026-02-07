@@ -1,196 +1,162 @@
 "use client";
 
-import styles from "../student.module.css";
-import { BookOpen, BarChart3, Briefcase } from "lucide-react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function DashboardPage() {
+  const [accuracy, setAccuracy] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAccuracy(78);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
-      <h2 className={styles.title}>Dashboard Overview</h2>
+      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "30px" }}>
+        Dashboard Overview
+      </h2>
 
-      {/* KPI CARDS */}
-      <div className={styles.kpiGrid}>
-        <KpiCard
-          icon={<BookOpen size={20} />}
-          label="Tests Attempted"
-          value="12"
-        />
-        <KpiCard
-          icon={<BarChart3 size={20} />}
-          label="Average Score"
-          value="78%"
-        />
-        <KpiCard
-          icon={<Briefcase size={20} />}
-          label="Active Drives"
-          value="3"
-        />
-      </div>
-
-      {/* SECOND ROW */}
+      {/* Stats */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr",
+          gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
           gap: "24px",
-          marginTop: "30px",
+          marginBottom: "40px",
         }}
       >
-        {/* PROGRESS CARD */}
-        <div className={styles.chartCard}>
-          <h3 style={{ marginBottom: "16px" }}>
-            Weekly Performance
-          </h3>
+        <StatCard title="Tests Attempted" value="12" />
+        <StatCard title="Average Score" value="78%" />
+        <StatCard title="Active Drives" value="3" />
+      </div>
 
-          <p style={{ color: "#64748b" }}>
-            You improved 12% compared to last week.
-          </p>
+      {/* Weekly Progress */}
+      <div
+        style={{
+          background: "#fff",
+          padding: "28px",
+          borderRadius: "14px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+          marginBottom: "30px",
+        }}
+      >
+        <h3 style={{ marginBottom: "10px" }}>Weekly Performance</h3>
+        <p style={{ color: "#6b7280", marginBottom: "16px" }}>
+          You improved 12% compared to last week.
+        </p>
 
-          <div style={{ marginTop: "20px" }}>
-            <div
-              style={{
-                marginBottom: "6px",
-                fontSize: "14px",
-              }}
-            >
-              Overall Accuracy
-            </div>
-
-            <div
-              style={{
-                height: "8px",
-                background: "#e5e7eb",
-                borderRadius: "999px",
-              }}
-            >
-              <div
-                style={{
-                  width: "78%",
-                  height: "100%",
-                  borderRadius: "999px",
-                  background:
-                    "linear-gradient(90deg,#2563eb,#7c3aed)",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* QUICK ACTIONS */}
-        <div className={styles.chartCard}>
-          <h3 style={{ marginBottom: "16px" }}>
-            Quick Actions
-          </h3>
-
+        <div
+          style={{
+            height: "10px",
+            background: "#e5e7eb",
+            borderRadius: "6px",
+            overflow: "hidden",
+          }}
+        >
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
+              height: "100%",
+              width: `${accuracy}%`,
+              background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
+              transition: "width 1s ease",
             }}
-          >
-            <ActionButton
-              label="Start Practice"
-              href="/student/practice"
-            />
-
-            <ActionButton
-              label="Attempt Coding Challenge"
-              href="/student/coding"
-            />
-
-            <ActionButton
-              label="View Analytics"
-              href="/student/analytics"
-            />
-          </div>
+          />
         </div>
       </div>
 
-      {/* RECENT ACTIVITY */}
+      {/* Quick Actions */}
       <div
-        className={styles.chartCard}
-        style={{ marginTop: "30px" }}
+        style={{
+          background: "#fff",
+          padding: "28px",
+          borderRadius: "14px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+          display: "flex",
+          gap: "20px",
+        }}
       >
-        <h3 style={{ marginBottom: "16px" }}>
-          Recent Activity
-        </h3>
+        <Link href="/student/practice">
+          <button style={buttonStyle}>Start Practice</button>
+        </Link>
 
-        <ul
-          style={{
-            color: "#64748b",
-            fontSize: "14px",
-          }}
-        >
-          <li>✔ Completed Logical Reasoning Test</li>
-          <li>✔ Scored 82% in Quant Practice</li>
-          <li>✔ Attempted 2 Coding Challenges</li>
-        </ul>
+        <Link href="/student/coding">
+          <button style={buttonStyle}>Coding Challenges</button>
+        </Link>
+
+        <Link href="/student/analytics">
+          <button style={buttonStyle}>View Analytics</button>
+        </Link>
       </div>
     </>
   );
 }
 
-/* ===== KPI CARD ===== */
-
-function KpiCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
+function StatCard({ title, value }: any) {
   return (
-    <div className={styles.kpiCard}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          color: "#64748b",
-        }}
-      >
-        {icon}
-        {label}
-      </div>
-
-      <div className={styles.kpiValue}>{value}</div>
+    <div
+      style={{
+        background: "#fff",
+        padding: "22px",
+        borderRadius: "14px",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+      }}
+    >
+      <p style={{ color: "#6b7280" }}>{title}</p>
+      <h3 style={{ fontSize: "26px", marginTop: "6px" }}>{value}</h3>
     </div>
   );
 }
 
-/* ===== ACTION BUTTON (CLICKABLE) ===== */
+const buttonStyle = {
+  padding: "12px 20px",
+  background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
+  border: "none",
+  color: "#fff",
+  borderRadius: "10px",
+  cursor: "pointer",
+};
 
-function ActionButton({
-  label,
-  href,
-}: {
-  label: string;
-  href: string;
-}) {
+{/* Module Progress */}
+<div style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+  gap: "20px",
+  marginTop: "40px"
+}}>
+  <ProgressCard title="Quantitative" progress={70} />
+  <ProgressCard title="Logical" progress={60} />
+  <ProgressCard title="Verbal" progress={85} />
+  <ProgressCard title="Coding" progress={50} />
+</div>
+
+function ProgressCard({ title, progress }: any) {
   return (
-    <Link
-      href={href}
-      style={{ textDecoration: "none" }}
-    >
-      <div
-        style={{
-          padding: "12px 16px",
-          borderRadius: "12px",
-          background:
-            "linear-gradient(90deg,#2563eb,#7c3aed)",
-          color: "white",
-          textAlign: "center",
-          fontWeight: 500,
-          cursor: "pointer",
-          transition: "0.3s",
-        }}
-      >
-        {label}
+    <div style={{
+      background: "#fff",
+      padding: "20px",
+      borderRadius: "14px",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+    }}>
+      <p style={{ marginBottom: "10px" }}>{title}</p>
+      <div style={{
+        height: "8px",
+        background: "#e5e7eb",
+        borderRadius: "6px",
+        overflow: "hidden"
+      }}>
+        <div style={{
+          height: "100%",
+          width: `${progress}%`,
+          background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
+          transition: "width 0.5s ease"
+        }} />
       </div>
-    </Link>
+      <p style={{ marginTop: "8px", fontSize: "14px", color: "#6b7280" }}>
+        {progress}% Completed
+      </p>
+    </div>
   );
 }

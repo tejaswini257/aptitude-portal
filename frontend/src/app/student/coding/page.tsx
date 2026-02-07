@@ -1,51 +1,37 @@
-import styles from "../student.module.css";
 import Link from "next/link";
 
-const challenges = [
-  { title: "Two Sum Problem", difficulty: "Easy" },
-  { title: "Merge Intervals", difficulty: "Medium" },
-  { title: "LRU Cache", difficulty: "Hard" },
+const codingQuestions = [
+  { id: "two-sum", difficulty: "Easy" },
+  { id: "merge-intervals", difficulty: "Medium" },
+  { id: "lru-cache", difficulty: "Hard" },
 ];
 
 export default function CodingPage() {
   return (
     <>
-      <h2 className={styles.title}>Coding Challenges</h2>
+      <h2 style={{ fontSize: "26px", marginBottom: "30px" }}>
+        Coding Challenges
+      </h2>
 
-      <div className={styles.challengesContainer}>
-        {challenges.map((challenge, index) => (
-          <div key={index} className={styles.challengeCard}>
-            
-            <div className={styles.challengeHeader}>
-              <div className={styles.challengeTitle}>
-                {challenge.title}
-              </div>
-
-              <div
-                className={`${styles.badge} ${
-                  challenge.difficulty === "Easy"
-                    ? styles.easy
-                    : challenge.difficulty === "Medium"
-                    ? styles.medium
-                    : styles.hard
-                }`}
-              >
-                {challenge.difficulty}
-              </div>
-            </div>
-
-            <div className={styles.challengeFooter}>
-              <Link
-                href="/student/coding/1"
-                className={styles.primaryButton}
-              >
-                Solve Challenge →
-              </Link>
-            </div>
-
+      {codingQuestions.map((q) => (
+        <Link key={q.id} href={`/student/coding/${q.id}`}>
+          <div
+            style={{
+              background: "#fff",
+              padding: "24px",
+              borderRadius: "14px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+              marginBottom: "20px",
+              cursor: "pointer",
+            }}
+          >
+            <h3>{q.id.replace("-", " ").toUpperCase()}</h3>
+            <p style={{ color: "#6b7280" }}>
+              Difficulty: {q.difficulty}
+            </p>
           </div>
-        ))}
-      </div>
+        </Link>
+      ))}
     </>
   );
 }
