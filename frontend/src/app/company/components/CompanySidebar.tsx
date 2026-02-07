@@ -1,39 +1,67 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, BarChart3, FileText, Briefcase, ClipboardList } from "lucide-react";
 
-const menuItems = [
-  { label: "Dashboard", path: "/company/dashboard" },
-  { label: "Companies", path: "/company" },
-  { label: "Drives", path: "/company/drives" },
-  { label: "Tests", path: "/company/tests" },
-  { label: "Questions", path: "/company/questions" },
-  { label: "Analytics", path: "/company/analytics" },
+const menu = [
+  { name: "Dashboard", path: "/company/dashboard", icon: LayoutDashboard },
+  { name: "Drives", path: "/company/drives", icon: Briefcase },
+  { name: "Tests", path: "/company/tests", icon: ClipboardList },
+  { name: "Questions", path: "/company/questions", icon: FileText },
+  { name: "Analytics", path: "/company/analytics", icon: BarChart3 },
 ];
 
 export default function CompanySidebar() {
-  const router = useRouter();
   const pathname = usePathname();
 
   return (
-    <aside className="sidebar">
-      <h2 className="sidebar-title">Company Panel</h2>
+    <aside
+      style={{
+        width: "240px",
+        background: "#ffffff",
+        borderRight: "1px solid #e2e8f0",
+        padding: "30px 20px",
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "20px",
+          fontWeight: 600,
+          marginBottom: "30px",
+        }}
+      >
+        Company Panel
+      </h2>
 
-      <nav className="sidebar-menu">
-        {menuItems.map((item) => {
-          const isActive = pathname.startsWith(item.path);
+      {menu.map((item) => {
+        const ActiveIcon = item.icon;
+        const active = pathname === item.path;
 
-          return (
-            <button
-              key={item.path}
-              className={`sidebar-item ${isActive ? "active" : ""}`}
-              onClick={() => router.push(item.path)}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
+        return (
+          <Link
+            key={item.name}
+            href={item.path}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "10px 14px",
+              borderRadius: "10px",
+              marginBottom: "10px",
+              background: active
+                ? "linear-gradient(90deg,#4f46e5,#7c3aed)"
+                : "transparent",
+              color: active ? "#fff" : "#334155",
+              textDecoration: "none",
+              fontWeight: 500,
+            }}
+          >
+            <ActiveIcon size={18} />
+            {item.name}
+          </Link>
+        );
+      })}
     </aside>
   );
 }
