@@ -42,9 +42,7 @@ export default function DepartmentsPage() {
   fetchDepartments();
 }, []);
 
-<<<<<<< HEAD
-  
-=======
+
     if (!token) {
       router.replace("/login");
       return;
@@ -52,7 +50,7 @@ export default function DepartmentsPage() {
 
     fetchDepartments();
   }, [router]);
->>>>>>> ed282d721940524eb89082657dfb526151026c6a
+
 
   if (loading) {
     return <div className="page text-gray-500">Loading departments...</div>;
