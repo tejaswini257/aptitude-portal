@@ -1,9 +1,9 @@
 "use client";
 
-import styles from "../student.module.css";
 import {
   LineChart,
   Line,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
@@ -15,7 +15,7 @@ import {
   Cell,
 } from "recharts";
 
-const progressData = [
+const monthlyData = [
   { month: "Jan", score: 65 },
   { month: "Feb", score: 72 },
   { month: "Mar", score: 78 },
@@ -23,110 +23,82 @@ const progressData = [
   { month: "May", score: 88 },
 ];
 
-const sectionData = [
-  { name: "Quant", score: 85 },
-  { name: "Reasoning", score: 78 },
-  { name: "Verbal", score: 72 },
+const subjectData = [
+  { name: "Quantitative", value: 40 },
+  { name: "Logical", value: 35 },
+  { name: "Verbal", value: 25 },
 ];
 
-const difficultyData = [
-  { name: "Easy", value: 40 },
-  { name: "Medium", value: 35 },
-  { name: "Hard", value: 25 },
-];
-
-const COLORS = ["#16a34a", "#f59e0b", "#dc2626"];
+const COLORS = ["#4f46e5", "#7c3aed", "#06b6d4"];
 
 export default function AnalyticsPage() {
   return (
     <>
-      <h2 className={styles.title}>Performance Analytics</h2>
+      <h2 style={{ fontSize: "26px", marginBottom: "30px" }}>
+        Performance Analytics
+      </h2>
 
-      {/* KPI CARDS */}
-      <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
-          <div>Total Tests</div>
-          <div className={styles.kpiValue}>14</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div>Average Score</div>
-          <div className={styles.kpiValue}>82%</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div>Best Section</div>
-          <div className={styles.kpiValue}>Quant</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div>Accuracy</div>
-          <div className={styles.kpiValue}>87%</div>
-        </div>
-      </div>
-
-      {/* CHARTS SECTION */}
-      <div className={styles.analyticsGrid}>
-
-        {/* LINE CHART */}
-        <div className={styles.chartCard}>
-          <h3 style={{ marginBottom: "20px" }}>
-            Monthly Score Progress
-          </h3>
-
+      <div style={{ display: "grid", gap: "30px" }}>
+        {/* Line Chart */}
+        <div style={cardStyle}>
+          <h3 style={{ marginBottom: "20px" }}>Monthly Score Progress</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={progressData}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
+            <LineChart data={monthlyData}>
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke="#2563eb"
+                stroke="#4f46e5"
                 strokeWidth={3}
               />
+              <CartesianGrid stroke="#e5e7eb" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* PIE CHART */}
-        <div className={styles.chartCard}>
-          <h3 style={{ marginBottom: "20px" }}>
-            Difficulty Distribution
-          </h3>
+        {/* Bar Chart */}
+        <div style={cardStyle}>
+          <h3 style={{ marginBottom: "20px" }}>Subject Performance</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyData}>
+              <Bar dataKey="score" fill="#7c3aed" radius={[6, 6, 0, 0]} />
+              <CartesianGrid stroke="#e5e7eb" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
+        {/* Pie Chart */}
+        <div style={cardStyle}>
+          <h3 style={{ marginBottom: "20px" }}>Skill Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={difficultyData}
+                data={subjectData}
                 dataKey="value"
                 outerRadius={100}
                 label
               >
-                {difficultyData.map((entry, index) => (
+                {subjectData.map((_, index) => (
                   <Cell key={index} fill={COLORS[index]} />
                 ))}
               </Pie>
+              <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* BAR CHART */}
-      <div className={styles.chartCard}>
-        <h3 style={{ marginBottom: "20px" }}>
-          Section-wise Performance
-        </h3>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={sectionData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="score" fill="#7c3aed" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
     </>
   );
 }
+
+const cardStyle = {
+  background: "#fff",
+  padding: "30px",
+  borderRadius: "14px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+};

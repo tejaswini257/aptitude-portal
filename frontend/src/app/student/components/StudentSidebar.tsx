@@ -2,34 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  BookOpen,
-  Code,
-  BarChart3,
-} from "lucide-react";
+import { LayoutDashboard, BookOpen, Code2, BarChart3 } from "lucide-react";
 
 const menu = [
-  {
-    name: "Dashboard",
-    href: "/student/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Practice",
-    href: "/student/practice",
-    icon: BookOpen,
-  },
-  {
-    name: "Coding",
-    href: "/student/coding",
-    icon: Code,
-  },
-  {
-    name: "Analytics",
-    href: "/student/analytics",
-    icon: BarChart3,
-  },
+  { name: "Dashboard", icon: LayoutDashboard, path: "/student/dashboard" },
+  { name: "Practice", icon: BookOpen, path: "/student/practice" },
+  { name: "Coding", icon: Code2, path: "/student/coding" },
+  { name: "Analytics", icon: BarChart3, path: "/student/analytics" },
 ];
 
 export default function StudentSidebar() {
@@ -38,7 +17,7 @@ export default function StudentSidebar() {
   return (
     <aside
       style={{
-        width: "250px",
+        width: "240px",
         background: "#ffffff",
         borderRight: "1px solid #e5e7eb",
         padding: "30px 20px",
@@ -48,44 +27,42 @@ export default function StudentSidebar() {
         style={{
           fontSize: "20px",
           fontWeight: 600,
-          marginBottom: "30px",
-          background: "linear-gradient(90deg,#2563eb,#7c3aed)",
-          WebkitBackgroundClip: "text",
-          color: "transparent",
+          marginBottom: "40px",
+          color: "#2563eb",
         }}
       >
         Student Panel
       </h2>
 
-      {menu.map((item) => {
-        const Icon = item.icon;
-        const active = pathname === item.href;
+      <nav style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        {menu.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.path;
 
-        return (
-          <Link
-            key={item.name}
-            href={item.href}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "12px 16px",
-              borderRadius: "10px",
-              marginBottom: "12px",
-              textDecoration: "none",
-              fontWeight: 500,
-              transition: "0.3s",
-              color: active ? "#ffffff" : "#374151",
-              background: active
-                ? "linear-gradient(90deg,#2563eb,#7c3aed)"
-                : "transparent",
-            }}
-          >
-            <Icon size={18} />
-            {item.name}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={item.name}
+              href={item.path}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "10px 14px",
+                borderRadius: "8px",
+                background: active
+                  ? "linear-gradient(90deg,#2563eb,#7c3aed)"
+                  : "transparent",
+                color: active ? "#fff" : "#374151",
+                textDecoration: "none",
+                fontWeight: 500,
+              }}
+            >
+              <Icon size={18} />
+              {item.name}
+            </Link>
+          );
+        })}
+      </nav>
     </aside>
   );
 }

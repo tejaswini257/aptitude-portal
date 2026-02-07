@@ -13,113 +13,72 @@ export default function StudentHeader() {
   return (
     <header
       style={{
-        height: "72px",
-        background: "#ffffff",
+        padding: "22px 40px",
+        background: "linear-gradient(90deg,#ffffff,#f3f4ff)",
         borderBottom: "1px solid #e5e7eb",
         display: "flex",
-        alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 32px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
+        alignItems: "center",
       }}
     >
-      {/* LEFT SIDE */}
       <div>
-        <h2
-          style={{
-            fontSize: "18px",
-            fontWeight: 600,
-            color: "#111827",
-            margin: 0,
-          }}
-        >
+        <h1 style={{ fontSize: "24px", fontWeight: 600 }}>
           Welcome back 👋
-        </h2>
-
-        <span
-          style={{
-            fontSize: "12px",
-            color: "#64748b",
-          }}
-        >
-          {today}
-        </span>
+        </h1>
+        <p style={{ fontSize: "14px", color: "#6b7280", marginTop: "4px" }}>
+          {today} • Track your performance & stay consistent
+        </p>
       </div>
 
-      {/* RIGHT SIDE */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "18px",
-        }}
-      >
-        {/* Search */}
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            background: "#f8fafc",
-            padding: "6px 12px",
-            borderRadius: "8px",
-            border: "1px solid #e2e8f0",
-            width: "200px",
+            background: "#fff",
+            padding: "8px 12px",
+            borderRadius: "10px",
+            border: "1px solid #e5e7eb",
           }}
         >
-          <Search size={16} color="#94a3b8" />
+          <Search size={16} color="#6b7280" />
           <input
             placeholder="Search..."
             style={{
               border: "none",
               outline: "none",
               marginLeft: "8px",
-              fontSize: "13px",
               background: "transparent",
-              width: "100%",
             }}
           />
         </div>
 
-        {/* Notification */}
-        <div
-          style={{
-            position: "relative",
-            cursor: "pointer",
-            padding: "6px",
-            borderRadius: "8px",
-            transition: "0.2s",
-          }}
-        >
-          <Bell size={18} color="#475569" />
+        <div style={{ position: "relative" }}>
+          <Bell size={20} color="#374151" />
           <span
             style={{
               position: "absolute",
               top: "-4px",
-              right: "-4px",
+              right: "-6px",
               background: "#ef4444",
               color: "#fff",
               fontSize: "10px",
               padding: "2px 6px",
-              borderRadius: "999px",
+              borderRadius: "50%",
             }}
           >
             3
           </span>
         </div>
 
-        {/* Profile */}
         <Image
           src="https://i.pravatar.cc/40"
           alt="Profile"
-          width={36}
-          height={36}
+          width={40}
+          height={40}
           style={{
             borderRadius: "50%",
-            border: "2px solid #3b82f6",
-            cursor: "pointer",
+            border: "2px solid #6366f1",
           }}
         />
       </div>

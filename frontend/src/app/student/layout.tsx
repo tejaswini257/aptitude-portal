@@ -1,6 +1,5 @@
 import StudentSidebar from "./components/StudentSidebar";
 import StudentHeader from "./components/StudentHeader";
-import styles from "./student.module.css";
 
 export default function StudentLayout({
   children,
@@ -8,15 +7,12 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={styles.container}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7fb" }}>
       <StudentSidebar />
 
-      <div className={styles.mainContent}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <StudentHeader />
-
-        <div className={styles.wrapper}>
-          <div className={styles.content}>{children}</div>
-        </div>
+        <main style={{ padding: "30px 40px" }}>{children}</main>
       </div>
     </div>
   );
