@@ -36,37 +36,52 @@ export class CompanyService {
     };
   }
 
-  // ✅ COMPANY DASHBOARD (FOR COMPANY ADMIN)
-  async dashboard(user: any) {
-    const orgId = user.orgId;
+  // // ✅ COMPANY DASHBOARD (FOR COMPANY ADMIN)
+  // async dashboard(user: any) {
+  //   const orgId = user.orgId;
 
-    if (!orgId) {
-      throw new NotFoundException('Organization not found');
-    }
+  //   if (!orgId) {
+  //     throw new NotFoundException('Organization not found');
+  //   }
 
-    const totalTests = await this.prisma.test.count({
-      where: { organizationId: orgId },
-    });
+   async getDashboard(user: any) {
+  const orgId = user.orgId;
 
-    const activeTests = await this.prisma.test.count({
-      where: {
-        organizationId: orgId,
-        status: 'PUBLISHED',
-      },
-    });
-
-    const totalCandidates = await this.prisma.submission.count({
-      where: {
-        test: {
-          organizationId: orgId,
-        },
-      },
-    });
-
-    return {
-      totalTests,
-      activeTests,
-      totalCandidates,
-    };
+  if (!orgId) {
+    throw new NotFoundException('Organization not found');
   }
+
+  // Total tests created by this company
+  const totalTests = await this.prisma.test.count({
+    where: { orgId },
+  });
+
+  // Total drives created by this company
+  const totalDrives = await this.prisma.drive.count({
+    where: { companyId: orgId },
+  });
+
+  // Get all tests IDs of this company
+  const tests = await this.prisma.test.findMany({
+    where: { orgId },
+    select: { id: true },
+  });
+
+  const testIds = tests.map(t => t.id);
+
+  // Count submissions for those tests
+  const totalCandidates = await this.prisma.submission.count({
+    where: {
+      testId: {
+        in: testIds,
+      },
+    },
+  });
+
+  return {
+    totalTests,
+    totalDrives,
+    totalCandidates,
+  };
+}
 }
