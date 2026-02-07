@@ -37,7 +37,7 @@ export class CompaniesController {
   ) {
     const orgId =
       organizationId ||
-      (req.user?.role === 'COMPANY_ADMIN' ? req.user?.orgId : undefined);
+      (req.user?.role === 'COMPANY_ADMIN' ? req.user?.orgId : null);
     return this.companiesService.getDashboardStats(orgId);
   }
 

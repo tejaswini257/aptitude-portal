@@ -11,40 +11,29 @@ export class QuestionsService {
     return this.prisma.question.create({
       data: {
   testId: dto.testId,
-  ...(dto.sectionId && { sectionId: dto.sectionId }),
-
+  sectionId: dto.sectionId ?? undefined,
   type: dto.type,
   difficulty: dto.difficulty,
-
-  // Prisma expects these JSON-ish fields first
-  options: (dto.options as any) ?? null,
-  correctAnswer: (dto.correctAnswer as any) ?? null,
-  evaluationConfig: (dto.evaluationConfig as any) ?? null,
-
+  title: dto.title,
+  description: dto.description,
+  correctAnswer: dto.correctAnswer ?? null,
+  evaluationConfig: dto.evaluationConfig ?? null,
   marks: dto.marks,
   timeLimitSec: dto.timeLimitSec ?? null,
   order: dto.order,
   explanation: dto.explanation ?? null,
-
-  // PUT THESE LAST (Prisma is picky about order in your current client)
-  title: dto.title,
-  description: dto.description ?? null,
 },
+
 
     });
   }
 
   findByTest(testId: string) {
     return this.prisma.question.findMany({
-      // ✅ FIX: use relation-based filter (works with your generated client)
-      where: {
-         testId
-      },
-      // ✅ FIX: safest ordering field that always exists
-      orderBy: {
-        order: 'asc',
-      },
-    });
+  where: { testId },
+  orderBy: { createdAt: 'asc' },
+});
+
   }
 
   async findOne(id: string) {

@@ -87,31 +87,30 @@ export class CompaniesService {
   }
 
   /** Dashboard stats for a company (by orgId). Returns zeros when orgId is missing (e.g. SUPER_ADMIN view). */
-  async getDashboardStats(orgId?: string | null) {
-    if (!orgId) {
-      return {
-        totalDrives: 0,
-        activeDrives: 0,
-        totalTests: 0,
-        totalCandidates: 0,
-      };
-    }
-    const [totalTests, submissionsCount] = await Promise.all([
-      this.prisma.test.count({
-        where: { organization: { id: orgId } },
-      }),
-      this.prisma.submission.count({
-        where: {
-          test: { organization: { id: orgId } },
-        },
-      }),
-    ]);
+  /** Dashboard stats for COMPANY_ADMIN (single org) or SUPER_ADMIN (all orgs) */
+async getDashboardStats(orgId?: string | null) {
+  const testWhere = orgId
+    ? { organizationId: orgId }
+    : {}; // SUPER_ADMIN → all orgs
 
-    return {
-      totalDrives: 0,
-      activeDrives: 0,
-      totalTests,
-      totalCandidates: submissionsCount,
-    };
-  }
+  const [totalTests, totalCandidates] = await Promise.all([
+    this.prisma.test.count({
+      where: testWhere,
+    }),
+    this.prisma.submission.count({
+      where: orgId
+        ? { test: { organizationId: orgId } }
+        : {}, // SUPER_ADMIN → all submissions
+    }),
+  ]);
+
+  return {
+    totalDrives: 0,
+    activeDrives: 0,
+    totalTests,
+    totalCandidates,
+  };
+}
+
+
 }
