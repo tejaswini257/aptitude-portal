@@ -4,6 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
 
+function getPortalPathForRole(role?: string) {
+  switch (role) {
+    case "SUPER_ADMIN":
+      return "/admin/dashboard";
+    case "COLLEGE_ADMIN":
+      return "/college";
+    case "COMPANY_ADMIN":
+      return "/company/dashboard";
+    default:
+      return "/";
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -25,7 +38,18 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", data.accessToken);
       document.cookie = `accessToken=${data.accessToken}; path=/`;
 
-      router.push("/college/departments");
+      let role: string | undefined;
+      try {
+        const [, payloadBase64] = data.accessToken.split(".");
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson) as { role?: string };
+        role = payload.role;
+      } catch {
+        // fallback if decode fails
+      }
+
+      const target = getPortalPathForRole(role);
+      router.push(target);
     } catch (err) {
       console.error(err);
       setError("Login failed");

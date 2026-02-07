@@ -4,34 +4,34 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/interceptors/axios";
 
-type College = {
+type Company = {
   id: string;
-  collegeName: string;
-  collegeType: string;
-  isApproved: boolean;
+  name: string;
+  type: string;
+  createdAt: string;
 };
 
-export default function AdminCollegesPage() {
-  const [colleges, setColleges] = useState<College[]>([]);
+export default function AdminCompaniesPage() {
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     api
-      .get("/colleges")
-      .then((res) => setColleges(Array.isArray(res.data) ? res.data : []))
+      .get("/companies")
+      .then((res) => setCompanies(Array.isArray(res.data) ? res.data : []))
       .catch((err) =>
         setError(
           err?.response?.data?.message ||
             (err?.response?.status === 403
               ? "Access denied."
-              : "Failed to load colleges")
+              : "Failed to load companies")
         )
       )
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading colleges...</p>;
+  if (loading) return <p>Loading companies...</p>;
   if (error) return <p style={{ color: "#dc2626" }}>{error}</p>;
 
   return (
@@ -45,10 +45,10 @@ export default function AdminCollegesPage() {
         }}
       >
         <h2 style={{ fontSize: "26px", fontWeight: 600, margin: 0 }}>
-          Colleges
+          Companies
         </h2>
         <Link
-          href="/admin/colleges/add"
+          href="/admin/companies/add"
           style={{
             padding: "10px 20px",
             background: "#4f46e5",
@@ -58,11 +58,11 @@ export default function AdminCollegesPage() {
             textDecoration: "none",
           }}
         >
-          ADD College
+          ADD Company
         </Link>
       </div>
-      {colleges.length === 0 ? (
-        <p style={{ color: "#64748b" }}>No colleges yet.</p>
+      {companies.length === 0 ? (
+        <p style={{ color: "#64748b" }}>No companies yet.</p>
       ) : (
         <div
           style={{
@@ -77,31 +77,31 @@ export default function AdminCollegesPage() {
               <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                 <th style={{ padding: "12px 16px", textAlign: "left" }}>Name</th>
                 <th style={{ padding: "12px 16px", textAlign: "left" }}>Type</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Approved</th>
+                <th style={{ padding: "12px 16px", textAlign: "left" }}>Created</th>
               </tr>
             </thead>
             <tbody>
-              {colleges.map((c) => (
+              {companies.map((c) => (
                 <tr
                   key={c.id}
                   style={{
                     borderBottom: "1px solid #e2e8f0",
                     cursor: "pointer",
                   }}
-                  onClick={() => window.location.assign(`/admin/colleges/${c.id}`)}
+                  onClick={() => window.location.assign(`/admin/companies/${c.id}`)}
                 >
                   <td style={{ padding: "12px 16px" }}>
                     <Link
-                      href={`/admin/colleges/${c.id}`}
+                      href={`/admin/companies/${c.id}`}
                       style={{ color: "#4f46e5", textDecoration: "none", fontWeight: 500 }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {c.collegeName}
+                      {c.name}
                     </Link>
                   </td>
-                  <td style={{ padding: "12px 16px" }}>{c.collegeType}</td>
+                  <td style={{ padding: "12px 16px" }}>{c.type}</td>
                   <td style={{ padding: "12px 16px" }}>
-                    {c.isApproved ? "Yes" : "No"}
+                    {new Date(c.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))}

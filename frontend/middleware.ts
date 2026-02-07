@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 function getPortalPathForRole(role?: string) {
   switch (role) {
     case "SUPER_ADMIN":
-      return "/admin";
+      return "/admin/dashboard";
     case "COLLEGE_ADMIN":
       return "/college";
     case "COMPANY_ADMIN":
