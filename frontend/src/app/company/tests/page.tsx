@@ -1,46 +1,74 @@
 "use client";
 
-const tests = [
-  { name: "Aptitude Test - Round 1", questions: 30, duration: "60 mins" },
-  { name: "Coding Round", questions: 3, duration: "90 mins" },
-];
+import Link from "next/link";
 
-export default function TestsPage() {
+export default function CompanyTestsPage() {
+  const tests = [
+    {
+      id: "aptitude-round-1",
+      title: "Aptitude Test - Round 1",
+      questions: 30,
+      duration: 60,
+    },
+    {
+      id: "coding-round",
+      title: "Coding Round",
+      questions: 3,
+      duration: 90,
+    },
+  ];
+
   return (
     <>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "30px" }}>
+      <h2
+        style={{
+          fontSize: "26px",
+          fontWeight: 600,
+          marginBottom: "30px",
+        }}
+      >
         Test Modules
       </h2>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          gap: "20px",
+          gridTemplateColumns: "repeat(auto-fit,minmax(350px,1fr))",
+          gap: "30px",
         }}
       >
-        {tests.map((test, index) => (
-          <div
-            key={index}
-            style={{
-              background: "#fff",
-              padding: "24px",
-              borderRadius: "16px",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-            }}
+        {tests.map((test) => (
+          <Link
+            key={test.id}
+            href={`/company/tests/${test.id}`}
+            style={{ textDecoration: "none" }}
           >
-            <h3 style={{ fontSize: "18px", fontWeight: 600 }}>
-              {test.name}
-            </h3>
+            <div
+              style={{
+                background: "#ffffff",
+                padding: "30px",
+                borderRadius: "16px",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform =
+                  "translateY(-6px)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform =
+                  "translateY(0px)")
+              }
+            >
+              <h3 style={{ marginBottom: "16px" }}>
+                {test.title}
+              </h3>
 
-            <p style={{ color: "#64748b", marginTop: "8px" }}>
-              Questions: {test.questions}
-            </p>
-
-            <p style={{ color: "#64748b" }}>
-              Duration: {test.duration}
-            </p>
-          </div>
+              <p>Questions: {test.questions}</p>
+              <p>Duration: {test.duration} mins</p>
+            </div>
+          </Link>
         ))}
       </div>
     </>
