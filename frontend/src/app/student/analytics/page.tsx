@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
 
         {/* LINE CHART */}
         <div className={styles.chartCard}>
-          <h3 className={styles.chartTitle}>
+          <h3 style={{ marginBottom: "20px" }}>
             Monthly Score Progress
           </h3>
 
@@ -91,7 +91,7 @@ export default function AnalyticsPage() {
 
         {/* PIE CHART */}
         <div className={styles.chartCard}>
-          <h3 className={styles.chartTitle}>
+          <h3 style={{ marginBottom: "20px" }}>
             Difficulty Distribution
           </h3>
 
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
 
       {/* BAR CHART */}
       <div className={styles.chartCard}>
-        <h3 className={styles.chartTitle}>
+        <h3 style={{ marginBottom: "20px" }}>
           Section-wise Performance
         </h3>
 
