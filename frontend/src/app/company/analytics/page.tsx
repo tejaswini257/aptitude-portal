@@ -1,12 +1,14 @@
-"use client";
-
-export default function CompanyAnalyticsPage() {
+export default function CompanyAnalytics() {
   return (
-    <div className="page-container">
-      <h1 className="page-title">Analytics</h1>
-      <div className="card">
-        <p className="muted-text">Analytics and reports will appear here (e.g. candidate performance, test results).</p>
+    <>
+      <h1 style={{ marginBottom: "24px" }}>Company Analytics</h1>
+
+      <div style={{ background: "white", padding: "24px", borderRadius: "14px" }}>
+        <h3>Hiring Overview</h3>
+        <p style={{ color: "#6b7280" }}>
+          45 candidates shortlisted from 320 applications.
+        </p>
       </div>
-    </div>
+    </>
   );
 }

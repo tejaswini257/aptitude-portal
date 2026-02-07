@@ -29,35 +29,67 @@ export default function DashboardPage() {
       </div>
 
       {/* SECOND ROW */}
-      <div className={styles.secondRow}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr",
+          gap: "24px",
+          marginTop: "30px",
+        }}
+      >
         {/* PROGRESS CARD */}
         <div className={styles.chartCard}>
-          <h3 className={styles.cardTitle}>
+          <h3 style={{ marginBottom: "16px" }}>
             Weekly Performance
           </h3>
 
-          <p className={styles.cardDescription}>
+          <p style={{ color: "#64748b" }}>
             You improved 12% compared to last week.
           </p>
 
-          <div className={styles.progressSection}>
-            <div className={styles.progressLabel}>
+          <div style={{ marginTop: "20px" }}>
+            <div
+              style={{
+                marginBottom: "6px",
+                fontSize: "14px",
+              }}
+            >
               Overall Accuracy
             </div>
 
-            <div className={styles.progressBar}>
-              <div className={styles.progressFill} />
+            <div
+              style={{
+                height: "8px",
+                background: "#e5e7eb",
+                borderRadius: "999px",
+              }}
+            >
+              <div
+                style={{
+                  width: "78%",
+                  height: "100%",
+                  borderRadius: "999px",
+                  background:
+                    "linear-gradient(90deg,#2563eb,#7c3aed)",
+                }}
+              />
             </div>
           </div>
         </div>
 
         {/* QUICK ACTIONS */}
         <div className={styles.chartCard}>
-          <h3 className={styles.cardTitle}>
+          <h3 style={{ marginBottom: "16px" }}>
             Quick Actions
           </h3>
 
-          <div className={styles.actionContainer}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
             <ActionButton
               label="Start Practice"
               href="/student/practice"
@@ -77,12 +109,20 @@ export default function DashboardPage() {
       </div>
 
       {/* RECENT ACTIVITY */}
-      <div className={styles.recentActivity}>
-        <h3 className={styles.cardTitle}>
+      <div
+        className={styles.chartCard}
+        style={{ marginTop: "30px" }}
+      >
+        <h3 style={{ marginBottom: "16px" }}>
           Recent Activity
         </h3>
 
-        <ul className={styles.activityList}>
+        <ul
+          style={{
+            color: "#64748b",
+            fontSize: "14px",
+          }}
+        >
           <li>✔ Completed Logical Reasoning Test</li>
           <li>✔ Scored 82% in Quant Practice</li>
           <li>✔ Attempted 2 Coding Challenges</li>
@@ -105,7 +145,14 @@ function KpiCard({
 }) {
   return (
     <div className={styles.kpiCard}>
-      <div className={styles.kpiLabel}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          color: "#64748b",
+        }}
+      >
         {icon}
         {label}
       </div>
@@ -125,8 +172,23 @@ function ActionButton({
   href: string;
 }) {
   return (
-    <Link href={href} className={styles.actionLink}>
-      <div className={styles.actionButtonStyle}>
+    <Link
+      href={href}
+      style={{ textDecoration: "none" }}
+    >
+      <div
+        style={{
+          padding: "12px 16px",
+          borderRadius: "12px",
+          background:
+            "linear-gradient(90deg,#2563eb,#7c3aed)",
+          color: "white",
+          textAlign: "center",
+          fontWeight: 500,
+          cursor: "pointer",
+          transition: "0.3s",
+        }}
+      >
         {label}
       </div>
     </Link>

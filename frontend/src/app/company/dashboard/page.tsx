@@ -1,80 +1,32 @@
-"use client";
-
-import api from "@/interceptors/axios";
-import { useEffect, useState } from "react";
-
-type DashboardStats = {
-  totalDrives: number;
-  activeDrives: number;
-  totalTests: number;
-  totalCandidates: number;
-};
-
 export default function CompanyDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const fetchDashboardStats = async () => {
-    try {
-      const res = await api.get("/companies/dashboard/stats");
-      setStats(res.data);
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.status === 403
-          ? "Access denied. Company admin only."
-          : "Failed to load dashboard stats";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  if (loading) {
-    return <p className="loading">Loading dashboard...</p>;
-  }
-
-  if (error) {
-    return <p className="error">{error}</p>;
-  }
-
   return (
-    <div className="page-container">
-      <h1 className="page-title">Company Dashboard</h1>
+    <>
+      <h1 style={{ marginBottom: "30px" }}>Company Dashboard</h1>
 
-      {/* STATS GRID */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h3>Total Drives</h3>
-          <p>{stats?.totalDrives}</p>
-        </div>
-
-        <div className="stat-card">
-          <h3>Active Drives</h3>
-          <p>{stats?.activeDrives}</p>
-        </div>
-
-        <div className="stat-card">
-          <h3>Total Tests</h3>
-          <p>{stats?.totalTests}</p>
-        </div>
-
-        <div className="stat-card">
-          <h3>Total Candidates</h3>
-          <p>{stats?.totalCandidates}</p>
-        </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "20px" }}>
+        <Card label="Total Tests" value="12" />
+        <Card label="Active Drives" value="4" />
+        <Card label="Total Candidates" value="320" />
+        <Card label="Shortlisted" value="45" />
       </div>
 
-      {/* EMPTY STATE SECTION (for later) */}
-      <div className="card mt-4">
-        <h2>Recent Drives</h2>
-        <p className="muted-text">No drives created yet.</p>
+      <div style={{ marginTop: "40px", background: "white", padding: "24px", borderRadius: "14px" }}>
+        <h3 style={{ marginBottom: "16px" }}>Recent Activity</h3>
+        <ul style={{ color: "#6b7280" }}>
+          <li>✔ New Drive Created</li>
+          <li>✔ 120 Candidates Applied</li>
+          <li>✔ Test Evaluation Completed</li>
+        </ul>
       </div>
+    </>
+  );
+}
+
+function Card({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ background: "white", padding: "20px", borderRadius: "14px" }}>
+      <p style={{ color: "#6b7280" }}>{label}</p>
+      <h2>{value}</h2>
     </div>
   );
 }

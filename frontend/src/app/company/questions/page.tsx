@@ -1,12 +1,19 @@
-"use client";
+export default function QuestionsPage() {
+  const questions = [
+    { id: 1, type: "MCQ", difficulty: "Easy" },
+    { id: 2, type: "Coding", difficulty: "Medium" },
+  ];
 
-export default function CompanyQuestionsPage() {
   return (
-    <div className="page-container">
-      <h1 className="page-title">Questions</h1>
-      <div className="card">
-        <p className="muted-text">Questions are managed per test. Create or edit a test to add questions.</p>
-      </div>
-    </div>
+    <>
+      <h1 style={{ marginBottom: "24px" }}>Question Bank</h1>
+
+      {questions.map((q) => (
+        <div key={q.id} style={{ background: "white", padding: "20px", borderRadius: "14px", marginBottom: "16px" }}>
+          <p>Type: {q.type}</p>
+          <p>Difficulty: {q.difficulty}</p>
+        </div>
+      ))}
+    </>
   );
 }
