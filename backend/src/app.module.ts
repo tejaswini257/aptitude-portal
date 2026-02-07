@@ -15,7 +15,7 @@ import { OrganizationController } from './modules/organization/organization.cont
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
 import { CompaniesModule } from './modules/companies/companies.module';
-
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -31,6 +31,8 @@ import { CompaniesModule } from './modules/companies/companies.module';
     CompanyModule,
     CompanyTestsModule,
     DrivesModule,
+    CompaniesModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
