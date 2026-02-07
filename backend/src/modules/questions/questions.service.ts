@@ -1,69 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
+import { DifficultyLevel, QuestionUsage, CreatorRole, QuestionType } from '@prisma/client';
 
 @Injectable()
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateQuestionDto) {
+  // ✅ CREATE QUESTION
+  async create(dto: any, orgId: string) {
     return this.prisma.question.create({
       data: {
-        testId: dto.testId,
         sectionId: dto.sectionId,
-        type: dto.type,
-        difficulty: dto.difficulty,
-        title: dto.title,
-        description: dto.description,
-        options: dto.options,
-        correctAnswer: dto.correctAnswer,
-        evaluationConfig: dto.evaluationConfig,
-        marks: dto.marks,
-        timeLimitSec: dto.timeLimitSec,
-        order: dto.order,
-        explanation: dto.explanation,
+        orgId: orgId,
+        difficulty: dto.difficulty as DifficultyLevel,
+        questionText: dto.questionText,
+        allowedFor: dto.allowedFor as QuestionUsage,
+        createdBy: dto.createdBy,
+        creatorRole: dto.creatorRole as CreatorRole,
+        type: dto.type as QuestionType,
+        correctAnswer: dto.correctAnswer ?? null,
+        codingMeta: dto.codingMeta ?? null,
       },
     });
   }
 
-  findByTest(testId: string) {
+  // ✅ GET QUESTIONS BY SECTION
+  async findBySection(sectionId: string) {
     return this.prisma.question.findMany({
-      where: { testId },
-      orderBy: { order: 'asc' },
+      where: {
+        sectionId,
+      },
+      include: {
+        options: true,
+      },
     });
   }
 
+  // ✅ GET SINGLE QUESTION
   async findOne(id: string) {
-    const question = await this.prisma.question.findUnique({
+    return this.prisma.question.findUnique({
       where: { id },
-    });
-
-    if (!question) {
-      throw new NotFoundException('Question not found');
-    }
-
-    return question;
-  }
-
-  async update(id: string, dto: UpdateQuestionDto) {
-    const exists = await this.prisma.question.findUnique({
-      where: { id },
-    });
-
-    if (!exists) {
-      throw new NotFoundException('Question not found');
-    }
-
-    return this.prisma.question.update({
-      where: { id },
-      data: dto,
-    });
-  }
-
-  delete(id: string) {
-    return this.prisma.question.delete({
-      where: { id },
+      include: {
+        options: true,
+      },
     });
   }
 }

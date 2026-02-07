@@ -1,75 +1,27 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { SubmitAnswerDto } from './dto';
 
 @Injectable()
 export class SubmissionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  // -----------------------------
-  // START SUBMISSION
-  // -----------------------------
-  async startSubmission(testId: string, userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
-    });
-
-    if (!student) {
-      throw new NotFoundException('Student profile not found');
-    }
-
-    const test = await this.prisma.test.findUnique({
-      where: { id: testId },
-    });
-
-    if (!test) {
-      throw new NotFoundException('Test not found');
-    }
-
-    // Prevent duplicate attempt (optional safety)
-    const existing = await this.prisma.submission.findFirst({
-      where: {
-        studentId: student.id,
-        testId,
-      },
-    });
-
-    if (existing) {
-      return existing;
-    }
-
+  // ✅ CREATE SUBMISSION
+  async create(testId: string, studentId: string) {
     return this.prisma.submission.create({
       data: {
-        studentId: student.id,
         testId,
-        status: 'IN_PROGRESS',
-        score: 0,
+        studentId,
       },
     });
   }
 
-  // -----------------------------
-  // SUBMIT ANSWER
-  // -----------------------------
-  async submitAnswer(
-    submissionId: string,
-    dto: SubmitAnswerDto,
-    userId: string,
-  ) {
+  // ✅ GET SUBMISSION
+  async findOne(id: string) {
     const submission = await this.prisma.submission.findUnique({
-      where: { id: submissionId },
+      where: { id },
       include: {
         student: true,
-        test: {
-          include: {
-            questions: true,
-          },
-        },
+        answers: true,
       },
     });
 
@@ -77,67 +29,14 @@ export class SubmissionsService {
       throw new NotFoundException('Submission not found');
     }
 
-    // Ownership validation
-    if (submission.student.userId !== userId) {
-      throw new ForbiddenException('Unauthorized access');
-    }
+    return submission;
+  }
 
-    // Validate question belongs to test
-    const question = submission.test.questions.find(
-      (q) => q.id === dto.questionId,
-    );
-
-    if (!question) {
-      throw new BadRequestException('Invalid question for this test');
-    }
-
-    // Prevent duplicate answer
-    const existing = await this.prisma.submissionAnswer.findFirst({
-      where: {
-        submissionId,
-        questionId: dto.questionId,
-      },
+  // ✅ UPDATE SCORE
+  async updateScore(id: string, score: number) {
+    return this.prisma.submission.update({
+      where: { id },
+      data: { score },
     });
-
-    if (existing) {
-      throw new BadRequestException('Answer already submitted');
-    }
-
-    // -----------------------------
-    // AUTO EVALUATION (MCQ)
-    // -----------------------------
-    const isCorrect =
-      String(dto.selectedAnswer) ===
-      String(question.correctAnswer);
-
-    const marksObtained = isCorrect ? question.marks : 0;
-
-    const answer = await this.prisma.submissionAnswer.create({
-      data: {
-        submissionId,
-        questionId: dto.questionId,
-        selectedAnswer: String(dto.selectedAnswer),
-        isCorrect,
-        marksObtained,
-      },
-    });
-
-    // -----------------------------
-    // UPDATE TOTAL SCORE
-    // -----------------------------
-    const total = await this.prisma.submissionAnswer.aggregate({
-      where: { submissionId },
-      _sum: { marksObtained: true },
-    });
-
-    await this.prisma.submission.update({
-      where: { id: submissionId },
-      data: {
-        score: total._sum.marksObtained || 0,
-      },
-    });
-
-    return answer;
   }
 }
-
