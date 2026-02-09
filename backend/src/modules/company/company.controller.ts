@@ -29,6 +29,6 @@ export class CompanyController {
   @Roles(UserRole.COMPANY_ADMIN)
   @Get('dashboard')
   dashboard(@Req() req) {
-    return this.companyService.dashboard(req.user);
+    return this.companyService.getDashboard(req.user);
   }
 }
