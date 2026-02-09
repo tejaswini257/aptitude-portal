@@ -1,4 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { OrgType, UserRole } from '@prisma/client';
@@ -8,11 +11,10 @@ import * as bcrypt from 'bcrypt';
 export class CompanyService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ✅ CREATE COMPANY + COMPANY ADMIN
+  // CREATE COMPANY + COMPANY ADMIN
   async create(dto: CreateCompanyDto) {
     const hashedPassword = await bcrypt.hash(dto.adminPassword, 10);
 
-    // 1️⃣ Create Company Organization
     const company = await this.prisma.organization.create({
       data: {
         name: dto.name,
@@ -20,7 +22,6 @@ export class CompanyService {
       },
     });
 
-    // 2️⃣ Create Company Admin User
     await this.prisma.user.create({
       data: {
         email: dto.adminEmail,
@@ -36,52 +37,49 @@ export class CompanyService {
     };
   }
 
-  // // ✅ COMPANY DASHBOARD (FOR COMPANY ADMIN)
-  // async dashboard(user: any) {
-  //   const orgId = user.orgId;
-
-  //   if (!orgId) {
-  //     throw new NotFoundException('Organization not found');
-  //   }
-
-   async getDashboard(user: any) {
-  const orgId = user.orgId;
-
-  if (!orgId) {
-    throw new NotFoundException('Organization not found');
+  // GET ALL COMPANIES
+  async findAll() {
+    return this.prisma.organization.findMany({
+      where: { type: OrgType.COMPANY },
+      include: {
+        users: true,
+      },
+    });
   }
 
-  // Total tests created by this company
-  const totalTests = await this.prisma.test.count({
-    where: { orgId },
-  });
+  // COMPANY DASHBOARD
+  async getDashboard(user: any) {
+    const orgId = user.orgId;
 
-  // Total drives created by this company
-  const totalDrives = await this.prisma.drive.count({
-    where: { companyId: orgId },
-  });
+    if (!orgId) {
+      throw new NotFoundException('Organization not found');
+    }
 
-  // Get all tests IDs of this company
-  const tests = await this.prisma.test.findMany({
-    where: { orgId },
-    select: { id: true },
-  });
+    const totalTests = await this.prisma.test.count({
+      where: { orgId },
+    });
 
-  const testIds = tests.map(t => t.id);
+    const totalDrives = await this.prisma.drive.count({
+      where: { companyId: orgId },
+    });
 
-  // Count submissions for those tests
-  const totalCandidates = await this.prisma.submission.count({
-    where: {
-      testId: {
-        in: testIds,
+    const tests = await this.prisma.test.findMany({
+      where: { orgId },
+      select: { id: true },
+    });
+
+    const testIds = tests.map(t => t.id);
+
+    const totalCandidates = await this.prisma.submission.count({
+      where: {
+        testId: { in: testIds },
       },
-    },
-  });
+    });
 
-  return {
-    totalTests,
-    totalDrives,
-    totalCandidates,
-  };
-}
+    return {
+      totalTests,
+      totalDrives,
+      totalCandidates,
+    };
+  }
 }

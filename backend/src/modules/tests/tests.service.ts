@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class TestsService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE TEST
+  // ✅ CREATE
   async create(dto: any, orgId: string) {
     return this.prisma.test.create({
       data: {
         name: dto.name,
-        orgId: orgId,
+        orgId,
         showResultImmediately: dto.showResultImmediately ?? false,
         proctoringEnabled: dto.proctoringEnabled ?? false,
         rulesId: dto.rulesId,
@@ -18,7 +18,7 @@ export class TestsService {
     });
   }
 
-  // ✅ GET ALL TESTS
+  // ✅ GET ALL
   async findAll(orgId: string) {
     return this.prisma.test.findMany({
       where: { orgId },
@@ -30,9 +30,9 @@ export class TestsService {
     });
   }
 
-  // ✅ GET SINGLE TEST
+  // ✅ GET ONE
   async findOne(id: string, orgId: string) {
-    return this.prisma.test.findFirst({
+    const test = await this.prisma.test.findFirst({
       where: {
         id,
         orgId,
@@ -41,6 +41,37 @@ export class TestsService {
         rules: true,
         sections: true,
       },
+    });
+
+    if (!test) throw new NotFoundException('Test not found');
+
+    return test;
+  }
+
+  // ✅ UPDATE
+  async update(id: string, dto: any, orgId: string) {
+    const test = await this.prisma.test.findFirst({
+      where: { id, orgId },
+    });
+
+    if (!test) throw new NotFoundException('Test not found');
+
+    return this.prisma.test.update({
+      where: { id },
+      data: dto,
+    });
+  }
+
+  // ✅ DELETE
+  async remove(id: string, orgId: string) {
+    const test = await this.prisma.test.findFirst({
+      where: { id, orgId },
+    });
+
+    if (!test) throw new NotFoundException('Test not found');
+
+    return this.prisma.test.delete({
+      where: { id },
     });
   }
 }

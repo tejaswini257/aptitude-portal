@@ -14,7 +14,6 @@ import { DrivesModule } from './modules/drives/drives.module';
 import { OrganizationController } from './modules/organization/organization.controller';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
-import { CompaniesModule } from './modules/companies/companies.module';
 import { AdminModule } from './modules/admin/admin.module';
 
 
@@ -32,7 +31,6 @@ import { AdminModule } from './modules/admin/admin.module';
     CompanyModule,
     CompanyTestsModule,
     DrivesModule,
-    CompaniesModule,
     AdminModule,
   ],
 })

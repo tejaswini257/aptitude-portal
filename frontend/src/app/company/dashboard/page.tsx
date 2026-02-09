@@ -1,40 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import api from "@/interceptors/axios";
 
 type DashboardData = {
   totalTests: number;
-  activeTests: number;
+  totalDrives: number;
   totalCandidates: number;
 };
 
 export default function CompanyDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        const res = await fetch(
-          "http://localhost:3000/companies/dashboard",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch dashboard");
-        }
-
-        const result = await res.json();
-        setData(result);
-      } catch (err: any) {
-        setError(err.message);
+        const res = await api.get("/companies/dashboard");
+        setData(res.data);
+      } catch (err) {
+        console.error("Dashboard error:", err);
       } finally {
         setLoading(false);
       }
@@ -44,8 +29,8 @@ export default function CompanyDashboard() {
   }, []);
 
   if (loading) return <p>Loading dashboard...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!data) return <p>No dashboard data available</p>;
+
+  if (!data) return <p>Failed to load dashboard.</p>;
 
   return (
     <>
@@ -60,9 +45,9 @@ export default function CompanyDashboard() {
           gap: "20px",
         }}
       >
-        <StatCard title="Active Tests" value={data.activeTests} />
+        <StatCard title="Total Tests" value={data.totalTests} />
+        <StatCard title="Active Drives" value={data.totalDrives} />
         <StatCard title="Total Candidates" value={data.totalCandidates} />
-        <StatCard title="Total Tests Created" value={data.totalTests} />
       </div>
     </>
   );
@@ -76,7 +61,6 @@ function StatCard({ title, value }: { title: string; value: number }) {
         padding: "24px",
         borderRadius: "16px",
         boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-        transition: "0.3s ease",
       }}
     >
       <p style={{ color: "#64748b", fontSize: "14px" }}>{title}</p>

@@ -12,10 +12,12 @@ import {
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { QuestionsService } from './questions.service';
+import { Req } from '@nestjs/common';
+
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
+
 @Controller('questions')
 @UseGuards(JwtAuthGuard)
 export class QuestionsController {
