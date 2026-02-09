@@ -78,11 +78,14 @@ export class SubmissionsService {
     const testSections = await this.prisma.testSection.findMany({
       where: { testId: submission.testId },
       include: {
-        Section: { include: { questions: true } },
-      },
+        section: { include: { questions: true } },
+      } as any,
     });
 
-    const questions = testSections.flatMap((ts) => ts.Section?.questions ?? []);
+    const tsWithSection = testSections as Array<{
+      section?: { questions: Array<{ id: string; correctAnswer?: string | null }> };
+    }>;
+    const questions = tsWithSection.flatMap((ts) => ts.section?.questions ?? []);
     const question = questions.find((q) => q.id === dto.questionId);
 
     if (!question) {

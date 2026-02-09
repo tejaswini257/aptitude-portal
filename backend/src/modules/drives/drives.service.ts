@@ -17,8 +17,8 @@ export class DrivesService {
     return this.prisma.drive.create({
       data: {
         id: randomUUID(),
-        Organization: { connect: { id: companyId } },
-        Test: { connect: { id: dto.testId } },
+        companyId,
+        testId: dto.testId,
         isOpenDrive: dto.isOpenDrive ?? false,
         startDate: new Date(dto.startDate),
         endDate: new Date(dto.endDate),

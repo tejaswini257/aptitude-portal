@@ -47,14 +47,14 @@ export class CompanyTestsService {
     return this.prisma.test.findMany({
       where: { orgId },
       orderBy: { createdAt: 'desc' },
-      include: { Rules: true },
+      include: { rules: true } as any,
     });
   }
 
   async findOne(id: string, orgId: string) {
     const test = await this.prisma.test.findUnique({
       where: { id },
-      include: { Rules: true, sections: true },
+      include: { rules: true, sections: true } as any,
     });
 
     if (!test) throw new NotFoundException('Test not found');
