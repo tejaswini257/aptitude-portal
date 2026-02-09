@@ -34,6 +34,22 @@ export class CollegesController {
     return this.service.findAll(req.user);
   }
 
+  /** Dashboard stats for college admin (COLLEGE_ADMIN only) */
+  @Get('dashboard/stats')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
+  getDashboardStats(@Req() req: any) {
+    const orgId = req.user?.orgId;
+    if (!orgId) {
+      return {
+        students: 0,
+        departments: 0,
+        companies: 0,
+        ongoingDrives: 0,
+      };
+    }
+    return this.service.getDashboardStats(orgId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(id);

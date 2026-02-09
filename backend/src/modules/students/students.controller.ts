@@ -33,11 +33,13 @@ export class StudentsController {
     return this.studentsService.create(dto, orgId);
   }
 
-  // ✅ GET STUDENTS (optionally by department)
-  // GET /students?departmentId=
+  // ✅ GET STUDENTS (optional: departmentId or collegeId)
   @Get()
-  findAll(@Query('departmentId') departmentId?: string) {
-    return this.studentsService.findAll(departmentId);
+  findAll(
+    @Query('departmentId') departmentId?: string,
+    @Query('collegeId') collegeId?: string,
+  ) {
+    return this.studentsService.findAll(departmentId, collegeId);
   }
 
   // ✅ GET SINGLE STUDENT

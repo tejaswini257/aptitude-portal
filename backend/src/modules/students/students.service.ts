@@ -72,10 +72,13 @@ export class StudentsService {
     });
   }
 
-  // ✅ GET STUDENTS (with optional department filter)
-  findAll(departmentId?: string) {
+  // ✅ GET STUDENTS (optional filter by departmentId or collegeId)
+  findAll(departmentId?: string, collegeId?: string) {
+    const where: any = {};
+    if (departmentId) where.departmentId = departmentId;
+    else if (collegeId) where.collegeId = collegeId;
     return this.prisma.student.findMany({
-      where: departmentId ? { departmentId } : {},
+      where,
       include: {
         user: true,
         college: true,

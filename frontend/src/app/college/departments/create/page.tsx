@@ -1,64 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
+import api from "@/interceptors/axios";
 
 export default function CreateDepartmentPage() {
   const router = useRouter();
-
-  const [form, setForm] = useState({
-    name: "",
-    hodName: "",
-    email: "",
-    phone: "",
-    totalStudents: "",
-    totalFaculty: "",
-  });
-
+  const [collegeId, setCollegeId] = useState("");
+  const [form, setForm] = useState({ name: "" });
   const [loading, setLoading] = useState(false);
+  const [loadingCollege, setLoadingCollege] = useState(true);
   const [error, setError] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    api
+      .get("/colleges")
+      .then((res) => {
+        const list = res.data || [];
+        if (list.length) setCollegeId(list[0].id);
+      })
+      .catch(() => setError("Failed to load college"))
+      .finally(() => setLoadingCollege(false));
+  }, [router]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleCreate = async () => {
-    const {
-      name,
-      hodName,
-      email,
-      phone,
-      totalStudents,
-      totalFaculty,
-    } = form;
-
-    if (!name || !hodName) {
-      setError("Department name and HOD name are required");
+    if (!form.name.trim()) {
+      setError("Department name is required");
       return;
     }
-
+    if (!collegeId) {
+      setError("College not found");
+      return;
+    }
     try {
       setLoading(true);
       setError("");
-
-      await api("/departments", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          hodName,
-          email,
-          phone,
-          totalStudents: Number(totalStudents),
-          totalFaculty: Number(totalFaculty),
-        }),
-      });
-
+      await api.post("/departments", { name: form.name.trim(), collegeId });
       router.push("/college/departments");
     } catch (err: any) {
-      setError(err.message || "Failed to create department");
+      setError(err.response?.data?.message || err.message || "Failed to create department");
     } finally {
       setLoading(false);
     }
@@ -85,94 +74,22 @@ export default function CreateDepartmentPage() {
         )}
 
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Department Name */}
+        {loadingCollege ? (
+          <p className="text-gray-500">Loading…</p>
+        ) : (
           <div>
-            <label className="form-label">
-              Department Name *
-            </label>
-            <input
-              name="name"
-              placeholder="Computer Science"
-              className="input focus:ring-2 focus:ring-green-500"
-              value={form.name}
-              onChange={handleChange}
-            />
+            <div>
+              <label className="form-label">Department Name *</label>
+              <input
+                name="name"
+                placeholder="e.g. Computer Science"
+                className="input focus:ring-2 focus:ring-green-500 w-full max-w-md"
+                value={form.name}
+                onChange={handleChange}
+              />
+            </div>
           </div>
-
-          {/* HOD */}
-          <div>
-            <label className="form-label">
-              HOD / Faculty In-Charge *
-            </label>
-            <input
-              name="hodName"
-              placeholder="Dr. Rahul Sharma"
-              className="input focus:ring-2 focus:ring-green-500"
-              value={form.hodName}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="form-label">
-              Department Email
-            </label>
-            <input
-              name="email"
-              type="email"
-              placeholder="cs@college.edu"
-              className="input focus:ring-2 focus:ring-green-500"
-              value={form.email}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="form-label">
-              Contact Number
-            </label>
-            <input
-              name="phone"
-              placeholder="+91 98765 43210"
-              className="input focus:ring-2 focus:ring-green-500"
-              value={form.phone}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Total Students */}
-          <div>
-            <label className="form-label">
-              Total Students
-            </label>
-            <input
-              name="totalStudents"
-              type="number"
-              placeholder="180"
-              className="input focus:ring-2 focus:ring-green-500"
-              value={form.totalStudents}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Total Faculty */}
-          <div>
-            <label className="form-label">
-              Total Faculty
-            </label>
-            <input
-              name="totalFaculty"
-              type="number"
-              placeholder="22"
-              className="input focus:ring-2 focus:ring-green-500"
-              value={form.totalFaculty}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 mt-10">

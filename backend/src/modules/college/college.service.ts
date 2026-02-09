@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
 import { UpdateCollegeDto } from './dto/update-college.dto';
+import { OrgType } from '@prisma/client';
 
 @Injectable()
 export class CollegesService {
@@ -77,5 +78,39 @@ async create(dto: CreateCollegeDto) {
       where: { id },
       data: { isApproved: true },
     });
+  }
+
+  /** Dashboard stats for college admin (by orgId from JWT) */
+  async getDashboardStats(orgId: string) {
+    const college = await this.prisma.college.findFirst({
+      where: { orgId },
+    });
+    if (!college) {
+      return {
+        students: 0,
+        departments: 0,
+        companies: 0,
+        ongoingDrives: 0,
+      };
+    }
+    const [students, departments, companies, ongoingDrives] = await Promise.all([
+      this.prisma.student.count({ where: { collegeId: college.id } }),
+      this.prisma.department.count({ where: { collegeId: college.id } }),
+      this.prisma.organization.count({
+        where: { type: OrgType.COMPANY },
+      }),
+      this.prisma.driveCollege.count({
+        where: {
+          collegeId: college.id,
+          drive: { isOpenDrive: true },
+        },
+      }),
+    ]);
+    return {
+      students,
+      departments,
+      companies,
+      ongoingDrives,
+    };
   }
 }

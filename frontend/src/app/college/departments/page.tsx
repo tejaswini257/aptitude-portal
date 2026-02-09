@@ -123,10 +123,10 @@ export default function DepartmentsPage() {
             {/* Footer */}
             <div className="px-6 py-4 border-t flex justify-between items-center text-sm bg-gray-50">
               <Link
-                href={`/college/departments/${d.id}`}
+                href={`/college/departments/${d.id}/students`}
                 className="text-blue-600 font-medium hover:underline"
               >
-                Open
+                View Students
               </Link>
 
               <Link
