@@ -7,32 +7,39 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateQuestionDto) {
+  create(dto: CreateQuestionDto, orgId?: string, createdBy?: string) {
+    const sectionId = dto.sectionId;
+    if (!sectionId) {
+      throw new Error('sectionId is required');
+    }
     return this.prisma.question.create({
       data: {
-  testId: dto.testId,
-  sectionId: dto.sectionId ?? undefined,
-  type: dto.type,
-  difficulty: dto.difficulty,
-  title: dto.title,
-  description: dto.description,
-  correctAnswer: dto.correctAnswer ?? null,
-  evaluationConfig: dto.evaluationConfig ?? null,
-  marks: dto.marks,
-  timeLimitSec: dto.timeLimitSec ?? null,
-  order: dto.order,
-  explanation: dto.explanation ?? null,
-},
-
-
+        sectionId,
+        orgId: orgId ?? '',
+        difficulty: dto.difficulty,
+        questionText: dto.title ?? dto.description ?? '',
+        allowedFor: 'BOTH',
+        createdBy: createdBy ?? 'system',
+        creatorRole: 'ADMIN',
+        type: dto.type,
+        correctAnswer: dto.correctAnswer != null ? String(dto.correctAnswer) : null,
+        codingMeta: dto.evaluationConfig ?? null,
+        isActive: true,
+      },
     });
   }
 
-  findByTest(testId: string) {
+  async findByTest(testId: string) {
+    const testSections = await this.prisma.testSection.findMany({
+      where: { testId },
+      select: { sectionId: true },
+    });
+    const sectionIds = testSections.map((ts) => ts.sectionId);
+    if (sectionIds.length === 0) return [];
     return this.prisma.question.findMany({
-  where: { testId },
-  orderBy: { createdAt: 'asc' },
-});
+      where: { sectionId: { in: sectionIds } },
+      orderBy: { id: 'asc' },
+    });
 
   }
 
@@ -57,45 +64,17 @@ export class QuestionsService {
       throw new NotFoundException('Question not found');
     }
 
+    const data: Record<string, unknown> = {};
+    if (dto.sectionId) data.sectionId = dto.sectionId;
+    if (dto.type) data.type = dto.type;
+    if (dto.difficulty) data.difficulty = dto.difficulty;
+    if (dto.title) data.questionText = dto.title;
+    if (dto.description !== undefined) data.questionText = dto.description ?? exists.questionText;
+    if (dto.correctAnswer !== undefined) data.correctAnswer = dto.correctAnswer != null ? String(dto.correctAnswer) : null;
+
     return this.prisma.question.update({
       where: { id },
-      data: {
-        ...(dto.testId && { testId: dto.testId }),
-
-        // ✅ same pattern as create()
-        ...(dto.sectionId && { sectionId: dto.sectionId }),
-
-        ...(dto.type && { type: dto.type }),
-        ...(dto.difficulty && { difficulty: dto.difficulty }),
-        ...(dto.title && { title: dto.title }),
-
-        ...(dto.description !== undefined && {
-          description: dto.description ?? null,
-        }),
-
-        ...(dto.options !== undefined && {
-          options: dto.options as any,
-        }),
-
-        ...(dto.correctAnswer !== undefined && {
-          correctAnswer: dto.correctAnswer as any,
-        }),
-
-        ...(dto.evaluationConfig !== undefined && {
-          evaluationConfig: dto.evaluationConfig as any,
-        }),
-
-        ...(dto.marks !== undefined && { marks: dto.marks }),
-        ...(dto.timeLimitSec !== undefined && {
-          timeLimitSec: dto.timeLimitSec ?? null,
-        }),
-
-        ...(dto.order !== undefined && { order: dto.order }),
-
-        ...(dto.explanation !== undefined && {
-          explanation: dto.explanation ?? null,
-        }),
-      },
+      data: data as any,
     });
   }
 

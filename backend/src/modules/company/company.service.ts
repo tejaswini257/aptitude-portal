@@ -45,27 +45,25 @@ export class CompanyService {
     }
 
     const totalTests = await this.prisma.test.count({
-      where: { organizationId: orgId },
+      where: { orgId },
     });
 
-    const activeTests = await this.prisma.test.count({
-      where: {
-        organizationId: orgId,
-        status: 'PUBLISHED',
-      },
-    });
-
-    const totalCandidates = await this.prisma.submission.count({
-      where: {
-        test: {
-          organizationId: orgId,
-        },
-      },
-    });
+    const testIds = (
+      await this.prisma.test.findMany({
+        where: { orgId },
+        select: { id: true },
+      })
+    ).map((t) => t.id);
+    const totalCandidates =
+      testIds.length > 0
+        ? await this.prisma.submission.count({
+            where: { testId: { in: testIds } },
+          })
+        : 0;
 
     return {
       totalTests,
-      activeTests,
+      activeTests: totalTests,
       totalCandidates,
     };
   }

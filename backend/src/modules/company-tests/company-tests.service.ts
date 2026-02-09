@@ -16,48 +16,58 @@ export interface CreateCompanyTestDto {
 export class CompanyTestsService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE TEST
+  // CREATE TEST (schema: name, orgId, rulesId, showResultImmediately, proctoringEnabled)
   async create(dto: CreateCompanyTestDto, orgId: string) {
-    const data: any = {
-      name: dto.name,
-      organizationId: orgId,
-      showResultImmediately: dto.showResultImmediately,
-      proctoringEnabled: dto.proctoringEnabled,
-      ...(dto.rulesId ? { rules: { connect: { id: dto.rulesId } } } : {}),
-    };
-    return this.prisma.test.create({ data });
-  }
-
-  // ✅ LIST TESTS
-  async findAll(orgId: string) {
-    return this.prisma.test.findMany({
-      where: { organizationId: orgId },
-      orderBy: { createdAt: 'desc' },
-      include: { rules: true } as any,
+    let rulesId = dto.rulesId;
+    if (!rulesId) {
+      const { randomUUID } = await import('crypto');
+      const rules = await this.prisma.rules.create({
+        data: {
+          id: randomUUID(),
+          totalMarks: 0,
+          marksPerQuestion: 1,
+          negativeMarking: false,
+          negativeMarks: null,
+        },
+      });
+      rulesId = rules.id;
+    }
+    return this.prisma.test.create({
+      data: {
+        name: dto.name,
+        orgId,
+        rulesId,
+        showResultImmediately: dto.showResultImmediately ?? false,
+        proctoringEnabled: dto.proctoringEnabled ?? false,
+      },
     });
   }
 
-  // ✅ GET SINGLE TEST
+  async findAll(orgId: string) {
+    return this.prisma.test.findMany({
+      where: { orgId },
+      orderBy: { createdAt: 'desc' },
+      include: { Rules: true },
+    });
+  }
+
   async findOne(id: string, orgId: string) {
     const test = await this.prisma.test.findUnique({
       where: { id },
-      include: { rules: true, sections: true } as any,
+      include: { Rules: true, sections: true },
     });
 
     if (!test) throw new NotFoundException('Test not found');
-    if (test.organizationId !== orgId)
-      throw new ForbiddenException('Access denied');
+    if (test.orgId !== orgId) throw new ForbiddenException('Access denied');
 
     return test;
   }
 
-  // ✅ UPDATE TEST
-    async update(id: string, dto: Partial<CreateCompanyTestDto>, orgId: string) {
-      const test = await this.prisma.test.findUnique({ where: { id } });
-  
-      if (!test) throw new NotFoundException('Test not found');
-      if (test.organizationId !== orgId)
-        throw new ForbiddenException('Access denied');
+  async update(id: string, dto: Partial<CreateCompanyTestDto>, orgId: string) {
+    const test = await this.prisma.test.findUnique({ where: { id } });
+
+    if (!test) throw new NotFoundException('Test not found');
+    if (test.orgId !== orgId) throw new ForbiddenException('Access denied');
   
       const data: any = {
         ...(dto.name !== undefined && { name: dto.name }),
@@ -76,13 +86,11 @@ export class CompanyTestsService {
       });
     }
 
-  // ✅ ARCHIVE TEST (Soft)
   async archive(id: string, orgId: string) {
     const test = await this.prisma.test.findUnique({ where: { id } });
 
     if (!test) throw new NotFoundException('Test not found');
-    if (test.organizationId !== orgId)
-      throw new ForbiddenException('Access denied');
+    if (test.orgId !== orgId) throw new ForbiddenException('Access denied');
 
     return this.prisma.test.update({
       where: { id },

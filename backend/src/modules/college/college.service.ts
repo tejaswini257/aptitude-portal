@@ -99,12 +99,21 @@ async create(dto: CreateCollegeDto) {
       this.prisma.organization.count({
         where: { type: OrgType.COMPANY },
       }),
-      this.prisma.driveCollege.count({
-        where: {
-          collegeId: college.id,
-          drive: { isOpenDrive: true },
-        },
-      }),
+      (async () => {
+        const openDriveIds = (
+          await this.prisma.drive.findMany({
+            where: { isOpenDrive: true },
+            select: { id: true },
+          })
+        ).map((d) => d.id);
+        if (openDriveIds.length === 0) return 0;
+        return this.prisma.driveCollege.count({
+          where: {
+            collegeId: college.id,
+            driveId: { in: openDriveIds },
+          },
+        });
+      })(),
     ]);
     return {
       students,

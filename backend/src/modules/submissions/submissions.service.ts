@@ -47,7 +47,6 @@ export class SubmissionsService {
       data: {
         studentId: student.id,
         testId,
-        status: 'IN_PROGRESS',
         score: 0,
       },
     });
@@ -63,14 +62,7 @@ export class SubmissionsService {
   ) {
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
-      include: {
-        student: true,
-        test: {
-          include: {
-            questions: true,
-          },
-        },
-      },
+      include: { student: true },
     });
 
     if (!submission) {
@@ -82,10 +74,16 @@ export class SubmissionsService {
       throw new ForbiddenException('Unauthorized access');
     }
 
-    // Validate question belongs to test
-    const question = submission.test.questions.find(
-      (q) => q.id === dto.questionId,
-    );
+    // Fetch questions via TestSection -> Section -> Question
+    const testSections = await this.prisma.testSection.findMany({
+      where: { testId: submission.testId },
+      include: {
+        Section: { include: { questions: true } },
+      },
+    });
+
+    const questions = testSections.flatMap((ts) => ts.Section?.questions ?? []);
+    const question = questions.find((q) => q.id === dto.questionId);
 
     if (!question) {
       throw new BadRequestException('Invalid question for this test');
@@ -107,10 +105,9 @@ export class SubmissionsService {
     // AUTO EVALUATION (MCQ)
     // -----------------------------
     const isCorrect =
-      String(dto.selectedAnswer) ===
-      String(question.correctAnswer);
+      String(dto.selectedAnswer) === String(question.correctAnswer ?? '');
 
-    const marksObtained = isCorrect ? question.marks : 0;
+    const marksObtained = isCorrect ? 1 : 0;
 
     const answer = await this.prisma.submissionAnswer.create({
       data: {
