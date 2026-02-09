@@ -29,8 +29,7 @@ export default function CompanyDashboard() {
   }, []);
 
   if (loading) return <p>Loading dashboard...</p>;
-
-  if (!data) return <p>Failed to load dashboard.</p>;
+  if (!data) return <p>Failed to load dashboard</p>;
 
   return (
     <>
@@ -41,12 +40,12 @@ export default function CompanyDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: "20px",
         }}
       >
         <StatCard title="Total Tests" value={data.totalTests} />
-        <StatCard title="Active Drives" value={data.totalDrives} />
+        <StatCard title="Total Drives" value={data.totalDrives} />
         <StatCard title="Total Candidates" value={data.totalCandidates} />
       </div>
     </>
