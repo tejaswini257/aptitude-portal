@@ -1,15 +1,6 @@
-/* Tailwind MUST be first */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* =========================
-   GLOBAL THEME
-========================= */
-:root {
-  --bg: #ffffff;
-  --text: #111827;
-}
 
 body {
   background: var(--bg);
@@ -18,7 +9,7 @@ body {
     sans-serif;
 }
 
-<<<<<<< HEAD
+<<<<<<<<< Temporary merge branch 1
 /* =========================
    PAGE LAYOUT
 ========================= */
@@ -108,7 +99,7 @@ body {
   height: 100%;
   background: #16a34a;
 }
-=======
+=========
 .container {
   max-width: 1100px;
   margin: 0 auto;
@@ -312,4 +303,4 @@ body {
   background: #f3f4f6;
 }
 
->>>>>>> 8124526821d45680e42a7162a9f6fc5c37c53cb3
+>>>>>>>>> Temporary merge branch 2

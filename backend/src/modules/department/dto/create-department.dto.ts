@@ -1,10 +1,11 @@
-import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateDepartmentDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   collegeId: string;
 }

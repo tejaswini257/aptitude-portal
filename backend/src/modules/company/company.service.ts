@@ -28,11 +28,53 @@ export class CompanyService {
         role: UserRole.COMPANY_ADMIN,
         orgId: company.id,
       },
+<<<<<<< HEAD
     });
 
     return {
       message: 'Company created successfully',
       companyId: company.id,
+=======
+    });
+
+    return {
+      message: 'Company created successfully',
+      companyId: company.id,
+    };
+  }
+
+  // ✅ COMPANY DASHBOARD (FOR COMPANY ADMIN)
+  async dashboard(user: any) {
+    const orgId = user.orgId;
+
+    if (!orgId) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    const totalTests = await this.prisma.test.count({
+      where: { organizationId: orgId },
+    });
+
+    const activeTests = await this.prisma.test.count({
+      where: {
+        organizationId: orgId,
+        status: 'PUBLISHED',
+      },
+    });
+
+    const totalCandidates = await this.prisma.submission.count({
+      where: {
+        test: {
+          organizationId: orgId,
+        },
+      },
+    });
+
+    return {
+      totalTests,
+      activeTests,
+      totalCandidates,
+>>>>>>> cb51ccf3a1369e3b0530bab8797a5aa8db0cfdbb
     };
   }
 

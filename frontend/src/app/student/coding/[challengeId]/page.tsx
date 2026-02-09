@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 /* ===============================
-   TYPES
+   MOCK DATA (Replace with API later)
 ================================= */
 
 type Challenge = {
@@ -12,12 +12,8 @@ type Challenge = {
   title: string;
   difficulty: "Easy" | "Medium" | "Hard";
   description: string;
-  timeLimit: number;
+  timeLimit: number; // minutes
 };
-
-/* ===============================
-   MOCK DATA
-================================= */
 
 const challengeData: Challenge[] = [
   {
@@ -51,29 +47,27 @@ const challengeData: Challenge[] = [
 ================================= */
 
 export default function ChallengePage() {
-  const params = useParams();
-  const challengeId = params?.challengeId as string;
-
+  const { challengeId } = useParams();
   const challenge = challengeData.find(
     (c) => c.id === challengeId
   );
 
-  const [code, setCode] = useState("// Write your solution here");
-  const [submitted, setSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [code, setCode] = useState<string>("// Write your solution here");
+  const [timeLeft, setTimeLeft] = useState<number>(
+    challenge?.timeLimit ? challenge.timeLimit * 60 : 0
+  );
+  const [submitted, setSubmitted] = useState<boolean>(false);
 
   /* ===============================
-     TIMER
+     TIMER LOGIC
   ================================= */
 
   useEffect(() => {
     if (!challenge) return;
 
-    setTimeLeft(challenge.timeLimit * 60);
-
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
+        if (prev <= 0) {
           clearInterval(timer);
           return 0;
         }
@@ -94,19 +88,24 @@ export default function ChallengePage() {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
+  const handleSubmit = () => {
+    setSubmitted(true);
+
+    // Later: call backend API here
+    // POST /submissions
+  };
+
   const difficultyColor = () => {
     if (challenge.difficulty === "Easy") return "#16a34a";
     if (challenge.difficulty === "Medium") return "#d97706";
     return "#dc2626";
   };
 
-  const handleSubmit = () => {
-    setSubmitted(true);
-  };
-
   return (
     <>
-      {/* HEADER */}
+      {/* ===============================
+          HEADER SECTION
+      ================================= */}
 
       <div style={{ marginBottom: "30px" }}>
         <h2
@@ -146,7 +145,9 @@ export default function ChallengePage() {
         </div>
       </div>
 
-      {/* DESCRIPTION */}
+      {/* ===============================
+          PROBLEM DESCRIPTION
+      ================================= */}
 
       <div
         style={{

@@ -50,10 +50,10 @@ export class DepartmentService {
   async update(id: string, dto: UpdateDepartmentDto) {
     return this.prisma.department.update({
       where: { id },
-      data: dto,
+      data: { name: dto.name },
     });
-    
   }
+
   async findById(id: string) {
 return this.prisma.department.findUnique({
 where: { id },

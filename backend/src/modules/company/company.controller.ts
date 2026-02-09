@@ -23,5 +23,15 @@ export class CompanyController {
   @Post()
   create(@Body() dto: CreateCompanyDto) {
     return this.companyService.create(dto);
+<<<<<<< HEAD
+=======
+  }
+
+  // ✅ COMPANY DASHBOARD (COMPANY ADMIN)
+  @Roles(UserRole.COMPANY_ADMIN)
+  @Get('dashboard')
+  dashboard(@Req() req) {
+    return this.companyService.dashboard(req.user);
+>>>>>>> cb51ccf3a1369e3b0530bab8797a5aa8db0cfdbb
   }
 }

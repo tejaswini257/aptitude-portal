@@ -14,7 +14,7 @@ input {
   border: 1px solid #e5e7eb;
 }
 
-button {
+.button {
   background: linear-gradient(90deg,#2563eb,#7c3aed);
   color: white;
   padding: 10px;

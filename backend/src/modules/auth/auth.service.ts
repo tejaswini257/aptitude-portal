@@ -23,6 +23,23 @@ export class AuthService {
     });
     if (exists) throw new BadRequestException('Email already exists');
 
+    // Validate organization for non-super admin roles
+    if (dto.role !== UserRole.SUPER_ADMIN) {
+      if (!dto.orgId) {
+        throw new BadRequestException(
+          'Organization ID is required for this role',
+        );
+      }
+
+      const org = await this.prisma.organization.findUnique({
+        where: { id: dto.orgId },
+      });
+
+      if (!org) {
+        throw new BadRequestException('Invalid organization ID');
+      }
+    }
+
     const password = await bcrypt.hash(dto.password, 10);
 
     const user = await this.prisma.user.create({

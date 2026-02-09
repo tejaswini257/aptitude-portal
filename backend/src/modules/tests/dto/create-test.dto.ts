@@ -12,10 +12,6 @@ export class CreateTestDto {
   @IsString()
   name: string;
 
-  @IsOptional()
-  @IsString()
-  description?: string;
-
   @IsEnum(TestType)
   type: TestType;
 
