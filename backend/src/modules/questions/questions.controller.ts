@@ -9,43 +9,37 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { QuestionsService } from './questions.service';
+import { Req } from '@nestjs/common';
+
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
+
 @Controller('questions')
+@UseGuards(JwtAuthGuard)
 export class QuestionsController {
   constructor(private readonly service: QuestionsService) {}
 
-  // ➕ Create Question
   @Post()
-  create(@Body() dto: CreateQuestionDto) {
-    return this.service.create(dto);
+  create(@Body() dto: any, @Req() req: any) {
+    return this.service.create(dto, req.user.orgId);
   }
 
-  // 📄 Get Questions by Test
-  @Get()
-  findByTest(@Query('testId') testId: string) {
+  @Get('test/:testId')
+  findByTest(@Param('testId') testId: string) {
     return this.service.findByTest(testId);
   }
 
-  // 🔍 Get Single Question
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
-  }
-
-  // ✏️ Update Question
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateQuestionDto) {
+  update(@Param('id') id: string, @Body() dto: any) {
     return this.service.update(id, dto);
   }
 
-  // ❌ Delete Question
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.service.delete(id);
   }
 }

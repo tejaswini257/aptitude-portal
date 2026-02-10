@@ -6,7 +6,10 @@ const baseURL =
     : process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 const api = axios.create({
-  baseURL,
+  baseURL: "http://localhost:3001",
+  headers: {
+    "Cache-Control": "no-cache",
+  },
 });
 
 api.interceptors.request.use((config) => {

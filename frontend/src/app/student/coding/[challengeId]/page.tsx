@@ -163,9 +163,7 @@ export default function ChallengePage() {
         </p>
       </div>
 
-      {/* ===============================
-          CODE EDITOR
-      ================================= */}
+      {/* CODE EDITOR */}
 
       <div
         style={{
@@ -192,9 +190,7 @@ export default function ChallengePage() {
         />
       </div>
 
-      {/* ===============================
-          ACTION BUTTONS
-      ================================= */}
+      {/* ACTION BUTTONS */}
 
       <div style={{ display: "flex", gap: "16px" }}>
         <button
@@ -209,9 +205,7 @@ export default function ChallengePage() {
         </button>
       </div>
 
-      {/* ===============================
-          SUBMISSION FEEDBACK
-      ================================= */}
+      {/* FEEDBACK */}
 
       {submitted && (
         <div

@@ -19,49 +19,48 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 
 @Controller('tests')
-@UseGuards(JwtAuthGuard) // 🔐 JWT for all routes
+@UseGuards(JwtAuthGuard)
 export class TestsController {
   constructor(private readonly testsService: TestsService) {}
 
-  // ✅ CREATE TEST — COLLEGE_ADMIN or COMPANY_ADMIN
+  // ✅ CREATE
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
   create(@Body() dto: CreateTestDto, @Req() req: any) {
-    const orgId =
-      req.user?.role === 'COMPANY_ADMIN' ? req.user?.orgId : undefined;
-    return this.testsService.create(dto, req.user.userId, orgId);
+    return this.testsService.create(dto, req.user.orgId);
   }
 
-  // ✅ GET ALL TESTS — ANY LOGGED-IN USER (optional filter by organizationId for company admin)
+  // ✅ GET ALL
   @Get()
-  findAll(@Query('organizationId') organizationId?: string, @Req() req?: any) {
-    const orgId =
-      organizationId ||
-      (req?.user?.role === 'COMPANY_ADMIN' ? req?.user?.orgId : undefined);
-    return this.testsService.findAll(orgId);
+  findAll(@Req() req: any) {
+    return this.testsService.findAll(req.user.orgId);
   }
 
-  // ✅ GET SINGLE TEST — ANY LOGGED-IN USER
+  // ✅ GET ONE
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.testsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.testsService.findOne(id, req.user.orgId);
   }
 
-  // ✅ UPDATE TEST — COLLEGE_ADMIN or COMPANY_ADMIN
+  // ✅ UPDATE
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateTestDto) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateTestDto,
+    @Req() req: any,
+  ) {
     return this.testsService.update(id, dto);
   }
 
-  // ✅ DELETE TEST — COLLEGE_ADMIN or COMPANY_ADMIN
+  // ✅ DELETE
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  remove(@Param('id') id: string) {
-    return this.testsService.remove(id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.testsService.remove(id, req.user.orgId);
   }
 
  @Get(':id/questions')
