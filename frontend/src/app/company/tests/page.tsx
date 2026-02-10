@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import api from "@/interceptors/axios";
-import { useRouter } from "next/navigation";
 
 type Test = {
   id: string;
@@ -15,7 +14,6 @@ type Test = {
 export default function CompanyTestsPage() {
   const [tests, setTests] = useState<Test[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     fetchTests();
@@ -23,8 +21,8 @@ export default function CompanyTestsPage() {
 
   const fetchTests = async () => {
     try {
-      const res = await api.get("/company/tests");
-      setTests(res.data);
+      const res = await api.get("/tests"); // ✅ NO /api
+      setTests(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Tests fetch error:", err);
     } finally {
@@ -34,8 +32,9 @@ export default function CompanyTestsPage() {
 
   const handleCreateTest = async () => {
     try {
-      const res = await api.post("/company/tests", {
+      await api.post("/tests", {
         name: "New Test",
+        rulesId: "PUT_VALID_RULE_ID_HERE", // must exist in DB
         showResultImmediately: false,
         proctoringEnabled: false,
       });
@@ -81,7 +80,7 @@ export default function CompanyTestsPage() {
             }}
           >
             <thead>
-              <tr style={{ textAlign: "left", borderBottom: "1px solid #ddd" }}>
+              <tr style={{ borderBottom: "1px solid #ddd" }}>
                 <th>Name</th>
                 <th>Proctoring</th>
                 <th>Result Mode</th>
@@ -91,16 +90,7 @@ export default function CompanyTestsPage() {
 
             <tbody>
               {tests.map((test) => (
-                <tr
-                  key={test.id}
-                  style={{
-                    borderBottom: "1px solid #eee",
-                    cursor: "pointer",
-                  }}
-                  onClick={() =>
-                    router.push(`/company/tests/${test.id}`)
-                  }
-                >
+                <tr key={test.id}>
                   <td>{test.name}</td>
                   <td>
                     {test.proctoringEnabled ? "Enabled" : "Disabled"}
