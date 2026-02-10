@@ -1,40 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import api from "@/interceptors/axios";
 import { useParams } from "next/navigation";
 
-export default function TestDetailPage() {
-  const { testId } = useParams();
+export default function SingleTestPage() {
+  const { tests } = useParams();
+  const [test, setTest] = useState<any>(null);
+
+  useEffect(() => {
+    if (!tests) return;
+
+    const fetchTest = async () => {
+      try {
+        const res = await api.get(`/company/tests/${tests}`);
+        setTest(res.data);
+      } catch (err) {
+        console.error("Single test error:", err);
+      }
+    };
+
+    fetchTest();
+  }, [tests]);
+
+  if (!test) return <p>Loading test...</p>;
 
   return (
-    <>
-      <h2 style={{ fontSize: "26px", marginBottom: "20px" }}>
-        Test Details
-      </h2>
+    <div style={{ padding: "20px" }}>
+      <h1>{test.name}</h1>
 
-      <div
-        style={{
-          background: "#ffffff",
-          padding: "30px",
-          borderRadius: "16px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-        }}
-      >
-        <p>
-          You are viewing test:{" "}
-          <strong>{testId}</strong>
-        </p>
+      <p>
+        Proctoring: {test.proctoringEnabled ? "Enabled" : "Disabled"}
+      </p>
 
-        <p style={{ marginTop: "10px" }}>
-          Here recruiter can:
-        </p>
-
-        <ul style={{ marginTop: "10px" }}>
-          <li>Edit Test</li>
-          <li>Add Questions</li>
-          <li>View Results</li>
-          <li>Assign to Drive</li>
-        </ul>
-      </div>
-    </>
+      <p>
+        Result Mode:{" "}
+        {test.showResultImmediately
+          ? "Immediate"
+          : "After Evaluation"}
+      </p>
+    </div>
   );
 }
