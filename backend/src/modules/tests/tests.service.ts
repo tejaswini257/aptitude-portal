@@ -46,7 +46,7 @@ export class TestsService {
       where: { orgId },
       orderBy: { createdAt: 'desc' },
       include: {
-        rules: true,
+        Rules: true,
         sections: true,
       },
     });
@@ -60,7 +60,7 @@ export class TestsService {
         orgId,
       },
       include: {
-        rules: true,
+        Rules: true,
         sections: true,
       },
     });
