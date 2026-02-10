@@ -139,5 +139,76 @@ export class SubmissionsService {
 
     return answer;
   }
+
+  async getSubmissionsByUser(userId: string) {
+  const student = await this.prisma.student.findUnique({
+    where: { userId },
+  });
+
+  if (!student) {
+    throw new NotFoundException('Student profile not found');
+  }
+
+  // Get all submissions of this student
+  const submissions = await this.prisma.submission.findMany({
+    where: { studentId: student.id },
+    orderBy: { submittedAt: 'desc' },
+  });
+
+  const testIds = submissions.map(s => s.testId);
+
+  const tests = await this.prisma.test.findMany({
+    where: { id: { in: testIds } },
+    select: { id: true, name: true },
+  });
+
+  const testMap = Object.fromEntries(
+    tests.map(t => [t.id, t])
+  );
+
+  return submissions.map(s => ({
+    id: s.id,
+    testId: s.testId,
+    score: s.score,
+    submittedAt: s.submittedAt,
+    test: testMap[s.testId] || null,
+  }));
+}
+
+
+async getStudentAnalytics(userId: string) {
+  const student = await this.prisma.student.findUnique({
+    where: { userId },
+  });
+
+  if (!student) {
+    throw new NotFoundException('Student profile not found');
+  }
+
+  // Get all submissions of this student
+  const submissions = await this.prisma.submission.findMany({
+    where: { studentId: student.id },
+    orderBy: { submittedAt: 'desc' },
+  });
+
+  const totalTests = submissions.length;
+  const totalScore = submissions.reduce(
+    (sum, s) => sum + (s.score || 0),
+    0
+  );
+
+  const avgScore = totalTests
+    ? Math.round(totalScore / totalTests)
+    : 0;
+
+  return {
+    testsAttempted: totalTests,
+    averageScore: avgScore,
+  };
+}
+
+
+
+
 }
 

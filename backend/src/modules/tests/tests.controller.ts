@@ -63,4 +63,14 @@ export class TestsController {
   remove(@Param('id') id: string) {
     return this.testsService.remove(id);
   }
+
+ @Get(':id/questions')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.STUDENT)
+getTestQuestions(@Param('id') id: string) {
+  return this.testsService.getQuestionsForTest(id);
+}
+
+
+
 }

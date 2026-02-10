@@ -5,10 +5,14 @@ import {
   Post,
   UseGuards,
   Req,
+  Get,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { SubmissionsService } from './submissions.service';
 import { SubmitAnswerDto, StartSubmissionDto } from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 
 @Controller('submissions')
 export class SubmissionsController {
@@ -17,7 +21,7 @@ export class SubmissionsController {
   // -----------------------------
   // START SUBMISSION
   // -----------------------------
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('start')
   startSubmission(
     @Body() dto: StartSubmissionDto,
@@ -39,7 +43,7 @@ export class SubmissionsController {
   // -----------------------------
   // SUBMIT ANSWER
   // -----------------------------
-  @UseGuards(AuthGuard('jwt'))   // ✅ VERY IMPORTANT
+  @UseGuards(JwtAuthGuard, RolesGuard)   // ✅ VERY IMPORTANT
   @Post(':submissionId/answer')
   submitAnswer(
     @Param('submissionId') submissionId: string,
@@ -61,5 +65,18 @@ export class SubmissionsController {
       user.userId,
     );
   }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+@Get('me')
+getMySubmissions(@Req() req: any) {
+  return this.submissionsService.getSubmissionsByUser(req.user.userId);
+}
+
+@Get('me/analytics')
+@UseGuards(JwtAuthGuard, RolesGuard)
+getMyAnalytics(@Req() req: any) {
+  return this.submissionsService.getStudentAnalytics(req.user.userId);
+}
+
+
 }
 

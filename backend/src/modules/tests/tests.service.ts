@@ -188,4 +188,25 @@ export class TestsService {
       where: { id },
     });
   }
+
+  async getQuestionsForTest(testId: string) {
+  const testSections = await this.prisma.testSection.findMany({
+    where: { testId },
+    include: {
+      Section: {
+        include: {
+          questions: true,
+        },
+      },
+    },
+  });
+
+  return testSections.map(ts => ({
+    sectionId: ts.sectionId,
+    sectionName: (ts.Section as any)?.name || 'Section',
+    questions: ts.Section?.questions || [],
+  }));
+}
+
+
 }
