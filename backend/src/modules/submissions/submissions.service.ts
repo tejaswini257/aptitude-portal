@@ -66,19 +66,19 @@ export class SubmissionsService {
       throw new ForbiddenException('Unauthorized access');
     }
 
-    // Get all questions of this test
+    // Get all questions of this test (use lowercase 'section' for Prisma client compatibility)
+    const includeSections = {
+      section: { include: { questions: true } },
+    };
     const testSections = await this.prisma.testSection.findMany({
       where: { testId: submission.testId },
-      include: {
-        Section: {
-          include: { questions: true },
-        },
-      },
+      include: includeSections as any,
     });
 
     const questions = testSections.flatMap(
-      (ts: any) => ts.section?.Question ?? [],
+      (ts: any) => ts.section?.questions ?? [],
     );
+
 
     const question = questions.find(
       (q: any) => q.id === dto.questionId,
