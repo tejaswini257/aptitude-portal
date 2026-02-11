@@ -47,7 +47,8 @@ export class TestsService {
 
 
   // ✅ GET ALL (optionally with attempt count for college/company dashboard)
-  async findAll(orgId: string, withAttemptCount = false) {
+  async findAll(orgId: string | undefined | null, withAttemptCount = false) {
+    if (!orgId || orgId === '') return withAttemptCount ? [] : [];
     const tests = await this.prisma.test.findMany({
       where: { orgId },
       orderBy: { createdAt: 'desc' },
@@ -71,12 +72,14 @@ export class TestsService {
     }));
   }
 
-  // ✅ GET ONE
-  async findOne(id: string, orgId: string) {
-    const include = { rules: true, sections: true };
+  // ✅ GET ONE (orgId optional — when undefined, find by id only for students)
+  async findOne(id: string, orgId?: string | null) {
+    const where: { id: string; orgId?: string } = { id };
+    if (orgId != null && orgId !== '') where.orgId = orgId;
+
     const test = await this.prisma.test.findFirst({
-      where: { id, orgId },
-      include: include as any,
+      where,
+      include: { rules: true, sections: true } as any,
     });
 
     if (!test) throw new NotFoundException('Test not found');

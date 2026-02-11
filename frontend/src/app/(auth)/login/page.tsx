@@ -12,6 +12,8 @@ function getPortalPathForRole(role?: string) {
       return "/college";
     case "COMPANY_ADMIN":
       return "/company/dashboard";
+    case "STUDENT":
+      return "/student/dashboard";
     default:
       return "/";
   }

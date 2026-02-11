@@ -13,8 +13,11 @@ export class SubmissionsService {
 
   // ============ START TEST ============
   async startSubmission(testId: string, userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
+    // 🔹 FIX: find student via related User (NOT by userId directly)
+    const student = await this.prisma.student.findFirst({
+      where: {
+        user: { id: userId },
+      },
     });
 
     if (!student) {
@@ -38,11 +41,11 @@ export class SubmissionsService {
 
     if (existing) return existing;
 
+    // 🔹 Create new submission (no hardcoded score = 0)
     return this.prisma.submission.create({
       data: {
         studentId: student.id,
         testId,
-        score: 0,
       },
     });
   }
@@ -55,33 +58,34 @@ export class SubmissionsService {
   ) {
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
-      include: { student: true },
+      include: { student: { include: { user: true } } }, // 🔹 FIX
     });
 
     if (!submission) {
       throw new NotFoundException('Submission not found');
     }
 
-    if (submission.student.userId !== userId) {
+    // 🔹 FIX: compare with related user id
+    if (submission.student.user.id !== userId) {
       throw new ForbiddenException('Unauthorized access');
     }
 
-    // Get all questions of this test (use lowercase 'section' for Prisma client compatibility)
-    const includeSections = {
-      section: { include: { questions: true } },
-    };
+    // Get all questions of this test (correct lowercase 'section')
     const testSections = await this.prisma.testSection.findMany({
       where: { testId: submission.testId },
-      include: includeSections as any,
+      include: {
+        section: {
+          include: { questions: true },
+        },
+      },
     });
 
     const questions = testSections.flatMap(
-      (ts: any) => ts.section?.questions ?? [],
+      (ts) => ts.section?.questions ?? [],
     );
 
-
     const question = questions.find(
-      (q: any) => q.id === dto.questionId,
+      (q) => q.id === dto.questionId,
     );
 
     if (!question) {
@@ -131,8 +135,11 @@ export class SubmissionsService {
 
   // ============ STUDENT SUBMISSIONS ============
   async getSubmissionsByUser(userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
+    // 🔹 FIX: again, find student via related User
+    const student = await this.prisma.student.findFirst({
+      where: {
+        user: { id: userId },
+      },
     });
 
     if (!student) {
@@ -142,25 +149,15 @@ export class SubmissionsService {
     const submissions = await this.prisma.submission.findMany({
       where: { studentId: student.id },
       orderBy: { submittedAt: 'desc' },
+      include: { test: { select: { id: true, name: true } } }, // 🔹 cleaner
     });
-
-    const testIds = submissions.map((s) => s.testId);
-
-    const tests = await this.prisma.test.findMany({
-      where: { id: { in: testIds } },
-      select: { id: true, name: true },
-    });
-
-    const testMap = Object.fromEntries(
-      tests.map((t) => [t.id, t]),
-    );
 
     return submissions.map((s) => ({
       id: s.id,
       testId: s.testId,
       score: s.score,
       submittedAt: s.submittedAt,
-      test: testMap[s.testId] || null,
+      test: s.test || null,
     }));
   }
 }
