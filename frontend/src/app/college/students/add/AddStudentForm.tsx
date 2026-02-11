@@ -115,7 +115,7 @@ export default function AddStudentForm() {
         />
 
         <select name="collegeId" value={form.collegeId} onChange={handleChange}>
-          {colleges.map((c:College ) => (
+          {colleges.map((c:) => (
             <option key={c.id} value={c.id}>
               {c.collegeName}
             </option>
