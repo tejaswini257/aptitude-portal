@@ -2,9 +2,35 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import api from "@/interceptors/axios";
+type DashboardStats = {
+  testsAttempted: number;
+  averageScore: number;
+  upcomingTests: number;
+  completedTests: number;
+};
+
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [accuracy, setAccuracy] = useState(0);
+
+  const fetchDashboard = async () => {
+  try {
+    const res = await api.get("/students/me/dashboard");
+    setStats(res.data);
+  } catch (err: any) {
+    setError(
+      err?.response?.data?.message ||
+      "Failed to load dashboard"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -12,6 +38,10 @@ export default function DashboardPage() {
     }, 600);
     return () => clearTimeout(timer);
   }, []);
+  useEffect(() => {
+  fetchDashboard();
+}, []);
+
 
   return (
     <>
@@ -28,9 +58,11 @@ export default function DashboardPage() {
           marginBottom: "40px",
         }}
       >
-        <StatCard title="Tests Attempted" value="12" />
-        <StatCard title="Average Score" value="78%" />
-        <StatCard title="Active Drives" value="3" />
+        <p>{stats?.testsAttempted}</p>
+<p>{stats?.averageScore}%</p>
+<p>{stats?.upcomingTests}</p>
+<p>{stats?.completedTests}</p>
+
       </div>
 
       {/* Weekly Progress */}
