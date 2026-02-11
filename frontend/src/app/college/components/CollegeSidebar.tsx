@@ -7,6 +7,7 @@ const menu = [
   { name: "Dashboard", path: "/college/dashboard" },
   { name: "Departments", path: "/college/departments" },
   { name: "Students", path: "/college/students" },
+  { name: "Tests", path: "/college/tests" },
   { name: "Drives", path: "/college/drives" },
   { name: "Analytics", path: "/college/analytics" },
   { name: "Companies", path: "/college/companies" },

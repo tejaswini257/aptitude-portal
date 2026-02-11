@@ -46,14 +46,29 @@ export class TestsService {
 
 
 
-  // ✅ GET ALL
-  async findAll(orgId: string) {
-    const include = { rules: true, sections: true };
-    return this.prisma.test.findMany({
+  // ✅ GET ALL (optionally with attempt count for college/company dashboard)
+  async findAll(orgId: string, withAttemptCount = false) {
+    const tests = await this.prisma.test.findMany({
       where: { orgId },
       orderBy: { createdAt: 'desc' },
-      include: include as any,
+      include: { rules: true, sections: true } as any,
     });
+
+    if (!withAttemptCount) return tests;
+
+    const counts = await this.prisma.submission.groupBy({
+      by: ['testId'],
+      _count: { testId: true },
+      where: { testId: { in: tests.map((t) => t.id) } },
+    });
+    const countMap = Object.fromEntries(
+      counts.map((c) => [c.testId, c._count.testId]),
+    );
+
+    return tests.map((t) => ({
+      ...t,
+      attemptCount: countMap[t.id] ?? 0,
+    }));
   }
 
   // ✅ GET ONE
@@ -96,9 +111,42 @@ export class TestsService {
     });
   }
 
+  /** Get submissions for a test (college/company admin) - students who attempted + scores */
+  async getSubmissionsForTest(testId: string, orgId: string) {
+    const test = await this.prisma.test.findFirst({
+      where: { id: testId, orgId },
+    });
+    if (!test) throw new NotFoundException('Test not found');
+
+    const submissions = await this.prisma.submission.findMany({
+      where: { testId },
+      include: {
+        student: {
+          include: {
+            user: { select: { email: true } },
+            department: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { submittedAt: 'desc' },
+    });
+
+    return submissions.map((s) => ({
+      id: s.id,
+      studentId: s.studentId,
+      studentEmail: s.student?.user?.email ?? '—',
+      rollNo: s.student?.rollNo ?? '—',
+      department: s.student?.department?.name ?? '—',
+      score: s.score,
+      submittedAt: s.submittedAt,
+    }));
+  }
+
   async getQuestionsForTest(testId: string) {
     const include = {
-      section: { include: { questions: true } },
+      section: {
+        include: { questions: { include: { options: true } } },
+      },
     };
     const testSections = await this.prisma.testSection.findMany({
       where: { testId },

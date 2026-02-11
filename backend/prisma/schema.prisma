@@ -112,8 +112,9 @@ model Test {
   rulesId String
   rules   Rules @relation(fields: [rulesId], references: [id])
 
-  sections TestSection[]
-  drives   Drive[]
+  sections     TestSection[]
+  drives       Drive[]
+  submissions  Submission[]
 }
 
 
@@ -172,8 +173,9 @@ model Submission {
   score       Int?
   submittedAt DateTime @default(now())
 
-  student     Student @relation(fields: [studentId], references: [id])
-  answers     SubmissionAnswer[]
+  test    Test    @relation(fields: [testId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  answers SubmissionAnswer[]
 }
 
 

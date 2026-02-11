@@ -73,12 +73,11 @@ getMe(@Req() req: any) {
   return this.studentsService.findByUserId(req.user.userId);
 }
 
-// GET: tests available to this student
+// GET: student dashboard stats (tests attempted, avg score, etc.)
 @Roles(UserRole.STUDENT)
-@Get('me/tests')
-getMyTests() {
-  // We will wire this to TestsService later
-  return { message: "Will be connected to TestsService" };
+@Get('me/dashboard')
+getMyDashboard(@Req() req: any) {
+  return this.studentsService.getStudentAnalytics(req.user.userId);
 }
 
 // GET: student analytics

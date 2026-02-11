@@ -9,6 +9,7 @@ type TestItem = {
   id: string;
   name: string;
   createdAt: string;
+  showResultImmediately?: boolean;
 };
 
 export default function TestsPage() {
@@ -19,10 +20,10 @@ export default function TestsPage() {
 
   const fetchTests = async () => {
     try {
-      const res = await api.get("/students/me/tests");
+      const res = await api.get("/tests");
       setTests(res.data || []);
     } catch (err: any) {
-      setError("Failed to load tests");
+      setError(err?.response?.data?.message || "Failed to load tests");
     } finally {
       setLoading(false);
     }

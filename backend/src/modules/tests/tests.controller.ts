@@ -32,10 +32,19 @@ create(@Body() dto: CreateTestDto, @Req() req: any) {
 }
 
 
-  // ✅ GET ALL (scoped to org)
+  // ✅ GET ALL (scoped to org). ?withAttemptCount=1 for college/company dashboard
   @Get()
-  findAll(@Req() req: any) {
-    return this.testsService.findAll(req.user.orgId);
+  findAll(@Req() req: any, @Query('withAttemptCount') withAttemptCount?: string) {
+    const orgId = req.user?.orgId;
+    return this.testsService.findAll(orgId, withAttemptCount === '1' || withAttemptCount === 'true');
+  }
+
+  // ✅ GET SUBMISSIONS FOR TEST (college/company admin) - must be before :id
+  @Get(':id/submissions')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
+  getTestSubmissions(@Param('id') id: string, @Req() req: any) {
+    return this.testsService.getSubmissionsForTest(id, req.user.orgId);
   }
 
   // ✅ GET ONE (scoped to org)

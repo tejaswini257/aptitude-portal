@@ -184,16 +184,26 @@ async getStudentAnalytics(userId: string) {
 
   const submissions = await this.prisma.submission.findMany({
     where: { studentId: student.id },
+    orderBy: { submittedAt: 'asc' },
+    include: {
+      test: { select: { id: true, name: true } },
+    },
   });
 
+  const total = submissions.length;
+  const sum = submissions.reduce((s, x) => s + (x.score || 0), 0);
+  const averageScore = total ? Math.round(sum / total) : 0;
+
   return {
-    testsAttempted: submissions.length,
-    averageScore: submissions.length
-      ? Math.round(
-          submissions.reduce((s, x) => s + (x.score || 0), 0) /
-            submissions.length,
-        )
-      : 0,
+    testsAttempted: total,
+    averageScore,
+    submissions: submissions.map((s) => ({
+      id: s.id,
+      testId: s.testId,
+      testName: s.test?.name ?? 'Unknown',
+      score: s.score ?? 0,
+      submittedAt: s.submittedAt,
+    })),
   };
 }
 

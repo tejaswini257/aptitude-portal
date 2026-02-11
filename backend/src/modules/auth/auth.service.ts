@@ -73,6 +73,10 @@ export class AuthService {
     payload.orgId = user.orgId;
   }
 
+  if (user.role === UserRole.STUDENT) {
+    payload.orgId = user.orgId ?? undefined;
+  }
+
   if (user.role === UserRole.COLLEGE_ADMIN) {
     payload.orgId = user.orgId ?? undefined;
     const college = await this.prisma.college.findFirst({
