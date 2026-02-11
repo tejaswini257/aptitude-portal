@@ -13,14 +13,16 @@ export class DrivesService {
   // CREATE DRIVE (already exists)
   // -----------------------------
   async createDrive(dto: any, companyId: string) {
+    const { randomUUID } = await import('crypto');
     return this.prisma.drive.create({
       data: {
+        id: randomUUID(),
         companyId,
         testId: dto.testId,
-        isOpenDrive: dto.isOpenDrive,
-        startDate: dto.startDate,
-        endDate: dto.endDate,
-        description: dto.description,
+        isOpenDrive: dto.isOpenDrive ?? false,
+        startDate: new Date(dto.startDate),
+        endDate: new Date(dto.endDate),
+        description: dto.description ?? null,
       },
     });
   }
@@ -65,13 +67,18 @@ export class DrivesService {
       return { message: 'Colleges already invited' };
     }
 
-    // 3️⃣ Create invitations
-    await this.prisma.driveCollege.createMany({
-      data: newCollegeIds.map(collegeId => ({
-        driveId,
-        collegeId,
-      })),
-    });
+    const { randomUUID } = await import('crypto');
+    await Promise.all(
+      newCollegeIds.map((collegeId) =>
+        this.prisma.driveCollege.create({
+          data: {
+            id: randomUUID(),
+            driveId,
+            collegeId,
+          },
+        }),
+      ),
+    );
 
     return { message: 'Colleges invited successfully' };
   }
@@ -94,9 +101,6 @@ export class DrivesService {
 
     return this.prisma.driveCollege.findMany({
       where: { driveId },
-      include: {
-        drive: false,
-      },
     });
   }
 

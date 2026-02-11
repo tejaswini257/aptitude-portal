@@ -9,8 +9,6 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
 import { QuestionsService } from './questions.service';
 import { Req } from '@nestjs/common';
 

@@ -16,19 +16,33 @@ export interface CreateCompanyTestDto {
 export class CompanyTestsService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE TEST
+  // CREATE TEST (schema: name, orgId, rulesId, showResultImmediately, proctoringEnabled)
   async create(dto: CreateCompanyTestDto, orgId: string) {
-    const data: any = {
-      name: dto.name,
-      organizationId: orgId,
-      showResultImmediately: dto.showResultImmediately,
-      proctoringEnabled: dto.proctoringEnabled,
-      ...(dto.rulesId ? { rules: { connect: { id: dto.rulesId } } } : {}),
-    };
-    return this.prisma.test.create({ data });
+    let rulesId = dto.rulesId;
+    if (!rulesId) {
+      const { randomUUID } = await import('crypto');
+      const rules = await this.prisma.rules.create({
+        data: {
+          id: randomUUID(),
+          totalMarks: 0,
+          marksPerQuestion: 1,
+          negativeMarking: false,
+          negativeMarks: null,
+        },
+      });
+      rulesId = rules.id;
+    }
+    return this.prisma.test.create({
+      data: {
+        name: dto.name,
+        orgId,
+        rulesId,
+        showResultImmediately: dto.showResultImmediately ?? false,
+        proctoringEnabled: dto.proctoringEnabled ?? false,
+      },
+    });
   }
 
-  // ✅ LIST TESTS
   async findAll(orgId: string) {
     return this.prisma.test.findMany({
       where: { orgId: orgId },
@@ -37,7 +51,6 @@ export class CompanyTestsService {
     });
   }
 
-  // ✅ GET SINGLE TEST
   async findOne(id: string, orgId: string) {
     const test = await this.prisma.test.findUnique({
       where: { id },
@@ -76,7 +89,6 @@ export class CompanyTestsService {
       });
     }
 
-  // ✅ ARCHIVE TEST (Soft)
   async archive(id: string, orgId: string) {
     const test = await this.prisma.test.findUnique({ where: { id } });
 

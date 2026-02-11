@@ -17,10 +17,13 @@ export interface UpdateStudentPayload {
 
 // ✅ Backend controller = @Controller('students')
 
-export const getStudents = (departmentId?: string) =>
-  api.get(
-    departmentId ? `/students?departmentId=${departmentId}` : "/students"
-  );
+export const getStudents = (params?: { departmentId?: string; collegeId?: string }) => {
+  const search = new URLSearchParams();
+  if (params?.departmentId) search.set("departmentId", params.departmentId);
+  if (params?.collegeId) search.set("collegeId", params.collegeId);
+  const q = search.toString();
+  return api.get(q ? `/students?${q}` : "/students");
+};
 
 export const getStudent = (id: string) => api.get(`/students/${id}`);
 

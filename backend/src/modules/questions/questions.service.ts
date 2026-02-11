@@ -5,75 +5,92 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE
+  // =============================
+  // CREATE QUESTION
+  // =============================
   async create(dto: any, orgId: string) {
-    return this.prisma.question.create({
-      data: {
-        sectionId: dto.sectionId,
-        orgId,
-        difficulty: dto.difficulty,
-        questionText: dto.questionText,
-        allowedFor: dto.allowedFor,
-        createdBy: dto.createdBy,
-        creatorRole: dto.creatorRole,
-        type: dto.type,
-        correctAnswer: dto.correctAnswer ?? null,
-        codingMeta: dto.codingMeta ?? null,
-        options: dto.options
-          ? {
-              create: dto.options.map((opt: any) => ({
-                optionCode: opt.optionCode,
-                optionText: opt.optionText,
-                isCorrect: opt.isCorrect,
-              })),
-            }
-          : undefined,
+    const data = {
+      sectionId: dto.sectionId,
+      orgId,
+      type: dto.type,
+      difficulty: dto.difficulty,
+      questionText: dto.questionText,
+      allowedFor: dto.allowedFor,
+      createdBy: dto.createdBy,
+      creatorRole: dto.creatorRole,
+      correctAnswer: dto.correctAnswer ?? null,
+      codingMeta: dto.codingMeta ?? null,
+      options: {
+        create: (dto.options || []).map((opt: any) => ({
+          optionCode: opt.optionCode,
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+        })),
       },
-      include: { options: true },
+    };
+    return this.prisma.question.create({
+      data: data as any,
+      include: { options: true } as any,
     });
   }
 
-  // ✅ FIND BY TEST
+  // =============================
+  // GET QUESTIONS BY TEST
+  // =============================
   async findByTest(testId: string) {
-    return this.prisma.question.findMany({
-      where: {
-        section: {
-          testSections: {
-            some: {
-              testId,
-            },
-          },
+    const where = {
+      section: {
+        testSections: {
+          some: { testId },
         },
       },
-      include: { options: true },
+    };
+    return this.prisma.question.findMany({
+      where: where as any,
+      include: { options: true } as any,
     });
   }
 
-  // ✅ UPDATE
+  // =============================
+  // UPDATE QUESTION
+  // =============================
   async update(id: string, dto: any) {
     const existing = await this.prisma.question.findUnique({
       where: { id },
     });
 
-    if (!existing) throw new NotFoundException('Question not found');
+    if (!existing) {
+      throw new NotFoundException('Question not found');
+    }
 
     return this.prisma.question.update({
       where: { id },
       data: {
-        questionText: dto.questionText,
-        difficulty: dto.difficulty,
-        correctAnswer: dto.correctAnswer,
+        ...(dto.sectionId && { sectionId: dto.sectionId }),
+        ...(dto.type && { type: dto.type }),
+        ...(dto.difficulty && { difficulty: dto.difficulty }),
+        ...(dto.questionText && { questionText: dto.questionText }),
+        ...(dto.correctAnswer !== undefined && {
+          correctAnswer:
+            dto.correctAnswer !== null
+              ? String(dto.correctAnswer)
+              : null,
+        }),
       },
     });
   }
 
-  // ✅ DELETE
+  // =============================
+  // DELETE QUESTION
+  // =============================
   async delete(id: string) {
     const existing = await this.prisma.question.findUnique({
       where: { id },
     });
 
-    if (!existing) throw new NotFoundException('Question not found');
+    if (!existing) {
+      throw new NotFoundException('Question not found');
+    }
 
     return this.prisma.question.delete({
       where: { id },

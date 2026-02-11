@@ -1,27 +1,16 @@
 import type { NextConfig } from "next";
 
-// const nextConfig: NextConfig = {
-//   images: {
-//     remotePatterns: [
-//       {
-//         protocol: "http",
-//         hostname: "localhost",
-//         port: "3000",
-//         pathname: "/**",
-//       },
-//     ],
-//   },
-// };
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
+  turbopack: {},
   images: {
-    domains: ["i.pravatar.cc"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
-module.exports = nextConfig;
-
-
-// export default nextConfig;
-
+export default nextConfig;

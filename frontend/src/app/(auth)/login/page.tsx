@@ -22,10 +22,12 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [networkErrorTip, setNetworkErrorTip] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setNetworkErrorTip(false);
 
     try {
       const res = await api.post("/auth/login", {
@@ -34,6 +36,11 @@ export default function LoginPage() {
       });
 
       const data = res.data;
+
+      if (!data?.accessToken) {
+        setError("Invalid response from server");
+        return;
+      }
 
       localStorage.setItem("accessToken", data.accessToken);
       document.cookie = `accessToken=${data.accessToken}; path=/`;
@@ -50,9 +57,24 @@ export default function LoginPage() {
 
       const target = getPortalPathForRole(role);
       router.push(target);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Login failed");
+      const isNetworkError =
+        err?.message === "Network Error" ||
+        err?.code === "ERR_NETWORK" ||
+        err?.response == null;
+      if (isNetworkError) {
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        setError(
+          "Cannot reach server. Is the backend running at " + apiUrl + "?"
+        );
+        setNetworkErrorTip(true);
+        return;
+      } else {
+        const msg = err?.response?.data?.message;
+        setError(msg || "Login failed");
+      }
     }
   };
 
@@ -62,10 +84,25 @@ export default function LoginPage() {
       <form
         onSubmit={handleLogin}
         className="w-96 p-6 bg-white border rounded-lg shadow space-y-4"
+        suppressHydrationWarning
       >
         <h1 className="text-2xl font-semibold text-center">Login</h1>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
+        {networkErrorTip && (
+          <div className="text-left text-sm text-gray-600 bg-gray-100 p-3 rounded border border-gray-200">
+            <p className="font-medium text-gray-700 mb-1">To fix:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Open a terminal in the project folder.</li>
+              <li>Run: <code className="bg-white px-1 rounded">cd backend && npm run start:dev</code></li>
+              <li>Wait until you see &quot;Backend running on port 3001&quot;.</li>
+              <li>Try logging in again.</li>
+            </ol>
+            <p className="mt-2 text-xs text-gray-500">
+              If the app is deployed, set <code className="bg-white px-1">NEXT_PUBLIC_API_URL</code> to your backend URL (e.g. Render).
+            </p>
+          </div>
+        )}
 
         <input
           type="email"
@@ -74,6 +111,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          suppressHydrationWarning
         />
 
         <input
@@ -83,11 +121,13 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          suppressHydrationWarning
         />
 
         <button
           type="submit"
           className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+          suppressHydrationWarning
         >
           Login
         </button>
