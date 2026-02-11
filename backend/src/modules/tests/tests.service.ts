@@ -52,9 +52,9 @@ export class TestsService {
       where: { orgId },
       orderBy: { createdAt: 'desc' },
       include: {
-        Rules: true,
+        rules: true,
         sections: true,
-      },
+      } as any,
     });
   }
 
@@ -66,9 +66,9 @@ export class TestsService {
         orgId,
       },
       include: {
-        Rules: true,
+        rules: true,
         sections: true,
-      },
+      } as any,
     });
 
     if (!test) throw new NotFoundException('Test not found');
@@ -107,18 +107,18 @@ export class TestsService {
   const testSections = await this.prisma.testSection.findMany({
     where: { testId },
     include: {
-      Section: {
+      section: {
         include: {
           questions: true,
         },
       },
-    },
+    } as any,
   });
 
-  return testSections.map(ts => ({
+  return testSections.map((ts) => ({
     sectionId: ts.sectionId,
-    sectionName: (ts.Section as any)?.name || 'Section',
-    questions: ts.Section?.questions || [],
+    sectionName: (ts as any).section?.sectionName || 'Section',
+    questions: (ts as any).section?.questions || [],
   }));
 }
 

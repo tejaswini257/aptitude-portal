@@ -22,16 +22,15 @@ export class QuestionsService {
         correctAnswer: dto.correctAnswer ?? null,
         codingMeta: dto.codingMeta ?? null,
 
-        Option: {
-  create: dto.options.map((opt: any) => ({
-    optionCode: opt.optionCode,
-    optionText: opt.optionText,
-    isCorrect: opt.isCorrect,
-  })),
-},
-
-      },
-      include: { Option: true },
+        options: {
+          create: (dto.options || []).map((opt: any) => ({
+            optionCode: opt.optionCode,
+            optionText: opt.optionText,
+            isCorrect: opt.isCorrect,
+          })),
+        },
+      } as any,
+      include: { options: true } as any,
     });
   }
 
@@ -42,12 +41,12 @@ export class QuestionsService {
     return this.prisma.question.findMany({
       where: {
         section: {
-          TestSection: {
+          testSections: {
             some: { testId },
           },
         },
-      },
-      include: { Option: true },
+      } as any,
+      include: { options: true } as any,
     });
   }
 
