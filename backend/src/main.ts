@@ -16,8 +16,13 @@ async function bootstrap() {
   const corsOrigin =
     process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
 
+  const allowedOrigins = corsOrigin
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
   app.enableCors({
-    origin: corsOrigin.split(',').map((o) => o.trim()),
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

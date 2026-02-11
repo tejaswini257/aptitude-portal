@@ -61,4 +61,31 @@ export class StudentsController {
   remove(@Param('id') id: string) {
     return this.studentsService.delete(id);
   }
+
+  // =============================
+// ✅ STUDENT SELF ROUTES
+// =============================
+
+// GET: logged-in student profile
+@Roles(UserRole.STUDENT)
+@Get('me')
+getMe(@Req() req: any) {
+  return this.studentsService.findByUserId(req.user.userId);
+}
+
+// GET: tests available to this student
+@Roles(UserRole.STUDENT)
+@Get('me/tests')
+getMyTests() {
+  // We will wire this to TestsService later
+  return { message: "Will be connected to TestsService" };
+}
+
+// GET: student analytics
+@Roles(UserRole.STUDENT)
+@Get('me/analytics')
+getMyAnalytics(@Req() req: any) {
+  return this.studentsService.getStudentAnalytics(req.user.userId);
+}
+
 }

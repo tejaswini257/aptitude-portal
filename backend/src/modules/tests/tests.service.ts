@@ -1,44 +1,50 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
+import { randomUUID } from 'crypto';
+
 
 @Injectable()
 export class TestsService {
   constructor(private prisma: PrismaService) {}
 
   // Create test (schema: name, orgId, rulesId, showResultImmediately, proctoringEnabled)
-  async create(
-    dto: CreateTestDto,
-    _userId: string,
-    organizationId?: string | null,
-  ) {
-    const orgId = organizationId ?? '';
-    if (!orgId) {
-      throw new Error('organizationId (orgId) is required to create a test');
-    }
-
-    const { randomUUID } = await import('crypto');
-    const rules = await this.prisma.rules.create({
-      data: {
-        id: randomUUID(),
-        totalMarks: 0,
-        marksPerQuestion: 1,
-        negativeMarking: false,
-        negativeMarks: null,
-      },
-    });
-
-    return this.prisma.test.create({
-      data: {
-        name: dto.name,
-        orgId,
-        rulesId: rules.id,
-        showResultImmediately: dto.showResultImmediately ?? false,
-        proctoringEnabled: dto.proctoringEnabled ?? false,
-      },
-    });
+  async create(dto: CreateTestDto, orgId: string) {
+  if (!orgId) {
+    throw new BadRequestException(
+      'orgId is required to create a test. Log in as a College Admin or Company Admin.',
+    );
   }
+
+  // 1️⃣ Create default rules (Prisma auto-generates ID)
+  const rules = await this.prisma.rules.create({
+    data: {
+      id: randomUUID(),
+      totalMarks: 0,
+      marksPerQuestion: 1,
+      negativeMarking: false,
+      negativeMarks: null,
+    },
+  });
+
+  // 2️⃣ Create test linked to org + rules
+  return this.prisma.test.create({
+    data: {
+      name: dto.name,
+      orgId,
+      rulesId: rules.id,
+      showResultImmediately: dto.showResultImmediately ?? false,
+      proctoringEnabled: dto.proctoringEnabled ?? false,
+    },
+  });
+}
+
+
 
   // ✅ GET ALL
   async findAll(orgId: string) {
@@ -115,6 +121,7 @@ export class TestsService {
     questions: ts.Section?.questions || [],
   }));
 }
+
 
 
 }

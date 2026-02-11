@@ -167,4 +167,34 @@ export class StudentsService {
       message: 'Student deleted successfully',
     };
   }
+
+  async findByUserId(userId: string) {
+  return this.prisma.student.findUnique({
+    where: { userId },
+    include: { college: true, department: true },
+  });
+}
+
+async getStudentAnalytics(userId: string) {
+  const student = await this.prisma.student.findUnique({
+    where: { userId },
+  });
+
+  if (!student) throw new NotFoundException('Student not found');
+
+  const submissions = await this.prisma.submission.findMany({
+    where: { studentId: student.id },
+  });
+
+  return {
+    testsAttempted: submissions.length,
+    averageScore: submissions.length
+      ? Math.round(
+          submissions.reduce((s, x) => s + (x.score || 0), 0) /
+            submissions.length,
+        )
+      : 0,
+  };
+}
+
 }

@@ -23,21 +23,22 @@ import { UserRole } from '@prisma/client';
 export class TestsController {
   constructor(private readonly testsService: TestsService) {}
 
-  // ✅ CREATE
+  // ✅ CREATE — College Admin + Company Admin
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  create(@Body() dto: CreateTestDto, @Req() req: any) {
-    return this.testsService.create(dto, req.user.orgId);
-  }
+@UseGuards(RolesGuard)
+@Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
+create(@Body() dto: CreateTestDto, @Req() req: any) {
+  return this.testsService.create(dto, req.user.orgId);
+}
 
-  // ✅ GET ALL
+
+  // ✅ GET ALL (scoped to org)
   @Get()
   findAll(@Req() req: any) {
     return this.testsService.findAll(req.user.orgId);
   }
 
-  // ✅ GET ONE
+  // ✅ GET ONE (scoped to org)
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.testsService.findOne(id, req.user.orgId);
@@ -47,15 +48,11 @@ export class TestsController {
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateTestDto,
-    @Req() req: any,
-  ) {
+  update(@Param('id') id: string, @Body() dto: UpdateTestDto) {
     return this.testsService.update(id, dto);
   }
 
-  // ✅ DELETE
+  // ✅ DELETE (scoped to org)
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
@@ -63,13 +60,11 @@ export class TestsController {
     return this.testsService.remove(id, req.user.orgId);
   }
 
- @Get(':id/questions')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.STUDENT)
-getTestQuestions(@Param('id') id: string) {
-  return this.testsService.getQuestionsForTest(id);
-}
-
-
-
+  // ✅ STUDENT: GET QUESTIONS
+  @Get(':id/questions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  getTestQuestions(@Param('id') id: string) {
+    return this.testsService.getQuestionsForTest(id);
+  }
 }
