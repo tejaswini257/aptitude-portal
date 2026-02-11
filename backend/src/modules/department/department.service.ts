@@ -34,12 +34,31 @@ export class DepartmentService {
     });
   }
 
+  // ✅ REQUIRED FOR EDIT FLOW
+  async findOne(id: string) {
+    const department = await this.prisma.department.findUnique({
+      where: { id },
+    });
+
+    if (!department) {
+      throw new NotFoundException('Department not found');
+    }
+
+    return department;
+  }
+
   async update(id: string, dto: UpdateDepartmentDto) {
     return this.prisma.department.update({
       where: { id },
-      data: dto,
+      data: { name: dto.name },
     });
   }
+
+  async findById(id: string) {
+return this.prisma.department.findUnique({
+where: { id },
+});
+}
 
   async delete(id: string) {
     return this.prisma.department.delete({

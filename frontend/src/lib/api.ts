@@ -1,32 +1,34 @@
-const API_BASE = "http://localhost:3001"
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export async function api(
+export default async function api(
   url: string,
   options: RequestInit = {}
 ) {
-  if (typeof window === "undefined") {
-    throw new Error("API can only be called from client components")
-  }
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("accessToken")
+      : null;
 
-  const token = localStorage.getItem("accessToken")
-
-  const res = await fetch(`${API_BASE}${url}`, {
+  const res = await fetch(`${BASE_URL}${url}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
-  })
+  });
+
+  if (res.status === 401 && !url.includes("/auth/login")) {
+  localStorage.removeItem("accessToken");
+  window.location.href = "/login";
+  throw new Error("Unauthorized");
+}
 
   if (!res.ok) {
-    let message = "Request failed"
-    try {
-      const data = await res.json()
-      message = data.message || message
-    } catch (_) {}
-    throw new Error(message)
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || "API error");
   }
 
-  return res.json()
+  return res.json();
 }

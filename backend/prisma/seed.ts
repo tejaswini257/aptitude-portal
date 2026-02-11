@@ -12,6 +12,8 @@ const studentPasswordHash = await bcrypt.hash('Student@123', 10);
   /**
    * ⚠️ DELETE ORDER (CHILD → PARENT)
    */
+  await prisma.submissionAnswer.deleteMany();
+  await prisma.submission.deleteMany();
   await prisma.question.deleteMany();
   await prisma.testSection.deleteMany();
   await prisma.test.deleteMany();

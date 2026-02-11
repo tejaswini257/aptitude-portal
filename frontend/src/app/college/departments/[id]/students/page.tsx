@@ -1,140 +1,119 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import api from "@/interceptors/axios";
 
-const students = {
-  cse: [
-    { name: "Neha Patil", verified: true, tests: 3, status: "Shortlisted" },
-    { name: "Rahul Shah", verified: true, tests: 2, status: "Ready" },
-    { name: "Aman Verma", verified: false, tests: 0, status: "At Risk" },
-    { name: "Sneha Iyer", verified: true, tests: 4, status: "Placed" },
-    { name: "Rohit Kulkarni", verified: true, tests: 1, status: "Ready" },
-    { name: "Pooja Mehta", verified: true, tests: 2, status: "Shortlisted" },
-    { name: "Kunal Deshmukh", verified: false, tests: 0, status: "At Risk" },
-    { name: "Isha Rao", verified: true, tests: 3, status: "Ready" },
-  ],
-}
+type Student = {
+  id: string;
+  rollNo: string;
+  year: number;
+  user?: { email: string };
+  department?: { name: string };
+};
 
 export default function DepartmentStudentsPage() {
-  const { id } = useParams()
-  const [filter, setFilter] = useState("All")
-  const [search, setSearch] = useState("")
+  const { id } = useParams();
+  const router = useRouter();
+  const [students, setStudents] = useState<Student[]>([]);
+  const [deptName, setDeptName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const list = students[id as keyof typeof students] || []
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    if (!id) return;
+    (async () => {
+      try {
+        const [studentsRes, deptRes] = await Promise.all([
+          api.get(`/students?departmentId=${id}`),
+          api.get(`/departments/${id}`).catch(() => ({ data: null })),
+        ]);
+        setStudents(studentsRes.data || []);
+        if (deptRes?.data?.name) setDeptName(deptRes.data.name);
+      } catch (err: any) {
+        setError(err.response?.data?.message || err.message || "Failed to load");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id, router]);
 
-  const filtered = list.filter((s) => {
-    const matchFilter =
-      filter === "All" ||
-      s.status === filter ||
-      (filter === "Verified" && s.verified)
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px] text-gray-500">
+        Loading…
+      </div>
+    );
+  }
 
-    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase())
-
-    return matchFilter && matchSearch
-  })
+  if (error) {
+    return (
+      <div className="text-red-500">
+        {error}
+        <Link href="/college/departments" className="block mt-2 text-blue-600">
+          ← Back to Departments
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="page space-y-6">
-
-      {/* Back */}
+    <div>
       <Link
-        href={`/college/departments/${id}`}
-        className="text-sm text-gray-500 hover:text-black"
+        href="/college/departments"
+        className="text-sm text-gray-500 hover:text-gray-900 mb-4 inline-block"
       >
-        ← Back to Department
+        ← Back to Departments
       </Link>
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="page-title capitalize">{id} Students</h1>
-
-        <input
-          placeholder="Search student..."
-          className="border px-4 py-2 rounded-lg w-full md:w-80"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          {deptName ? `${deptName} – Students` : "Students"}
+        </h1>
+        <Link
+          href={`/college/students/add?departmentId=${id}`}
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 inline-block w-fit"
+        >
+          + Add Student
+        </Link>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-3">
-        {["All", "Verified", "Shortlisted", "Ready", "At Risk", "Placed"].map(
-          (f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-sm border ${
-                filter === f
-                  ? "bg-black text-white"
-                  : "bg-white hover:bg-gray-100"
-              }`}
-            >
-              {f}
-            </button>
-          )
-        )}
-      </div>
-
-      {/* Table */}
-      <div className="section p-0 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left">
-              <th className="p-4">Student</th>
-              <th className="p-4 text-center">Verified</th>
-              <th className="p-4 text-center">Tests</th>
-              <th className="p-4 text-center">Status</th>
-              <th className="p-4 text-right">Action</th>
+              <th className="p-4">Email</th>
+              <th className="p-4">Roll No</th>
+              <th className="p-4">Year</th>
+              <th className="p-4">Department</th>
             </tr>
           </thead>
-
           <tbody>
-            {filtered.map((s) => (
-              <tr
-                key={s.name}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="p-4 font-medium">{s.name}</td>
-
-                <td className="p-4 text-center">
-                  {s.verified ? "✓" : "✕"}
-                </td>
-
-                <td className="p-4 text-center">{s.tests}</td>
-
-                <td className="p-4 text-center">
-                  <span className={`px-3 py-1 rounded-full text-xs ${statusStyle(s.status)}`}>
-                    {s.status}
-                  </span>
-                </td>
-
-                <td className="p-4 text-right">
-                  <ActionButton status={s.status} />
+            {students.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="p-8 text-center text-gray-500">
+                  No students in this department yet.
                 </td>
               </tr>
-            ))}
+            ) : (
+              students.map((s) => (
+                <tr key={s.id} className="border-t hover:bg-gray-50">
+                  <td className="p-4">{s.user?.email ?? "—"}</td>
+                  <td className="p-4">{s.rollNo}</td>
+                  <td className="p-4">{s.year}</td>
+                  <td className="p-4">{s.department?.name ?? "—"}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
     </div>
-  )
-}
-
-/* Helpers */
-
-function statusStyle(status: string) {
-  if (status === "Placed") return "bg-green-100 text-green-700"
-  if (status === "Shortlisted") return "bg-blue-100 text-blue-700"
-  if (status === "Ready") return "bg-yellow-100 text-yellow-700"
-  if (status === "At Risk") return "bg-red-100 text-red-700"
-  return "bg-gray-100"
-}
-
-function ActionButton({ status }: { status: string }) {
-  if (status === "At Risk") return <span className="text-blue-600">Verify</span>
-  if (status === "Ready") return <span className="text-blue-600">Assign Test</span>
-  if (status === "Shortlisted") return <span className="text-blue-600">Schedule Interview</span>
-  return <span className="text-gray-400">View</span>
+  );
 }

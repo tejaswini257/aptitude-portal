@@ -12,15 +12,24 @@ async function bootstrap() {
     }),
   );
 
+  const port = process.env.PORT || 3001;
+  const corsOrigin =
+    process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+
+  const allowedOrigins = corsOrigin
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization','Cache-Control'],
     credentials: true,
   });
 
-  await app.listen(3001);
-  console.log('🚀 Backend running on http://localhost:3001');
+  await app.listen(port);
+  console.log(`🚀 Backend running on port ${port}`);
 }
 
 bootstrap();

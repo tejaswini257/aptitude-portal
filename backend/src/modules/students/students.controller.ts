@@ -2,12 +2,15 @@ import {
   Controller,
   Post,
   Get,
-  Patch,
+  Put,
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -21,36 +24,67 @@ import { UserRole } from '@prisma/client';
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  // ✅ Create Student
+  // ✅ CREATE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Post()
-  create(@Body() dto: CreateStudentDto) {
-    return this.studentsService.create(dto);
+  create(@Body() dto: CreateStudentDto, @Req() req: Request) {
+    const orgId = (req as any).user?.orgId as string;
+
+    return this.studentsService.create(dto, orgId);
   }
 
-  // ✅ Get All Students
+  // ✅ GET STUDENTS (optional: departmentId or collegeId)
   @Get()
-  findAll() {
-    return this.studentsService.findAll();
+  findAll(
+    @Query('departmentId') departmentId?: string,
+    @Query('collegeId') collegeId?: string,
+  ) {
+    return this.studentsService.findAll(departmentId, collegeId);
   }
 
-  // ✅ Get Student by ID
+  // ✅ GET SINGLE STUDENT
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studentsService.findOne(id);
   }
 
-  // ✅ Update Student
+  // ✅ UPDATE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
     return this.studentsService.update(id, dto);
   }
 
-  // ✅ Delete Student
+  // ✅ DELETE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.studentsService.delete(id);
   }
+
+  // =============================
+// ✅ STUDENT SELF ROUTES
+// =============================
+
+// GET: logged-in student profile
+@Roles(UserRole.STUDENT)
+@Get('me')
+getMe(@Req() req: any) {
+  return this.studentsService.findByUserId(req.user.userId);
+}
+
+// GET: student dashboard stats (tests attempted, avg score, etc.)
+@Roles(UserRole.STUDENT)
+@Get('me/dashboard')
+getMyDashboard(@Req() req: any) {
+  return this.studentsService.getStudentAnalytics(req.user.userId);
+}
+
+// GET: student analytics
+@Roles(UserRole.STUDENT)
+@Get('me/analytics')
+getMyAnalytics(@Req() req: any) {
+  return this.studentsService.getStudentAnalytics(req.user.userId);
+}
+
 }

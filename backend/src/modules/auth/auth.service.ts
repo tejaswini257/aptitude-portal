@@ -23,6 +23,23 @@ export class AuthService {
     });
     if (exists) throw new BadRequestException('Email already exists');
 
+    // Validate organization for non-super admin roles
+    if (dto.role !== UserRole.SUPER_ADMIN) {
+      if (!dto.orgId) {
+        throw new BadRequestException(
+          'Organization ID is required for this role',
+        );
+      }
+
+      const org = await this.prisma.organization.findUnique({
+        where: { id: dto.orgId },
+      });
+
+      if (!org) {
+        throw new BadRequestException('Invalid organization ID');
+      }
+    }
+
     const password = await bcrypt.hash(dto.password, 10);
 
     const user = await this.prisma.user.create({
@@ -38,22 +55,40 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-    if (!user) throw new UnauthorizedException();
+  const user = await this.prisma.user.findUnique({
+    where: { email: dto.email },
+  });
+  if (!user) throw new UnauthorizedException();
 
-    const valid = await bcrypt.compare(dto.password, user.password);
-    if (!valid) throw new UnauthorizedException();
+  const valid = await bcrypt.compare(dto.password, user.password);
+  if (!valid) throw new UnauthorizedException();
 
-    const payload = {
-      userId: user.id,
-      role: user.role,
-      orgId: user.orgId,
-    };
+  // 🔥 role-aware payload
+  const payload: any = {
+    userId: user.id,
+    role: user.role,
+  };
 
-    return {
-      accessToken: await this.jwtService.signAsync(payload),
-    };
+  if (user.role === UserRole.COMPANY_ADMIN) {
+    payload.orgId = user.orgId;
   }
+
+  if (user.role === UserRole.STUDENT) {
+    payload.orgId = user.orgId ?? undefined;
+  }
+
+  if (user.role === UserRole.COLLEGE_ADMIN) {
+    payload.orgId = user.orgId ?? undefined;
+    const college = await this.prisma.college.findFirst({
+      where: { orgId: user.orgId ?? undefined },
+      select: { id: true },
+    });
+    if (college) payload.collegeId = college.id;
+  }
+
+  return {
+    accessToken: await this.jwtService.signAsync(payload),
+  };
+}
+
 }

@@ -12,23 +12,26 @@ model Organization {
   name      String
   type      OrgType
   createdAt DateTime @default(now())
-  College   College?
-  tests     Test[]
+
+  college   College?
   users     User[]
+  tests     Test[]
+  drives    Drive[]
 }
 
+
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  password     String
-  role         UserRole
-  orgId        String?
-  branchId     String?
-  createdAt    DateTime      @default(now())
-  students     Student?
-  testsCreated Test[]
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      UserRole
+  orgId     String?
+  createdAt DateTime @default(now())
+
   organization Organization? @relation(fields: [orgId], references: [id])
+  student      Student?
 }
+
 
 model College {
   id            String       @id @default(uuid())
@@ -42,18 +45,29 @@ model College {
   maxStudents   Int
   isApproved    Boolean      @default(false)
   createdAt     DateTime     @default(now())
-  Organization  Organization @relation(fields: [orgId], references: [id])
+
+  organization  Organization @relation(fields: [orgId], references: [id])
+
   departments   Department[]
   students      Student[]
 
   @@index([orgId])
 }
 
+
+
 model Department {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
   collegeId String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
+
+  hodName      String?
+  email        String?
+  phone        String?
+  totalStudents Int?
+  totalFaculty  Int?
+
   college   College   @relation(fields: [collegeId], references: [id])
   students  Student[]
 
@@ -61,131 +75,253 @@ model Department {
   @@index([collegeId])
 }
 
+
+
+
+
 model Student {
-  id           String       @id @default(uuid())
+  id           String   @id @default(uuid())
   rollNo       String
   year         Int
-  userId       String       @unique
+  userId       String   @unique
   collegeId    String
   departmentId String
-  createdAt    DateTime     @default(now())
-  college      College      @relation(fields: [collegeId], references: [id])
-  department   Department   @relation(fields: [departmentId], references: [id])
-  user         User         @relation(fields: [userId], references: [id])
-  submissions  Submission[]
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  college    College    @relation(fields: [collegeId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
+
+  submissions Submission[]
 
   @@unique([rollNo, collegeId])
-  @@index([collegeId])
-  @@index([departmentId])
 }
 
-model Test {
-  id          String     @id @default(uuid())
-  name        String
-  description String?
-  type        TestType
-  duration    Int // in minutes
-  status      TestStatus @default(DRAFT)
 
-  // Flags
+model Test {
+  id        String   @id @default(uuid())
+  name      String
+  orgId     String
+  createdAt DateTime @default(now())
+
   showResultImmediately Boolean @default(false)
   proctoringEnabled     Boolean @default(false)
 
-  // JSON configs (flexible)
-  eligibilityCriteria Json?
-  proctoringConfig    Json?
+  organization Organization @relation(fields: [orgId], references: [id])
 
-  // Relations
-  createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id])
+  rulesId String
+  rules   Rules @relation(fields: [rulesId], references: [id])
 
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-
-  sections    TestSection[]
-  questions   Question[]
-  submissions Submission[]
-
-  createdAt DateTime @default(now())
+  sections     TestSection[]
+  drives       Drive[]
+  submissions  Submission[]
 }
+
+
+
 
 model TestSection {
-  id        String     @id @default(uuid())
-  name      String
-  timeLimit Int // minutes
-
+  id        String @id @default(uuid())
   testId    String
-  test      Test       @relation(fields: [testId], references: [id])
-  questions Question[]
-  createdAt DateTime   @default(now())
+  sectionId String
+  timeLimit Int
+
+  test    Test    @relation(fields: [testId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
 }
+
+model Section {
+  id          String   @id @default(uuid())
+  sectionName String
+  orgId       String
+  isActive    Boolean  @default(true)
+
+  questions    Question[]
+  testSections TestSection[]
+}
+
+
 
 model Question {
-  id String @id @default(uuid())
+  id           String   @id @default(uuid())
+  sectionId    String
+  orgId        String
+  difficulty   DifficultyLevel
+  questionText String
 
-  testId    String
-  sectionId String?
+  allowedFor  QuestionUsage
+  createdBy   String
+  creatorRole CreatorRole
+  type        QuestionType
 
-  type       QuestionType
-  difficulty DifficultyLevel
+  correctAnswer String?
+  codingMeta    Json?
+  isActive      Boolean @default(true)
 
-  title       String
-  description String?
-
-  options          Json? // MCQ options
-  correctAnswer    Json? // MCQ / Aptitude answers
-  evaluationConfig Json? // Coding test cases, constraints
-
-  marks        Int
-  timeLimitSec Int?
-
-  order Int
-
-  explanation String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  test              Test               @relation(fields: [testId], references: [id])
-  section           TestSection?       @relation(fields: [sectionId], references: [id])
-  submissionAnswers SubmissionAnswer[]
-
-  @@index([testId])
-  @@index([sectionId])
+  section   Section @relation(fields: [sectionId], references: [id])
+  options   Option[]
+  answers   SubmissionAnswer[]
 }
+
+
+
 
 model Submission {
-  id          String           @id @default(uuid())
-  studentId   String
+  id          String   @id @default(uuid())
   testId      String
-  status      SubmissionStatus @default(IN_PROGRESS)
-  score       Int              @default(0)
-  startedAt   DateTime         @default(now())
-  submittedAt DateTime?
-  evaluatedAt DateTime?
+  studentId   String
+  score       Int?
+  submittedAt DateTime @default(now())
 
-  student Student            @relation(fields: [studentId], references: [id])
-  test    Test               @relation(fields: [testId], references: [id])
+  test    Test    @relation(fields: [testId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
   answers SubmissionAnswer[]
-
-  @@unique([studentId, testId]) // Prevent multiple attempts (optional)
-  @@index([studentId])
-  @@index([testId])
 }
 
+
+
+
+
 model SubmissionAnswer {
-  id             String   @id @default(uuid())
-  submissionId   String
-  questionId     String
+  id            String @id @default(uuid())
+  submissionId  String
+  questionId    String
   selectedAnswer String?
-  isCorrect      Boolean?
-  marksObtained  Int      @default(0)
+  isCorrect     Boolean?
+  marksObtained Int @default(0)
 
   submission Submission @relation(fields: [submissionId], references: [id])
   question   Question   @relation(fields: [questionId], references: [id])
 
   @@unique([submissionId, questionId])
 }
+
+model PracticeSet {
+  id           String @id @default(uuid())
+  name         String
+  orgId        String
+  sectionTimer Int
+  rulesId      String
+  visibility   Visibility
+
+  rules Rules @relation(fields: [rulesId], references: [id])
+
+  questionIds Json
+}
+
+
+
+model Rules {
+  id               String @id @default(uuid())
+  totalMarks       Int
+  marksPerQuestion Int
+  negativeMarking  Boolean
+  negativeMarks    Int?
+
+  tests        Test[]
+  practiceSets PracticeSet[]
+}
+
+
+
+
+model Drive {
+  id        String @id @default(uuid())
+  companyId String
+  testId    String
+
+  isOpenDrive Boolean @default(false)
+  startDate   DateTime
+  endDate     DateTime
+  description String?
+
+  company Organization @relation(fields: [companyId], references: [id])
+  test    Test         @relation(fields: [testId], references: [id])
+
+  colleges DriveCollege[]
+}
+
+
+
+
+model DriveCollege {
+  id        String @id @default(uuid())
+  driveId   String
+  collegeId String
+
+  drive Drive @relation(fields: [driveId], references: [id])
+}
+
+
+
+
+model ProctoringEvent {
+  id                 String   @id @default(uuid())
+  userId             String
+  orgId              String
+  orgType            String
+  cameraActive       Boolean
+  audioActive        Boolean
+  tabSwitched        Boolean
+  warningCount       Int
+  maxWarningsAllowed Int
+  timestamp          DateTime @default(now())
+}
+
+
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  orgId     String
+  action    String
+  ipAddress String
+  location  String
+  timestamp DateTime @default(now())
+}
+
+
+
+model CodingSubmission {
+  id String @id @default(uuid())
+
+  testId String
+  userId String
+
+  code String
+  language String
+  evaluationMode EvaluationMode
+
+  score Int
+  feedback String?
+
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  recipientId String
+  message     String
+  type        String
+  isRead      Boolean @default(false)
+  createdAt   DateTime @default(now())
+}
+
+
+model Option {
+  id         String @id @default(uuid())
+  questionId String
+  optionCode String
+  optionText String
+  isCorrect  Boolean
+
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+
+
+
+
 
 enum OrgType {
   COLLEGE
@@ -235,3 +371,26 @@ enum SubmissionStatus {
   SUBMITTED
   EVALUATED
 }
+
+enum QuestionUsage {
+  PRACTICE
+  TEST
+  BOTH
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum EvaluationMode {
+  COMPILER
+  MANUAL
+  AI
+}
+
+enum CreatorRole {
+  ADMIN
+  COMPANY
+}
+

@@ -1,67 +1,97 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
 
 @Injectable()
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateQuestionDto) {
-    return this.prisma.question.create({
-      data: {
-        testId: dto.testId,
-        sectionId: dto.sectionId,
-        type: dto.type,
-        difficulty: dto.difficulty,
-        title: dto.title,
-        description: dto.description,
-        options: dto.options,
-        correctAnswer: dto.correctAnswer,
-        evaluationConfig: dto.evaluationConfig,
-        marks: dto.marks,
-        timeLimitSec: dto.timeLimitSec,
-        order: dto.order,
-        explanation: dto.explanation,
+  // =============================
+  // CREATE QUESTION
+  // =============================
+  async create(dto: any, orgId: string) {
+    const data = {
+      sectionId: dto.sectionId,
+      orgId,
+      type: dto.type,
+      difficulty: dto.difficulty,
+      questionText: dto.questionText,
+      allowedFor: dto.allowedFor,
+      createdBy: dto.createdBy,
+      creatorRole: dto.creatorRole,
+      correctAnswer: dto.correctAnswer ?? null,
+      codingMeta: dto.codingMeta ?? null,
+      options: {
+        create: (dto.options || []).map((opt: any) => ({
+          optionCode: opt.optionCode,
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+        })),
       },
+    };
+    return this.prisma.question.create({
+      data: data as any,
+      include: { options: true } as any,
     });
   }
 
-  findByTest(testId: string) {
+  // =============================
+  // GET QUESTIONS BY TEST
+  // =============================
+  async findByTest(testId: string) {
+    const where = {
+      section: {
+        testSections: {
+          some: { testId },
+        },
+      },
+    };
     return this.prisma.question.findMany({
-      where: { testId },
-      orderBy: { order: 'asc' },
+      where: where as any,
+      include: { options: true } as any,
     });
   }
 
-  async findOne(id: string) {
-    const question = await this.prisma.question.findUnique({
+  // =============================
+  // UPDATE QUESTION
+  // =============================
+  async update(id: string, dto: any) {
+    const existing = await this.prisma.question.findUnique({
       where: { id },
     });
 
-    if (!question) {
-      throw new NotFoundException('Question not found');
-    }
-
-    return question;
-  }
-
-  async update(id: string, dto: UpdateQuestionDto) {
-    const exists = await this.prisma.question.findUnique({
-      where: { id },
-    });
-
-    if (!exists) {
+    if (!existing) {
       throw new NotFoundException('Question not found');
     }
 
     return this.prisma.question.update({
       where: { id },
-      data: dto,
+      data: {
+        ...(dto.sectionId && { sectionId: dto.sectionId }),
+        ...(dto.type && { type: dto.type }),
+        ...(dto.difficulty && { difficulty: dto.difficulty }),
+        ...(dto.questionText && { questionText: dto.questionText }),
+        ...(dto.correctAnswer !== undefined && {
+          correctAnswer:
+            dto.correctAnswer !== null
+              ? String(dto.correctAnswer)
+              : null,
+        }),
+      },
     });
   }
 
-  delete(id: string) {
+  // =============================
+  // DELETE QUESTION
+  // =============================
+  async delete(id: string) {
+    const existing = await this.prisma.question.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('Question not found');
+    }
+
     return this.prisma.question.delete({
       where: { id },
     });
