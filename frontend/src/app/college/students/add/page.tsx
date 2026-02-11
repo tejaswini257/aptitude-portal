@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import { createStudent } from "@/services/student.service";
 import { useRouter } from "next/navigation";
