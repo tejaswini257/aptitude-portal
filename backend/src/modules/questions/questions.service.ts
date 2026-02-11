@@ -9,27 +9,27 @@ export class QuestionsService {
   // CREATE QUESTION
   // =============================
   async create(dto: any, orgId: string) {
+    const data = {
+      sectionId: dto.sectionId,
+      orgId,
+      type: dto.type,
+      difficulty: dto.difficulty,
+      questionText: dto.questionText,
+      allowedFor: dto.allowedFor,
+      createdBy: dto.createdBy,
+      creatorRole: dto.creatorRole,
+      correctAnswer: dto.correctAnswer ?? null,
+      codingMeta: dto.codingMeta ?? null,
+      options: {
+        create: (dto.options || []).map((opt: any) => ({
+          optionCode: opt.optionCode,
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+        })),
+      },
+    };
     return this.prisma.question.create({
-      data: {
-        sectionId: dto.sectionId,
-        orgId,
-        type: dto.type,
-        difficulty: dto.difficulty,
-        questionText: dto.questionText,
-        allowedFor: dto.allowedFor,
-        createdBy: dto.createdBy,
-        creatorRole: dto.creatorRole,
-        correctAnswer: dto.correctAnswer ?? null,
-        codingMeta: dto.codingMeta ?? null,
-
-        options: {
-          create: (dto.options || []).map((opt: any) => ({
-            optionCode: opt.optionCode,
-            optionText: opt.optionText,
-            isCorrect: opt.isCorrect,
-          })),
-        },
-      } as any,
+      data: data as any,
       include: { options: true } as any,
     });
   }
@@ -38,14 +38,15 @@ export class QuestionsService {
   // GET QUESTIONS BY TEST
   // =============================
   async findByTest(testId: string) {
-    return this.prisma.question.findMany({
-      where: {
-        section: {
-          testSections: {
-            some: { testId },
-          },
+    const where = {
+      section: {
+        testSections: {
+          some: { testId },
         },
-      } as any,
+      },
+    };
+    return this.prisma.question.findMany({
+      where: where as any,
       include: { options: true } as any,
     });
   }

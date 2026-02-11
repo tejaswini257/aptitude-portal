@@ -48,27 +48,20 @@ export class TestsService {
 
   // ✅ GET ALL
   async findAll(orgId: string) {
+    const include = { rules: true, sections: true };
     return this.prisma.test.findMany({
       where: { orgId },
       orderBy: { createdAt: 'desc' },
-      include: {
-        rules: true,
-        sections: true,
-      } as any,
+      include: include as any,
     });
   }
 
   // ✅ GET ONE
   async findOne(id: string, orgId: string) {
+    const include = { rules: true, sections: true };
     const test = await this.prisma.test.findFirst({
-      where: {
-        id,
-        orgId,
-      },
-      include: {
-        rules: true,
-        sections: true,
-      } as any,
+      where: { id, orgId },
+      include: include as any,
     });
 
     if (!test) throw new NotFoundException('Test not found');
@@ -104,23 +97,20 @@ export class TestsService {
   }
 
   async getQuestionsForTest(testId: string) {
-  const testSections = await this.prisma.testSection.findMany({
-    where: { testId },
-    include: {
-      section: {
-        include: {
-          questions: true,
-        },
-      },
-    } as any,
-  });
+    const include = {
+      section: { include: { questions: true } },
+    };
+    const testSections = await this.prisma.testSection.findMany({
+      where: { testId },
+      include: include as any,
+    });
 
-  return testSections.map((ts) => ({
-    sectionId: ts.sectionId,
-    sectionName: (ts as any).section?.sectionName || 'Section',
-    questions: (ts as any).section?.questions || [],
-  }));
-}
+    return testSections.map((ts: any) => ({
+      sectionId: ts.sectionId,
+      sectionName: ts.section?.sectionName || 'Section',
+      questions: ts.section?.questions || [],
+    }));
+  }
 
 
 
