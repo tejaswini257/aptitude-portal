@@ -6,6 +6,8 @@ const baseURL =
     ? "http://localhost:3001"
     : "");
 
+console.log("🌍 API URL being used:", baseURL); // 👈 ADD THIS
+
 if (!baseURL) {
   console.error("❌ NEXT_PUBLIC_API_URL is not defined");
 }
