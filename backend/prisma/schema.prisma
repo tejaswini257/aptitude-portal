@@ -12,26 +12,22 @@ model Organization {
   name      String
   type      OrgType
   createdAt DateTime @default(now())
-
   college   College?
-  users     User[]
-  tests     Test[]
   drives    Drive[]
+  tests     Test[]
+  users     User[]
 }
-
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      UserRole
-  orgId     String?
-  createdAt DateTime @default(now())
-
-  organization Organization? @relation(fields: [orgId], references: [id])
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  role         UserRole
+  orgId        String?
+  createdAt    DateTime      @default(now())
   student      Student?
+  organization Organization? @relation(fields: [orgId], references: [id])
 }
-
 
 model College {
   id            String       @id @default(uuid())
@@ -45,215 +41,159 @@ model College {
   maxStudents   Int
   isApproved    Boolean      @default(false)
   createdAt     DateTime     @default(now())
-
   organization  Organization @relation(fields: [orgId], references: [id])
-
   departments   Department[]
   students      Student[]
 
   @@index([orgId])
 }
 
-
-
 model Department {
-  id        String   @id @default(uuid())
-  name      String
-  collegeId String
-  createdAt DateTime @default(now())
-
-  hodName      String?
-  email        String?
-  phone        String?
-  totalStudents Int?
+  id            String    @id @default(uuid())
+  name          String
+  collegeId     String
+  createdAt     DateTime  @default(now())
+  email         String?
+  hodName       String?
+  phone         String?
   totalFaculty  Int?
-
-  college   College   @relation(fields: [collegeId], references: [id])
-  students  Student[]
+  totalStudents Int?
+  college       College   @relation(fields: [collegeId], references: [id])
+  students      Student[]
 
   @@unique([name, collegeId])
   @@index([collegeId])
 }
 
-
-
-
-
 model Student {
-  id           String   @id @default(uuid())
+  id           String       @id @default(uuid())
   rollNo       String
   year         Int
-  userId       String   @unique
+  userId       String       @unique
   collegeId    String
   departmentId String
-  createdAt    DateTime @default(now())
-
-  user       User       @relation(fields: [userId], references: [id])
-  college    College    @relation(fields: [collegeId], references: [id])
-  department Department @relation(fields: [departmentId], references: [id])
-
-  submissions Submission[]
+  createdAt    DateTime     @default(now())
+  college      College      @relation(fields: [collegeId], references: [id])
+  department   Department   @relation(fields: [departmentId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  submissions  Submission[]
 
   @@unique([rollNo, collegeId])
 }
 
-
 model Test {
-  id        String   @id @default(uuid())
-  name      String
-  orgId     String
-  createdAt DateTime @default(now())
-
-  showResultImmediately Boolean @default(false)
-  proctoringEnabled     Boolean @default(false)
-
-  organization Organization @relation(fields: [orgId], references: [id])
-
-  rulesId String
-  rules   Rules @relation(fields: [rulesId], references: [id])
-
-  sections     TestSection[]
-  drives       Drive[]
-  submissions  Submission[]
+  id                    String        @id @default(uuid())
+  name                  String
+  showResultImmediately Boolean       @default(false)
+  proctoringEnabled     Boolean       @default(false)
+  createdAt             DateTime      @default(now())
+  orgId                 String
+  rulesId               String
+  drives                Drive[]
+  organization          Organization  @relation(fields: [orgId], references: [id])
+  rules                 Rules         @relation(fields: [rulesId], references: [id])
+  sections              TestSection[]
 }
 
-
-
-
 model TestSection {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
+  timeLimit Int
   testId    String
   sectionId String
-  timeLimit Int
-
-  test    Test    @relation(fields: [testId], references: [id])
-  section Section @relation(fields: [sectionId], references: [id])
+  section   Section @relation(fields: [sectionId], references: [id])
+  test      Test    @relation(fields: [testId], references: [id])
 }
 
 model Section {
-  id          String   @id @default(uuid())
-  sectionName String
-  orgId       String
-  isActive    Boolean  @default(true)
-
+  id           String        @id @default(uuid())
+  sectionName  String
+  orgId        String
+  isActive     Boolean       @default(true)
   questions    Question[]
   testSections TestSection[]
 }
 
-
-
 model Question {
-  id           String   @id @default(uuid())
-  sectionId    String
-  orgId        String
-  difficulty   DifficultyLevel
-  questionText String
-
-  allowedFor  QuestionUsage
-  createdBy   String
-  creatorRole CreatorRole
-  type        QuestionType
-
+  id            String             @id @default(uuid())
+  sectionId     String
+  type          QuestionType
+  difficulty    DifficultyLevel
   correctAnswer String?
+  allowedFor    QuestionUsage
   codingMeta    Json?
-  isActive      Boolean @default(true)
-
-  section   Section @relation(fields: [sectionId], references: [id])
-  options   Option[]
-  answers   SubmissionAnswer[]
+  createdBy     String
+  creatorRole   CreatorRole
+  isActive      Boolean            @default(true)
+  orgId         String
+  questionText  String
+  options       Option[]
+  section       Section            @relation(fields: [sectionId], references: [id])
+  answers       SubmissionAnswer[]
 }
-
-
-
 
 model Submission {
-  id          String   @id @default(uuid())
-  testId      String
+  id          String             @id @default(uuid())
   studentId   String
+  testId      String
   score       Int?
-  submittedAt DateTime @default(now())
-
-  test    Test    @relation(fields: [testId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
-  answers SubmissionAnswer[]
+  submittedAt DateTime           @default(now())
+  student     Student            @relation(fields: [studentId], references: [id])
+  answers     SubmissionAnswer[]
 }
 
-
-
-
-
 model SubmissionAnswer {
-  id            String @id @default(uuid())
-  submissionId  String
-  questionId    String
+  id             String     @id @default(uuid())
+  submissionId   String
+  questionId     String
   selectedAnswer String?
-  isCorrect     Boolean?
-  marksObtained Int @default(0)
-
-  submission Submission @relation(fields: [submissionId], references: [id])
-  question   Question   @relation(fields: [questionId], references: [id])
+  isCorrect      Boolean?
+  marksObtained  Int        @default(0)
+  question       Question   @relation(fields: [questionId], references: [id])
+  submission     Submission @relation(fields: [submissionId], references: [id])
 
   @@unique([submissionId, questionId])
 }
 
 model PracticeSet {
-  id           String @id @default(uuid())
+  id           String     @id @default(uuid())
   name         String
   orgId        String
   sectionTimer Int
   rulesId      String
   visibility   Visibility
-
-  rules Rules @relation(fields: [rulesId], references: [id])
-
-  questionIds Json
+  questionIds  Json
+  rules        Rules      @relation(fields: [rulesId], references: [id])
 }
 
-
-
 model Rules {
-  id               String @id @default(uuid())
+  id               String        @id @default(uuid())
   totalMarks       Int
   marksPerQuestion Int
   negativeMarking  Boolean
   negativeMarks    Int?
-
-  tests        Test[]
-  practiceSets PracticeSet[]
+  practiceSets     PracticeSet[]
+  tests            Test[]
 }
 
-
-
-
 model Drive {
-  id        String @id @default(uuid())
-  companyId String
-  testId    String
-
-  isOpenDrive Boolean @default(false)
+  id          String         @id @default(uuid())
+  companyId   String
+  testId      String
+  isOpenDrive Boolean        @default(false)
   startDate   DateTime
   endDate     DateTime
   description String?
-
-  company Organization @relation(fields: [companyId], references: [id])
-  test    Test         @relation(fields: [testId], references: [id])
-
-  colleges DriveCollege[]
+  company     Organization   @relation(fields: [companyId], references: [id])
+  test        Test           @relation(fields: [testId], references: [id])
+  colleges    DriveCollege[]
 }
-
-
-
 
 model DriveCollege {
   id        String @id @default(uuid())
   driveId   String
   collegeId String
-
-  drive Drive @relation(fields: [driveId], references: [id])
+  drive     Drive  @relation(fields: [driveId], references: [id])
 }
-
-
-
 
 model ProctoringEvent {
   id                 String   @id @default(uuid())
@@ -268,8 +208,6 @@ model ProctoringEvent {
   timestamp          DateTime @default(now())
 }
 
-
-
 model ActivityLog {
   id        String   @id @default(uuid())
   userId    String
@@ -280,22 +218,16 @@ model ActivityLog {
   timestamp DateTime @default(now())
 }
 
-
-
 model CodingSubmission {
-  id String @id @default(uuid())
-
-  testId String
-  userId String
-
-  code String
-  language String
+  id             String         @id @default(uuid())
+  testId         String
+  userId         String
+  code           String
+  language       String
   evaluationMode EvaluationMode
-
-  score Int
-  feedback String?
-
-  createdAt DateTime @default(now())
+  score          Int
+  feedback       String?
+  createdAt      DateTime       @default(now())
 }
 
 model Notification {
@@ -303,25 +235,18 @@ model Notification {
   recipientId String
   message     String
   type        String
-  isRead      Boolean @default(false)
+  isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
-
 model Option {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   questionId String
   optionCode String
   optionText String
   isCorrect  Boolean
-
-  question Question @relation(fields: [questionId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
 }
-
-
-
-
-
 
 enum OrgType {
   COLLEGE
@@ -393,4 +318,3 @@ enum CreatorRole {
   ADMIN
   COMPANY
 }
-
