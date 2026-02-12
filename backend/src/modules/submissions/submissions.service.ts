@@ -11,13 +11,10 @@ import { SubmitAnswerDto } from './dto';
 export class SubmissionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ============ START TEST ============
+  // ================= START TEST =================
   async startSubmission(testId: string, userId: string) {
-    // 🔹 FIX: find student via related User (NOT by userId directly)
     const student = await this.prisma.student.findFirst({
-      where: {
-        user: { id: userId },
-      },
+      where: { user: { id: userId } },
     });
 
     if (!student) {
@@ -41,7 +38,6 @@ export class SubmissionsService {
 
     if (existing) return existing;
 
-    // 🔹 Create new submission (no hardcoded score = 0)
     return this.prisma.submission.create({
       data: {
         studentId: student.id,
@@ -50,7 +46,7 @@ export class SubmissionsService {
     });
   }
 
-  // ============ SUBMIT ANSWER ============
+  // ================= SUBMIT ANSWER =================
   async submitAnswer(
     submissionId: string,
     dto: SubmitAnswerDto,
@@ -58,19 +54,21 @@ export class SubmissionsService {
   ) {
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
-      include: { student: { include: { user: true } } }, // 🔹 FIX
+      include: {
+        student: {
+          include: { user: true },
+        },
+      },
     });
 
     if (!submission) {
       throw new NotFoundException('Submission not found');
     }
 
-    // 🔹 FIX: compare with related user id
     if (submission.student.user.id !== userId) {
       throw new ForbiddenException('Unauthorized access');
     }
 
-    // Get all questions of this test (correct lowercase 'section')
     const testSections = await this.prisma.testSection.findMany({
       where: { testId: submission.testId },
       include: {
@@ -89,7 +87,7 @@ export class SubmissionsService {
     );
 
     if (!question) {
-      throw new BadRequestException('Invalid question for this test');
+      throw new BadRequestException('Invalid question');
     }
 
     const alreadyAnswered =
@@ -133,13 +131,10 @@ export class SubmissionsService {
     return { success: true };
   }
 
-  // ============ STUDENT SUBMISSIONS ============
+  // ================= GET STUDENT SUBMISSIONS =================
   async getSubmissionsByUser(userId: string) {
-    // 🔹 FIX: again, find student via related User
     const student = await this.prisma.student.findFirst({
-      where: {
-        user: { id: userId },
-      },
+      where: { user: { id: userId } },
     });
 
     if (!student) {
@@ -149,15 +144,26 @@ export class SubmissionsService {
     const submissions = await this.prisma.submission.findMany({
       where: { studentId: student.id },
       orderBy: { submittedAt: 'desc' },
-      include: { test: { select: { id: true, name: true } } }, // 🔹 cleaner
     });
 
-    return submissions.map((s) => ({
-      id: s.id,
-      testId: s.testId,
-      score: s.score,
-      submittedAt: s.submittedAt,
-      test: s.test || null,
-    }));
+    // 🔥 Manually fetch test details (NO include relation)
+    const result = await Promise.all(
+      submissions.map(async (s) => {
+        const test = await this.prisma.test.findUnique({
+          where: { id: s.testId },
+          select: { id: true, name: true },
+        });
+
+        return {
+          id: s.id,
+          testId: s.testId,
+          score: s.score,
+          submittedAt: s.submittedAt,
+          test: test || null,
+        };
+      }),
+    );
+
+    return result;
   }
 }
