@@ -1,9 +1,19 @@
 import axios from "axios";
 
+const baseURL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:3001"
+    : "");
+
+console.log("🌍 API URL being used:", baseURL); // 👈 ADD THIS
+
+if (!baseURL) {
+  console.error("❌ NEXT_PUBLIC_API_URL is not defined");
+}
+
 const api = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:3001", // fallback for local dev only
+  baseURL,
   headers: {
     "Content-Type": "application/json",
   },
