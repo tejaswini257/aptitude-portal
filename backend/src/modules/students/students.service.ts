@@ -167,6 +167,7 @@ export class StudentsService {
 
   // ================= FIND BY USER ID =================
   async findByUserId(userId: string) {
+<<<<<<< HEAD
     return this.prisma.student.findUnique({
       where: { userId },
       include: {
@@ -223,4 +224,41 @@ export class StudentsService {
       submissions: formattedSubmissions,
     };
   }
+=======
+  return this.prisma.student.findUnique({
+    where: { userId },
+    include: { college: true, department: true },
+  });
+}
+
+async getStudentAnalytics(userId: string) {
+  const student = await this.prisma.student.findUnique({
+    where: { userId },
+  });
+
+  if (!student) throw new NotFoundException('Student not found');
+
+  const submissions = await this.prisma.submission.findMany({
+    where: { studentId: student.id },
+  });
+
+
+  const total = submissions.length;
+  const sum = submissions.reduce((s, x) => s + (x.score || 0), 0);
+  const averageScore = total ? Math.round(sum / total) : 0;
+
+  return {
+    testsAttempted: total,
+    averageScore,
+    submissions: submissions.map((s) => ({
+      id: s.id,
+      testId: s.testId,
+      testName: s.testId,
+      score: s.score ?? 0,
+      submittedAt: s.submittedAt,
+    })),
+  };
+}
+
+>>>>>>> backend-core
 }

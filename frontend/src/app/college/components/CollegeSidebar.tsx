@@ -8,6 +8,7 @@ const menu = [
   { name: "Departments", path: "/college/departments" },
   { name: "Students", path: "/college/students" },
   { name: "Tests", path: "/college/tests" },
+  { name: "Practice Sets", path: "/college/practice" },
   { name: "Drives", path: "/college/drives" },
   { name: "Analytics", path: "/college/analytics" },
   { name: "Companies", path: "/college/companies" },
@@ -17,48 +18,24 @@ export default function CollegeSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: "240px",
-        background: "#ffffff",
-        borderRight: "1px solid #e2e8f0",
-        padding: "30px 20px",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "20px",
-          fontWeight: 600,
-          marginBottom: "30px",
-        }}
-      >
-        College Panel
-      </h2>
+    <aside className="w-64 min-h-screen bg-white border-r p-5">
+      <h2 className="text-lg font-semibold mb-6">College Panel</h2>
 
-      {menu.map((item) => {
-        const active =
-          pathname === item.path || pathname.startsWith(item.path + "/");
-        return (
+      <nav className="space-y-2">
+        {menu.map((item) => (
           <Link
-            key={item.name}
+            key={item.path}
             href={item.path}
-            style={{
-              display: "block",
-              padding: "10px 14px",
-              borderRadius: "10px",
-              marginBottom: "10px",
-              background: active
-                ? "linear-gradient(90deg,#059669,#10b981)"
-                : "transparent",
-              color: active ? "#fff" : "#334155",
-              textDecoration: "none",
-              fontWeight: 500,
-            }}
+            className={`block px-4 py-2 rounded-lg transition ${
+              pathname === item.path
+                ? "bg-emerald-500 text-white"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
           >
             {item.name}
           </Link>
-        );
-      })}
+        ))}
+      </nav>
     </aside>
   );
 }

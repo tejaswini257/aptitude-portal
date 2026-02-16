@@ -1,15 +1,58 @@
-import { IsString, IsBoolean, IsOptional, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsInt,
+  ValidateNested,
+  IsArray,
+  Min,
+} from "class-validator";
+import { Type } from "class-transformer";
+
+class RulesDto {
+  @IsInt()
+  @Min(1)
+  totalMarks!: number;
+
+  @IsInt()
+  @Min(1)
+  marksPerQuestion!: number;
+
+  @IsBoolean()
+  negativeMarking!: boolean;
+
+  @IsOptional()
+  @IsInt()
+  negativeMarks?: number;
+}
+
+class SectionInputDto {
+  @IsString()
+  sectionId!: string;
+
+  @IsInt()
+  @Min(1)
+  timeLimit!: number;
+}
 
 export class CreateTestDto {
   @IsString()
-  @IsNotEmpty()
   name!: string;
 
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   showResultImmediately?: boolean;
 
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   proctoringEnabled?: boolean;
+
+  @ValidateNested()
+  @Type(() => RulesDto)
+  rules!: RulesDto;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SectionInputDto)
+  sections!: SectionInputDto[];
 }

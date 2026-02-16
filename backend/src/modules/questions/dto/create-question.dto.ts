@@ -1,48 +1,48 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsArray } from 'class-validator';
-import { QuestionType, DifficultyLevel } from '@prisma/client';
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
+import {
+  QuestionType,
+  DifficultyLevel,
+  QuestionUsage,
+  CreatorRole,
+} from '@prisma/client';
 
 export class CreateQuestionDto {
   @IsString()
-  testId!: string;   // <-- ADD !
-
-  @IsOptional()
-  @IsString()
-  sectionId?: string;
+  sectionId!: string;
 
   @IsEnum(QuestionType)
-  type!: QuestionType;   // <-- ADD !
+  type!: QuestionType;
 
   @IsEnum(DifficultyLevel)
-  difficulty!: DifficultyLevel; // <-- ADD !
+  difficulty!: DifficultyLevel;
+
+  @IsEnum(QuestionUsage)
+  allowedFor!: QuestionUsage;
 
   @IsString()
-  title!: string;  // <-- ADD !
+  questionText!: string;
 
   @IsOptional()
-  @IsString()
-  description?: string;
+  correctAnswer?: string;
+
+  @IsOptional()
+  codingMeta?: any;
 
   @IsOptional()
   @IsArray()
-  options?: any[];
-
-  @IsOptional()
-  correctAnswer?: any;
-
-  @IsOptional()
-  evaluationConfig?: any;
+  options?: {
+    optionCode: string;
+    optionText: string;
+    isCorrect: boolean;
+  }[];
 
   @IsNumber()
-  marks!: number;   // <-- ADD !
-
-  @IsOptional()
-  @IsNumber()
-  timeLimitSec?: number;
-
-  @IsNumber()
-  order!: number;   // <-- ADD !
-
-  @IsOptional()
-  @IsString()
-  explanation?: string;
+  marks!: number;
 }

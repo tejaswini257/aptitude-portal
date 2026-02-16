@@ -7,12 +7,15 @@ async function bootstrap() {
 
   // Global validation
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,              // ✅ ADD THIS
+    transformOptions: {
+      enableImplicitConversion: true, // ✅ ADD THIS
+    },
+  }),
+);
 
   // Production-ready CORS
   app.enableCors({
