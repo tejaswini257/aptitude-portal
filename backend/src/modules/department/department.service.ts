@@ -21,11 +21,16 @@ export class DepartmentService {
     }
 
     return this.prisma.department.create({
-      data: {
-        name: dto.name,
-        collegeId: dto.collegeId,
-      },
-    });
+    data: {
+      name: dto.name,
+      collegeId: dto.collegeId,
+      hodName: dto.hodName || null,
+      email: dto.email || null,
+      phone: dto.phone || null,
+      totalStudents: dto.totalStudents ?? null,
+      totalFaculty: dto.totalFaculty ?? null,
+    },
+  });
   }
 
   findByCollege(collegeId: string) {
@@ -48,11 +53,18 @@ export class DepartmentService {
   }
 
   async update(id: string, dto: UpdateDepartmentDto) {
-    return this.prisma.department.update({
-      where: { id },
-      data: { name: dto.name },
-    });
-  }
+  return this.prisma.department.update({
+    where: { id },
+    data: {
+      name: dto.name,
+      hodName: dto.hodName,
+      email: dto.email,
+      phone: dto.phone,
+      totalStudents: dto.totalStudents,
+      totalFaculty: dto.totalFaculty,
+    },
+  });
+}
 
   async findById(id: string) {
 return this.prisma.department.findUnique({

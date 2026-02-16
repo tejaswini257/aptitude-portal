@@ -184,11 +184,8 @@ async getStudentAnalytics(userId: string) {
 
   const submissions = await this.prisma.submission.findMany({
     where: { studentId: student.id },
-    orderBy: { submittedAt: 'asc' },
-    include: {
-      test: { select: { id: true, name: true } },
-    },
   });
+
 
   const total = submissions.length;
   const sum = submissions.reduce((s, x) => s + (x.score || 0), 0);
@@ -200,7 +197,7 @@ async getStudentAnalytics(userId: string) {
     submissions: submissions.map((s) => ({
       id: s.id,
       testId: s.testId,
-      testName: s.test?.name ?? 'Unknown',
+      testName: s.testId,
       score: s.score ?? 0,
       submittedAt: s.submittedAt,
     })),

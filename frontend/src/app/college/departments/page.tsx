@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState,useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/interceptors/axios";
@@ -18,6 +18,26 @@ export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
+const [form, setForm] = useState({
+  name: "",
+  hodName: "",
+  email: "",
+  phone: "",
+  totalStudents: "",
+  totalFaculty: "",
+});
+
+
+const filteredDepartments = useMemo(() => {
+  return departments.filter(d =>
+    d.name.toLowerCase().includes(search.toLowerCase())
+  );
+}, [search, departments]);
+
+
+
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -75,23 +95,33 @@ export default function DepartmentsPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-8 py-10">
       {/* Header */}
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900">
-            Departments
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Manage all departments under your college
-          </p>
-        </div>
+      <div className="flex flex-col gap-4 mb-6">
+  <div className="flex items-center justify-between">
+    <div>
+      <h1 className="text-2xl font-semibold text-gray-900">Departments</h1>
+      <p className="text-gray-500">
+        Manage all departments under your college
+      </p>
+    </div>
 
-        <button
-          onClick={() => router.push("/college/departments/create")}
-          className="px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 shadow-sm transition"
-        >
-          + Add Department
-        </button>
-      </div>
+    <button
+      onClick={() => router.push("/college/departments/create")}
+      className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition"
+    >
+      + Add Department
+    </button>
+  </div>
+
+  {/* ✅ SEARCH BAR - NOW BELOW THE LINE */}
+  <input
+    type="text"
+    placeholder="Search departments..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2"
+  />
+</div>
+
 
       {/* Empty state */}
       {departments.length === 0 && (
@@ -105,47 +135,50 @@ export default function DepartmentsPage() {
 
       {/* Department Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {departments.map((d) => (
-          <div
-            key={d.id}
-            className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-2xl transition overflow-hidden"
-          >
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {d.name}
-              </h2>
+  {filteredDepartments.map((d) => (
+    <div
+      key={d.id}
+      onClick={() => router.push(`/college/departments/${d.id}`)}
+      className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-2xl transition overflow-hidden"
+    >
+      <div className="p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          {d.name}
+        </h2>
 
-              <p className="text-sm text-gray-500">
-                Created: {new Date(d.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t flex justify-between items-center text-sm bg-gray-50">
-              <Link
-                href={`/college/departments/${d.id}/students`}
-                className="text-blue-600 font-medium hover:underline"
-              >
-                View Students
-              </Link>
-
-              <Link
-                href={`/college/departments/${d.id}/edit`}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Edit
-              </Link>
-
-              <button
-                onClick={() => handleDelete(d.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        <p className="text-sm text-gray-500">
+          Created: {new Date(d.createdAt).toLocaleDateString()}
+        </p>
       </div>
+
+      {/* Footer */}
+      <div className="px-6 py-4 border-t flex justify-between items-center text-sm bg-gray-50" onClick={(e) => e.stopPropagation()}>
+        
+        <Link
+          href={`/college/departments/${d.id}/students`}
+          className="text-blue-600 font-medium hover:underline"
+        >
+          View Students
+        </Link>
+
+        <Link
+          href={`/college/departments/${d.id}/edit`}
+          className="text-gray-600 hover:text-gray-900"
+        >
+          Edit
+        </Link>
+
+        <button
+          onClick={() => handleDelete(d.id)}
+          className="text-red-500 hover:text-red-700"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
     </div>
   );
 }

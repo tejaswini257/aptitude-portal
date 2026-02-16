@@ -15,6 +15,9 @@ import { OrganizationController } from './modules/organization/organization.cont
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SectionsModule } from './modules/sections/sections.module';
+import { PracticeSetsModule } from './modules/practice-sets/practice-sets.module';
+
 
 
 @Module({
@@ -32,6 +35,8 @@ import { AdminModule } from './modules/admin/admin.module';
     CompanyTestsModule,
     DrivesModule,
     AdminModule,
+    SectionsModule,
+    PracticeSetsModule,
   ],
 })
 export class AppModule {}

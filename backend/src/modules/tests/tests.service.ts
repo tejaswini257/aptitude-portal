@@ -15,44 +15,66 @@ export class TestsService {
 
   // Create test (schema: name, orgId, rulesId, showResultImmediately, proctoringEnabled)
   async create(dto: CreateTestDto, orgId: string) {
-  if (!orgId) {
-    throw new BadRequestException(
-      'orgId is required to create a test. Log in as a College Admin or Company Admin.',
-    );
-  }
+  return this.prisma.$transaction(async (tx) => {
+    // 1️⃣ Create Rules
+    const rules = await tx.rules.create({
+      data: {
+        totalMarks: dto.rules.totalMarks,
+        marksPerQuestion: dto.rules.marksPerQuestion,
+        negativeMarking: dto.rules.negativeMarking,
+        negativeMarks: dto.rules.negativeMarking
+          ? dto.rules.negativeMarks ?? 0
+          : null,
+      },
+    });
 
-  // 1️⃣ Create default rules (Prisma auto-generates ID)
-  const rules = await this.prisma.rules.create({
-    data: {
-      id: randomUUID(),
-      totalMarks: 0,
-      marksPerQuestion: 1,
-      negativeMarking: false,
-      negativeMarks: null,
-    },
-  });
+    // 2️⃣ Create Test
+    const test = await tx.test.create({
+      data: {
+        name: dto.name,
+        showResultImmediately: dto.showResultImmediately ?? false,
+        proctoringEnabled: dto.proctoringEnabled ?? false,
+        orgId,
+        rulesId: rules.id,
+      },
+    });
 
-  // 2️⃣ Create test linked to org + rules
-  return this.prisma.test.create({
-    data: {
-      name: dto.name,
-      orgId,
-      rulesId: rules.id,
-      showResultImmediately: dto.showResultImmediately ?? false,
-      proctoringEnabled: dto.proctoringEnabled ?? false,
-    },
+    // 3️⃣ Attach Sections
+    for (const sec of dto.sections) {
+      await tx.testSection.create({
+        data: {
+          testId: test.id,
+          sectionId: sec.sectionId,
+          timeLimit: sec.timeLimit,
+        },
+      });
+    }
+
+    return test;
   });
 }
 
 
 
   // ✅ GET ALL (optionally with attempt count for college/company dashboard)
-  async findAll(orgId: string | undefined | null, withAttemptCount = false) {
-    if (!orgId || orgId === '') return withAttemptCount ? [] : [];
+  async findAll(
+    orgId: string | undefined | null,
+    user?: any,
+    withAttemptCount = false,
+  ) {
+    if (!orgId || orgId === '') return [];
+
+    const baseWhere: any = { orgId };
+
+    // 🔥 If student → restrict visibility to published & active only
+    if (user?.role === 'STUDENT') {
+      baseWhere.isPublished = true;
+      baseWhere.isActive = true;
+    }
+
     const tests = await this.prisma.test.findMany({
-      where: { orgId },
+      where: baseWhere,
       orderBy: { createdAt: 'desc' },
-      include: { rules: true, sections: true } as any,
     });
 
     if (!withAttemptCount) return tests;
@@ -146,23 +168,76 @@ export class TestsService {
   }
 
   async getQuestionsForTest(testId: string) {
-    const include = {
-      section: {
-        include: { questions: { include: { options: true } } },
+    const test = await this.prisma.test.findUnique({
+      where: { id: testId },
+      include: {
+        sections: {
+          include: {
+            section: {
+              include: {
+                questions: {
+                  include: { options: true },
+                },
+              },
+            },
+          },
+        },
       },
-    };
-    const testSections = await this.prisma.testSection.findMany({
-      where: { testId },
-      include: include as any,
     });
 
-    return testSections.map((ts: any) => ({
+    if (!test) throw new NotFoundException('Test not found');
+    if (!test.isPublished || !test.isActive) {
+      throw new BadRequestException('Test not available');
+    }
+
+    // Return format: [{ sectionId, sectionName, questions: [...] }]
+    return (test.sections as any[]).map((ts: any) => ({
       sectionId: ts.sectionId,
-      sectionName: ts.section?.sectionName || 'Section',
-      questions: ts.section?.questions || [],
+      sectionName: ts.section?.sectionName ?? 'Section',
+      questions: (ts.section?.questions ?? []).map((q: any) => ({
+        id: q.id,
+        questionText: q.questionText,
+        options: (q.options ?? []).map((opt: any) => ({
+          id: opt.id,
+          optionCode: opt.optionCode,
+          optionText: opt.optionText,
+        })),
+      })),
     }));
   }
 
+  async togglePublish(id: string, orgId?: string | null) {
+    const where: { id: string; orgId?: string } = { id };
+    if (orgId) where.orgId = orgId;
 
+    const test = await this.prisma.test.findFirst({ where });
+    if (!test) throw new NotFoundException('Test not found');
 
+    return this.prisma.test.update({
+    where: { id },
+    data: {
+      isPublished: !test.isPublished,
+    },
+  });
+}
+
+  async toggleActive(id: string, orgId?: string | null) {
+    const where: { id: string; orgId?: string } = { id };
+    if (orgId) where.orgId = orgId;
+
+    const test = await this.prisma.test.findFirst({ where });
+    if (!test) throw new NotFoundException('Test not found');
+
+    // Safety rule: cannot activate if not published
+  if (!test.isPublished && !test.isActive) {
+    throw new BadRequestException("Publish test before activating");
+  }
+
+  return this.prisma.test.update({
+    where: { id },
+    data: {
+      isActive: !test.isActive,
+    },
+  });
+}
 }

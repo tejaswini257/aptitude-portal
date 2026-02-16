@@ -1,36 +1,48 @@
-import Link from "next/link";
+"use client";
 
-const topics = [
-  "quantitative",
-  "logical",
-  "verbal",
-];
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import api from "@/interceptors/axios";
+
+type PracticeSet = {
+  id: string;
+  name: string;
+  sectionTimer: number;
+};
 
 export default function PracticePage() {
-  return (
-    <>
-      <h2 style={{ fontSize: "24px", marginBottom: "30px" }}>
-        Practice Topics
-      </h2>
+  const [sets, setSets] = useState<PracticeSet[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      <div style={{ display: "flex", gap: "20px" }}>
-        {topics.map((topic) => (
-          <Link key={topic} href={`/student/practice/${topic}`}>
-            <div
-              style={{
-                padding: "20px",
-                background: "#fff",
-                borderRadius: "12px",
-                cursor: "pointer",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
-                minWidth: "180px",
-              }}
-            >
-              {topic.toUpperCase()}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </>
+  useEffect(() => {
+    api
+      .get("/practice-sets/student")
+      .then((res) => setSets(res.data || []))
+      .catch(() => setSets([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="p-6">Loading…</div>;
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-6">Practice Sets</h2>
+      {sets.length === 0 ? (
+        <p className="text-gray-500">No practice sets available.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sets.map((ps) => (
+            <Link key={ps.id} href={`/student/practice/set/${ps.id}`}>
+              <div className="bg-white p-6 rounded-xl border hover:border-emerald-400 transition cursor-pointer">
+                <h3 className="font-semibold text-gray-900">{ps.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {ps.sectionTimer} min timer
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

@@ -21,6 +21,13 @@ export default function EditDepartmentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setForm({
+    ...form,
+    [e.target.name]: e.target.value,
+  });
+};
+
   
 
   useEffect(() => {
@@ -52,36 +59,41 @@ export default function EditDepartmentPage() {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
   const handleUpdate = async () => {
-    if (!form.name.trim()) {
-      setError("Department name is required");
-      return;
-    }
+  if (!form.name.trim()) {
+    setError("Department name is required");
+    return;
+  }
 
-    try {
-      setSaving(true);
-      setError("");
+  try {
+    setSaving(true);
+    setError("");
 
-      await api(`/departments/${departmentId}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          name: form.name.trim(), // 🔥 backend-supported field
-        }),
-      });
+    await api(`/departments/${departmentId}`, {
+  method: "PUT",
+  body: JSON.stringify({
+    name: form.name.trim(),
+    hodName: form.hodName || null,
+    email: form.email || null,
+    phone: form.phone || null,
+    totalStudents: form.totalStudents
+      ? Number(form.totalStudents)
+      : null,
+    totalFaculty: form.totalFaculty
+      ? Number(form.totalFaculty)
+      : null,
+  }),
+});
 
-      router.push("/college/departments");
-    } catch (err: any) {
-      setError(err.message || "Failed to update department");
-    } finally {
-      setSaving(false);
-    }
-  };
+
+    router.push("/college/departments");
+  } catch (err: any) {
+    setError(err.message || "Failed to update department");
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   if (loading) {
     return <div className="p-8 text-gray-500">Loading department...</div>;
