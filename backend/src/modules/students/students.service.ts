@@ -167,64 +167,6 @@ export class StudentsService {
 
   // ================= FIND BY USER ID =================
   async findByUserId(userId: string) {
-<<<<<<< HEAD
-    return this.prisma.student.findUnique({
-      where: { userId },
-      include: {
-        college: true,
-        department: true,
-      },
-    });
-  }
-
-  // ================= ANALYTICS =================
-  async getStudentAnalytics(userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
-    });
-
-    if (!student) {
-      throw new NotFoundException('Student not found');
-    }
-
-    const submissions = await this.prisma.submission.findMany({
-      where: { studentId: student.id },
-      orderBy: { submittedAt: 'asc' },
-    });
-
-    const total = submissions.length;
-    const sum = submissions.reduce(
-      (acc, s) => acc + (s.score || 0),
-      0,
-    );
-
-    const averageScore = total ? Math.round(sum / total) : 0;
-
-    // 🔥 Fetch test names manually (safe for your schema)
-    const formattedSubmissions = await Promise.all(
-      submissions.map(async (s) => {
-        const test = await this.prisma.test.findUnique({
-          where: { id: s.testId },
-          select: { id: true, name: true },
-        });
-
-        return {
-          id: s.id,
-          testId: s.testId,
-          testName: test?.name ?? 'Unknown',
-          score: s.score ?? 0,
-          submittedAt: s.submittedAt,
-        };
-      }),
-    );
-
-    return {
-      testsAttempted: total,
-      averageScore,
-      submissions: formattedSubmissions,
-    };
-  }
-=======
   return this.prisma.student.findUnique({
     where: { userId },
     include: { college: true, department: true },
@@ -260,5 +202,4 @@ async getStudentAnalytics(userId: string) {
   };
 }
 
->>>>>>> backend-core
 }
