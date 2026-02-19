@@ -1,29 +1,21 @@
 :root {
-  /* ===== COLORS ===== */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
+  /* Primary Brand */
+  --primary: #2563eb;
+  --primary-hover: #1e40af;
 
-  --color-bg: #f9fafb;
-  --color-surface: #ffffff;
+  /* Backgrounds */
+  --bg: #f9fafb;
+  --card: #ffffff;
+  --sidebar: #111827;
+  --sidebar-hover: #1f2937;
 
-  --color-text: #111827;
-  --color-muted: #6b7280;
+  /* Text */
+  --text: #111827;
+  --muted: #6b7280;
 
-  --color-border: #e5e7eb;
-  --color-danger: #dc2626;
-  --color-success: #16a34a;
+  /* Borders */
+  --border: #e5e7eb;
 
-  /* ===== RADIUS ===== */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-
-  /* ===== SPACING ===== */
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-
-  /* ===== SHADOW ===== */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 6px 18px rgba(0,0,0,0.08);
+  /* Danger */
+  --danger: #dc2626;
 }
