@@ -1,28 +1,77 @@
-.btn {
-  background: var(--primary);
-  color: white;
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn:hover {
-  background: var(--primary-hover);
-}
-
+/* ===== CARD ===== */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== BUTTON ===== */
+.btn {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+/* ===== INPUT ===== */
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ===== BADGE ===== */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #eef2ff;
+  color: var(--color-primary);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 240px;
+  background: #111827;
+  color: white;
   padding: 20px;
 }
 
-.input {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  width: 100%;
+.sidebar-item {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: #1f2937;
+}
+
+.sidebar-item.active {
+  background: var(--color-primary);
 }
