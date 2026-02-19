@@ -12,6 +12,8 @@ const menu = [
   { name: "Drives", path: "/college/drives" },
   { name: "Analytics", path: "/college/analytics" },
   { name: "Companies", path: "/college/companies" },
+  { name: "Question Bank", path: "/college/question-bank" },
+
 ];
 
 export default function CollegeSidebar() {
