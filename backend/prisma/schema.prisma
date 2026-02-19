@@ -112,6 +112,8 @@ model TestSection {
 model Section {
   id           String        @id @default(uuid())
   sectionName  String
+  description  String?
+  type         SectionType   @default(MCQ)
   orgId        String
   isActive     Boolean       @default(true)
   questions    Question[]
@@ -290,8 +292,9 @@ enum TestStatus {
 
 enum QuestionType {
   MCQ
+  MCQ_SINGLE
+  MCQ_MULTIPLE
   CODING
-  APTITUDE
 }
 
 enum DifficultyLevel {
@@ -326,4 +329,9 @@ enum EvaluationMode {
 enum CreatorRole {
   ADMIN
   COMPANY
+}
+
+enum SectionType {
+  MCQ
+  CODING
 }
