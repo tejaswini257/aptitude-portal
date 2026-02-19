@@ -6,53 +6,32 @@
 @tailwind components;
 @tailwind utilities;
 
-
-/* =========================
-   GLOBAL THEME VARIABLES
-========================= */
-:root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-
-  --bg: #f8fafc;
-  --card: #ffffff;
-
-  --text: #0f172a;
-  --muted: #64748b;
-
-  --border: #e2e8f0;
-
-  --success: #16a34a;
-  --danger: #dc2626;
+/* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* =========================
-   BASE
-========================= */
 body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* =========================
-   LAYOUT
-========================= */
+/* ===== LAYOUT ===== */
 .page {
-  padding: 24px;
   max-width: 1100px;
-  margin: auto;
+  margin: 0 auto;
+  padding: 24px;
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  margin-bottom: 16px;
 }
 
-/* =========================
-   CARD
-========================= */
+/* ===== CARD ===== */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -60,78 +39,26 @@ body {
   padding: 16px;
 }
 
-/* =========================
-   BUTTON SYSTEM
-========================= */
-.btn {
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--primary-hover);
-}
-
-.btn-danger {
-  color: var(--danger);
-}
-
-/* =========================
-   INPUT
-========================= */
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-}
-
-/* =========================
-   GRID
-========================= */
-.grid-auto {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-/* =========================
-   SIDEBAR DASHBOARD
-========================= */
-.dashboard-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  min-height: 100vh;
-}
-
+/* ===== SIDEBAR ===== */
 .sidebar {
-  background: #0f172a;
+  width: 240px;
+  background: var(--sidebar);
   color: white;
+  min-height: 100vh;
   padding: 20px;
 }
 
 .sidebar-item {
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .sidebar-item:hover {
-  background: #1e293b;
+  background: var(--sidebar-hover);
 }
 
 .sidebar-item.active {
   background: var(--primary);
-}
-
-.dashboard-content {
-  padding: 24px;
 }
