@@ -10,9 +10,9 @@ export class CreateOrganizationDto {
   type: OrgType;
 }
 
-export class UpdateOrganizationDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-}
+//export class UpdateOrganizationDto {
+ // @IsOptional()
+ // @IsString()
+ // name?: string;
+//}
 

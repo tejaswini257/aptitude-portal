@@ -15,6 +15,7 @@ export class SubmissionsService {
   // START SUBMISSION
   // -----------------------------
   async startSubmission(testId: string, userId: string) {
+    // 1️⃣ Get student
     const student = await this.prisma.student.findUnique({
       where: { userId },
     });
@@ -23,6 +24,7 @@ export class SubmissionsService {
       throw new NotFoundException('Student profile not found');
     }
 
+    // 2️⃣ Validate test exists
     const test = await this.prisma.test.findUnique({
       where: { id: testId },
     });
@@ -31,7 +33,7 @@ export class SubmissionsService {
       throw new NotFoundException('Test not found');
     }
 
-    // Prevent duplicate attempt (optional safety)
+    // 3️⃣ Prevent duplicate submission
     const existing = await this.prisma.submission.findFirst({
       where: {
         studentId: student.id,
@@ -43,11 +45,11 @@ export class SubmissionsService {
       return existing;
     }
 
+    // 4️⃣ Create submission
     return this.prisma.submission.create({
       data: {
         studentId: student.id,
         testId,
-        status: 'IN_PROGRESS',
         score: 0,
       },
     });
@@ -61,15 +63,14 @@ export class SubmissionsService {
     dto: SubmitAnswerDto,
     userId: string,
   ) {
+    // 1️⃣ Fetch submission with ownership data
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
       include: {
-        student: true,
-        test: {
-          include: {
-            questions: true,
-          },
+        student: {
+          include: { user: true },
         },
+        answers: true,
       },
     });
 
@@ -77,21 +78,45 @@ export class SubmissionsService {
       throw new NotFoundException('Submission not found');
     }
 
-    // Ownership validation
-    if (submission.student.userId !== userId) {
+    // 2️⃣ Ownership validation
+    if (submission.student.user.id !== userId) {
       throw new ForbiddenException('Unauthorized access');
     }
 
-    // Validate question belongs to test
-    const question = submission.test.questions.find(
+    // 3️⃣ Fetch test → sections → questions
+    const test = await this.prisma.test.findUnique({
+      where: { id: submission.testId },
+      include: {
+        sections: {
+          include: {
+            section: {
+              include: { questions: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!test) {
+      throw new NotFoundException('Test not found');
+    }
+
+    // Flatten questions
+    const questions = test.sections.flatMap(
+      (ts) => ts.section.questions,
+    );
+
+    const question = questions.find(
       (q) => q.id === dto.questionId,
     );
 
     if (!question) {
-      throw new BadRequestException('Invalid question for this test');
+      throw new BadRequestException(
+        'Invalid question for this test',
+      );
     }
 
-    // Prevent duplicate answer
+    // 4️⃣ Prevent duplicate answer
     const existing = await this.prisma.submissionAnswer.findFirst({
       where: {
         submissionId,
@@ -103,14 +128,13 @@ export class SubmissionsService {
       throw new BadRequestException('Answer already submitted');
     }
 
-    // -----------------------------
-    // AUTO EVALUATION (MCQ)
-    // -----------------------------
+    // 5️⃣ Auto evaluation (MCQ only)
     const isCorrect =
+      question.correctAnswer !== null &&
       String(dto.selectedAnswer) ===
-      String(question.correctAnswer);
+        String(question.correctAnswer);
 
-    const marksObtained = isCorrect ? question.marks : 0;
+    const marksObtained = isCorrect ? 1 : 0; // 🔹 No marks field in schema
 
     const answer = await this.prisma.submissionAnswer.create({
       data: {
@@ -122,9 +146,7 @@ export class SubmissionsService {
       },
     });
 
-    // -----------------------------
-    // UPDATE TOTAL SCORE
-    // -----------------------------
+    // 6️⃣ Update total score
     const total = await this.prisma.submissionAnswer.aggregate({
       where: { submissionId },
       _sum: { marksObtained: true },
@@ -133,11 +155,10 @@ export class SubmissionsService {
     await this.prisma.submission.update({
       where: { id: submissionId },
       data: {
-        score: total._sum.marksObtained || 0,
+        score: total._sum.marksObtained ?? 0,
       },
     });
 
     return answer;
   }
 }
-

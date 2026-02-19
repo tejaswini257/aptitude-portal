@@ -90,7 +90,7 @@ export class CompaniesService {
   /** Dashboard stats for COMPANY_ADMIN (single org) or SUPER_ADMIN (all orgs) */
 async getDashboardStats(orgId?: string | null) {
   const testWhere = orgId
-    ? { organizationId: orgId }
+    ? { orgId }
     : {}; // SUPER_ADMIN → all orgs
 
   const [totalTests, totalCandidates] = await Promise.all([
@@ -99,7 +99,7 @@ async getDashboardStats(orgId?: string | null) {
     }),
     this.prisma.submission.count({
       where: orgId
-        ? { test: { organizationId: orgId } }
+        ? {}
         : {}, // SUPER_ADMIN → all submissions
     }),
   ]);

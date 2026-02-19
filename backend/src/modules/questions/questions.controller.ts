@@ -26,10 +26,11 @@ export class QuestionsController {
   }
 
   // 📄 Get Questions by Test
-  @Get()
-  findByTest(@Query('testId') testId: string) {
-    return this.service.findByTest(testId);
-  }
+  @Get('by-section/:sectionId')
+findBySection(@Param('sectionId') sectionId: string) {
+  return this.service.findBySection(sectionId);
+}
+
 
   // 🔍 Get Single Question
   @Get(':id')

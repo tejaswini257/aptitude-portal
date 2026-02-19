@@ -30,7 +30,7 @@ export class TestsController {
   create(@Body() dto: CreateTestDto, @Req() req: any) {
     const orgId =
       req.user?.role === 'COMPANY_ADMIN' ? req.user?.orgId : undefined;
-    return this.testsService.create(dto, req.user.userId, orgId);
+    return this.testsService.create(dto);
   }
 
   // ✅ GET ALL TESTS — ANY LOGGED-IN USER (optional filter by organizationId for company admin)

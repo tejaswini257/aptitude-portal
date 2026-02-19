@@ -1,41 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { CreateQuestionDto } from './dto/create-question.dto';
+
 
 @Injectable()
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateQuestionDto) {
+  // CREATE QUESTION
+  async create(dto: CreateQuestionDto) {
     return this.prisma.question.create({
       data: {
-  testId: dto.testId,
-  sectionId: dto.sectionId ?? undefined,
-  type: dto.type,
-  difficulty: dto.difficulty,
-  title: dto.title,
-  description: dto.description,
-  correctAnswer: dto.correctAnswer ?? null,
-  evaluationConfig: dto.evaluationConfig ?? null,
-  marks: dto.marks,
-  timeLimitSec: dto.timeLimitSec ?? null,
-  order: dto.order,
-  explanation: dto.explanation ?? null,
-},
-
-
+        section: {
+          connect: { id: dto.sectionId },
+        },
+        orgId: dto.orgId,
+        difficulty: dto.difficulty,
+        questionText: dto.questionText,
+        allowedFor: dto.allowedFor,
+        createdBy: dto.createdBy,
+        creatorRole: dto.creatorRole,
+        type: dto.type,
+      },
     });
   }
 
-  findByTest(testId: string) {
+  // ❌ Questions do NOT belong directly to Test
+  // ✔ They belong to Section
+  async findBySection(sectionId: string) {
     return this.prisma.question.findMany({
-  where: { testId },
-  orderBy: { createdAt: 'asc' },
-});
-
+      where: { sectionId },
+    });
   }
 
+  // FIND ONE
   async findOne(id: string) {
     const question = await this.prisma.question.findUnique({
       where: { id },
@@ -48,6 +47,7 @@ export class QuestionsService {
     return question;
   }
 
+  // UPDATE QUESTION
   async update(id: string, dto: UpdateQuestionDto) {
     const exists = await this.prisma.question.findUnique({
       where: { id },
@@ -60,46 +60,27 @@ export class QuestionsService {
     return this.prisma.question.update({
       where: { id },
       data: {
-        ...(dto.testId && { testId: dto.testId }),
-
-        // ✅ same pattern as create()
-        ...(dto.sectionId && { sectionId: dto.sectionId }),
+        ...(dto.sectionId && {
+          section: { connect: { id: dto.sectionId } },
+        }),
 
         ...(dto.type && { type: dto.type }),
         ...(dto.difficulty && { difficulty: dto.difficulty }),
-        ...(dto.title && { title: dto.title }),
-
-        ...(dto.description !== undefined && {
-          description: dto.description ?? null,
-        }),
-
-        ...(dto.options !== undefined && {
-          options: dto.options as any,
-        }),
-
+        ...(dto.questionText && { questionText: dto.questionText }),
+        ...(dto.allowedFor && { allowedFor: dto.allowedFor }),
         ...(dto.correctAnswer !== undefined && {
-          correctAnswer: dto.correctAnswer as any,
+          correctAnswer: dto.correctAnswer,
         }),
-
-        ...(dto.evaluationConfig !== undefined && {
-          evaluationConfig: dto.evaluationConfig as any,
+        ...(dto.codingMeta !== undefined && {
+          codingMeta: dto.codingMeta,
         }),
-
-        ...(dto.marks !== undefined && { marks: dto.marks }),
-        ...(dto.timeLimitSec !== undefined && {
-          timeLimitSec: dto.timeLimitSec ?? null,
-        }),
-
-        ...(dto.order !== undefined && { order: dto.order }),
-
-        ...(dto.explanation !== undefined && {
-          explanation: dto.explanation ?? null,
-        }),
+        ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       },
     });
   }
 
-  delete(id: string) {
+  // DELETE QUESTION
+  async delete(id: string) {
     return this.prisma.question.delete({
       where: { id },
     });
