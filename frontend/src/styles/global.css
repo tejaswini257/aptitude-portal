@@ -1,79 +1,137 @@
-/* layout */
+@import "./tokens.css";
+@import "./components.css";
+@import "./utilities.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* =========================
+   GLOBAL THEME VARIABLES
+========================= */
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --bg: #f8fafc;
+  --card: #ffffff;
+
+  --text: #0f172a;
+  --muted: #64748b;
+
+  --border: #e2e8f0;
+
+  --success: #16a34a;
+  --danger: #dc2626;
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* =========================
+   LAYOUT
+========================= */
 .page {
-  padding: 2rem;
-  max-width: 80rem;
-  margin: 0 auto;
+  padding: 24px;
+  max-width: 1100px;
+  margin: auto;
 }
 
 .page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
 }
 
-/* buttons */
+/* =========================
+   CARD
+========================= */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* =========================
+   BUTTON SYSTEM
+========================= */
 .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  padding: 10px 14px;
+  border-radius: 6px;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn-primary {
-  background-color: #16a34a;
+  background: var(--primary);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #15803d;
+  background: var(--primary-hover);
 }
 
 .btn-danger {
-  color: #dc2626;
+  color: var(--danger);
 }
 
-.btn-link {
-  font-size: 0.875rem;
-  color: #4b5563;
-}
-
-.btn-link:hover {
-  color: #000;
-}
-
-/* department cards */
-.department-card {
+/* =========================
+   INPUT
+========================= */
+.input {
   width: 100%;
-  max-width: 20rem;
-  background: white;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 
-.department-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+/* =========================
+   GRID
+========================= */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
-/* badges */
-.department-badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  background: #e5e7eb;
+/* =========================
+   SIDEBAR DASHBOARD
+========================= */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
 }
 
-/* progress */
-.progress-track {
-  width: 100%;
-  height: 0.5rem;
-  background: #e5e7eb;
-  border-radius: 9999px;
-  overflow: hidden;
+.sidebar {
+  background: #0f172a;
+  color: white;
+  padding: 20px;
 }
 
-.progress-fill {
-  height: 100%;
-  background: #16a34a;
+.sidebar-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: #1e293b;
+}
+
+.sidebar-item.active {
+  background: var(--primary);
+}
+
+.dashboard-content {
+  padding: 24px;
 }

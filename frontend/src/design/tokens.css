@@ -1,0 +1,20 @@
+:root {
+  /* COLORS */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary: #64748b;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  /* SPACING */
+  --radius: 10px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.06);
+
+  /* TYPOGRAPHY */
+  --font: Inter, system-ui, sans-serif;
+}
