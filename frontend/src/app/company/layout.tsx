@@ -9,20 +9,12 @@ export default function CompanyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
+    <div className="app-layout">
       <CompanySidebar />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div className="app-main">
         <CompanyHeader />
-
-        <main
-          style={{
-            padding: "40px",
-            flex: 1,
-          }}
-        >
-          {children}
-        </main>
+        <main className="app-content">{children}</main>
       </div>
     </div>
   );

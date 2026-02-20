@@ -16,36 +16,17 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
+    <div className="app-layout">
       <AdminSidebar />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <header
-          style={{
-            padding: "16px 24px",
-            background: "#fff",
-            borderBottom: "1px solid #e2e8f0",
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-          }}
-        >
-          <button
-            type="button"
-            onClick={logout}
-            style={{
-              padding: "8px 16px",
-              background: "#dc2626",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
+
+      <div className="app-main">
+        <header className="app-header">
+          <button className="btn btn-danger" onClick={logout}>
             Logout
           </button>
         </header>
-        <main style={{ padding: "40px", flex: 1 }}>{children}</main>
+
+        <main className="app-content">{children}</main>
       </div>
     </div>
   );

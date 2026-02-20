@@ -8,10 +8,10 @@ export default function CollegeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
+    <div className="app-layout">
       <CollegeSidebar />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <main style={{ padding: "40px", flex: 1 }}>{children}</main>
+      <div className="app-main">
+        <main className="app-content">{children}</main>
       </div>
     </div>
   );
