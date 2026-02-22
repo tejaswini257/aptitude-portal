@@ -32,49 +32,53 @@ export default function AdminTestsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading tests...</p>;
-  if (error) return <p style={{ color: "#dc2626" }}>{error}</p>;
+  if (loading) return <p className="text-gray-500">Loading tests...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "24px" }}>
-        Tests
-      </h2>
+    <div className="space-y-6">
+      {/* Title */}
+      <h2 className="text-2xl font-semibold">Tests</h2>
+
       {tests.length === 0 ? (
-        <p style={{ color: "#64748b" }}>No tests yet.</p>
+        <p className="text-gray-500">No tests yet.</p>
       ) : (
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: "12px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-            overflow: "hidden",
-          }}
-        >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Name</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Type</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Status</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Duration</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Created by</th>
+        <div className="card p-0 overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Type
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Duration
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Created by
+                </th>
               </tr>
             </thead>
-            <tbody>
+
+            <tbody className="divide-y">
               {tests.map((t) => (
-                <tr key={t.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "12px 16px" }}>{t.name}</td>
-                  <td style={{ padding: "12px 16px" }}>{t.type ?? "—"}</td>
-                  <td style={{ padding: "12px 16px" }}>{t.status ?? "—"}</td>
-                  <td style={{ padding: "12px 16px" }}>{t.duration ?? "—"}</td>
-                  <td style={{ padding: "12px 16px" }}>{t.createdBy?.email ?? "—"}</td>
+                <tr key={t.id}>
+                  <td className="px-4 py-3">{t.name}</td>
+                  <td className="px-4 py-3">{t.type ?? "—"}</td>
+                  <td className="px-4 py-3">{t.status ?? "—"}</td>
+                  <td className="px-4 py-3">{t.duration ?? "—"}</td>
+                  <td className="px-4 py-3">{t.createdBy?.email ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-    </>
+    </div>
   );
 }

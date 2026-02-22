@@ -24,10 +24,11 @@ export default function RegisterPage() {
   const [orgLoading, setOrgLoading] = useState(false);
   const [orgError, setOrgError] = useState("");
 
-  // Load organizations for dropdown (used when creating college/company admins)
+  // Load organizations
   useEffect(() => {
     setOrgLoading(true);
     setOrgError("");
+
     api
       .get("/organizations")
       .then((res) => {
@@ -45,7 +46,6 @@ export default function RegisterPage() {
       .finally(() => {
         setOrgLoading(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +58,7 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+
     try {
       await api.post("/auth/register", {
         email,
@@ -65,7 +66,7 @@ export default function RegisterPage() {
         role,
         orgId: role === "SUPER_ADMIN" ? undefined : orgId,
       });
-      // On successful registration, go to login
+
       router.push("/login");
     } catch (err: any) {
       setError(err?.response?.data?.message || "Registration failed");
@@ -75,35 +76,38 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-app">
       <form
         onSubmit={handleSubmit}
-        className="w-96 p-6 border rounded-lg space-y-4"
+        className="w-96 card space-y-4"
       >
         <h1 className="text-2xl font-semibold text-center">Register</h1>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
+        {/* Email */}
         <input
           type="email"
           placeholder="Email"
-          className="input w-full"
+          className="input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
 
+        {/* Password */}
         <input
           type="password"
           placeholder="Password (min 6 chars)"
-          className="input w-full"
+          className="input"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
 
+        {/* Role */}
         <select
-          className="input w-full"
+          className="input"
           value={role}
           onChange={(e) => setRole(e.target.value as Role)}
         >
@@ -112,44 +116,46 @@ export default function RegisterPage() {
           <option value="COMPANY_ADMIN">Company Admin</option>
         </select>
 
+        {/* Organization dropdown */}
         {role !== "SUPER_ADMIN" && (
           <div className="space-y-1">
             <label className="block text-sm font-medium">
               Organization
             </label>
+
             <select
-              className="input w-full"
+              className="input"
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
               disabled={orgLoading || organizations.length === 0}
               required
             >
               {orgLoading && <option value="">Loading organizations...</option>}
+
               {!orgLoading && organizations.length === 0 && (
                 <option value="">
                   {orgError || "No organizations available"}
                 </option>
               )}
+
               {!orgLoading &&
-                organizations.length > 0 && (
-                  <>
-                    <option value="">Select organization</option>
-                    {organizations.map((org) => (
-                      <option key={org.id} value={org.id}>
-                        {org.name} ({org.type})
-                      </option>
-                    ))}
-                  </>
-                )}
+                organizations.length > 0 &&
+                organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name} ({org.type})
+                  </option>
+                ))}
             </select>
+
             {orgError && (
               <p className="text-xs text-red-500">{orgError}</p>
             )}
           </div>
         )}
 
+        {/* Button */}
         <button
-          className="btn btn-primary w-full"
+          className="btn-primary"
           disabled={
             loading ||
             (role !== "SUPER_ADMIN" &&
@@ -162,5 +168,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-

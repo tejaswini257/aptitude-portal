@@ -14,6 +14,7 @@ export default function AddCollegePage() {
   const [organizations, setOrganizations] = useState<Org[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [form, setForm] = useState({
     orgId: "",
     collegeName: "",
@@ -31,13 +32,17 @@ export default function AddCollegePage() {
       .then((res) => {
         const list = Array.isArray(res.data) ? res.data : [];
         setOrganizations(list);
-        if (list.length > 0 && !form.orgId) setForm((f) => ({ ...f, orgId: list[0].id }));
+        if (list.length > 0 && !form.orgId)
+          setForm((f) => ({ ...f, orgId: list[0].id }));
       })
       .catch(() => setError("Failed to load organizations"));
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
       [name]: name === "maxStudents" ? Number(value) || 0 : value,
@@ -47,11 +52,14 @@ export default function AddCollegePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!form.orgId || !form.collegeName || !form.contactEmail || !form.mobile) {
       setError("Please fill required fields.");
       return;
     }
+
     setLoading(true);
+
     try {
       await api.post("/colleges", {
         orgId: form.orgId,
@@ -63,6 +71,7 @@ export default function AddCollegePage() {
         mobile: form.mobile,
         maxStudents: form.maxStudents,
       });
+
       router.push("/admin/colleges");
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to create college");
@@ -71,49 +80,33 @@ export default function AddCollegePage() {
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "10px 12px",
-    border: "1px solid #e2e8f0",
-    borderRadius: "8px",
-    marginBottom: "12px",
-  };
-
   return (
-    <>
-      <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-        <Link
-          href="/admin/colleges"
-          style={{ color: "#64748b", textDecoration: "none", fontSize: "14px" }}
-        >
-          ← Back to Colleges
-        </Link>
-      </div>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "24px" }}>
-        Add College
-      </h2>
-      {error && (
-        <p style={{ color: "#dc2626", marginBottom: "16px" }}>{error}</p>
-      )}
+    <div className="space-y-6">
+      {/* Back */}
+      <Link
+        href="/admin/colleges"
+        className="text-sm text-gray-500 hover:underline"
+      >
+        ← Back to Colleges
+      </Link>
+
+      {/* Title */}
+      <h2 className="text-2xl font-semibold">Add College</h2>
+
+      {error && <p className="text-red-500">{error}</p>}
+
+      {/* Form */}
       <form
         onSubmit={handleSubmit}
-        style={{
-          maxWidth: "480px",
-          background: "#fff",
-          padding: "24px",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        }}
+        className="card max-w-md space-y-3"
       >
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          Organization *
-        </label>
+        <label className="text-sm font-medium">Organization *</label>
         <select
           name="orgId"
           value={form.orgId}
           onChange={handleChange}
           required
-          style={inputStyle}
+          className="input"
         >
           <option value="">Select organization</option>
           {organizations.map((o) => (
@@ -123,26 +116,22 @@ export default function AddCollegePage() {
           ))}
         </select>
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          College Name *
-        </label>
+        <label className="text-sm font-medium">College Name *</label>
         <input
           name="collegeName"
           value={form.collegeName}
           onChange={handleChange}
           required
           placeholder="College Name"
-          style={inputStyle}
+          className="input"
         />
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          College Type *
-        </label>
+        <label className="text-sm font-medium">College Type *</label>
         <select
           name="collegeType"
           value={form.collegeType}
           onChange={handleChange}
-          style={inputStyle}
+          className="input"
         >
           {COLLEGE_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -151,32 +140,26 @@ export default function AddCollegePage() {
           ))}
         </select>
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          Address
-        </label>
+        <label className="text-sm font-medium">Address</label>
         <input
           name="address"
           value={form.address}
           onChange={handleChange}
           placeholder="Address"
-          style={inputStyle}
+          className="input"
         />
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          Contact Person *
-        </label>
+        <label className="text-sm font-medium">Contact Person *</label>
         <input
           name="contactPerson"
           value={form.contactPerson}
           onChange={handleChange}
           required
           placeholder="Contact Person"
-          style={inputStyle}
+          className="input"
         />
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          Contact Email *
-        </label>
+        <label className="text-sm font-medium">Contact Email *</label>
         <input
           name="contactEmail"
           type="email"
@@ -184,24 +167,20 @@ export default function AddCollegePage() {
           onChange={handleChange}
           required
           placeholder="contact@college.edu"
-          style={inputStyle}
+          className="input"
         />
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          Mobile *
-        </label>
+        <label className="text-sm font-medium">Mobile *</label>
         <input
           name="mobile"
           value={form.mobile}
           onChange={handleChange}
           required
           placeholder="Mobile"
-          style={inputStyle}
+          className="input"
         />
 
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>
-          Max Students *
-        </label>
+        <label className="text-sm font-medium">Max Students *</label>
         <input
           name="maxStudents"
           type="number"
@@ -209,40 +188,27 @@ export default function AddCollegePage() {
           value={form.maxStudents}
           onChange={handleChange}
           required
-          style={inputStyle}
+          className="input"
         />
 
-        <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
+        {/* Buttons */}
+        <div className="flex gap-3 pt-2">
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: "10px 20px",
-              background: "#4f46e5",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: 500,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
+            className="btn-primary"
           >
             {loading ? "Saving..." : "Add College"}
           </button>
+
           <Link
             href="/admin/colleges"
-            style={{
-              padding: "10px 20px",
-              background: "#e2e8f0",
-              color: "#334155",
-              borderRadius: "8px",
-              fontWeight: 500,
-              textDecoration: "none",
-            }}
+            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 text-sm"
           >
             Cancel
           </Link>
         </div>
       </form>
-    </>
+    </div>
   );
 }

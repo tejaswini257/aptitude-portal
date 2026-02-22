@@ -32,49 +32,53 @@ export default function AdminStudentsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading students...</p>;
-  if (error) return <p style={{ color: "#dc2626" }}>{error}</p>;
+  if (loading) return <p className="text-gray-500">Loading students...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "24px" }}>
-        Students
-      </h2>
+    <div className="space-y-6">
+      {/* Title */}
+      <h2 className="text-2xl font-semibold">Students</h2>
+
       {students.length === 0 ? (
-        <p style={{ color: "#64748b" }}>No students yet.</p>
+        <p className="text-gray-500">No students yet.</p>
       ) : (
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: "12px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-            overflow: "hidden",
-          }}
-        >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Email</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Roll No</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Year</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>Department</th>
-                <th style={{ padding: "12px 16px", textAlign: "left" }}>College</th>
+        <div className="card p-0 overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Email
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Roll No
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Year
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Department
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  College
+                </th>
               </tr>
             </thead>
-            <tbody>
+
+            <tbody className="divide-y">
               {students.map((s) => (
-                <tr key={s.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "12px 16px" }}>{s.user?.email ?? "—"}</td>
-                  <td style={{ padding: "12px 16px" }}>{s.rollNo}</td>
-                  <td style={{ padding: "12px 16px" }}>{s.year}</td>
-                  <td style={{ padding: "12px 16px" }}>{s.department?.name ?? "—"}</td>
-                  <td style={{ padding: "12px 16px" }}>{s.college?.collegeName ?? "—"}</td>
+                <tr key={s.id}>
+                  <td className="px-4 py-3">{s.user?.email ?? "—"}</td>
+                  <td className="px-4 py-3">{s.rollNo}</td>
+                  <td className="px-4 py-3">{s.year}</td>
+                  <td className="px-4 py-3">{s.department?.name ?? "—"}</td>
+                  <td className="px-4 py-3">{s.college?.collegeName ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-    </>
+    </div>
   );
 }

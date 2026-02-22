@@ -15,12 +15,14 @@ type Company = {
 export default function CompanyDetailPage() {
   const params = useParams();
   const id = params.id as string;
+
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!id) return;
+
     api
       .get(`/companies/${id}`)
       .then((res) => setCompany(res.data))
@@ -30,55 +32,50 @@ export default function CompanyDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{ color: "#dc2626" }}>{error}</p>;
+  if (loading) return <p className="text-gray-500">Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
   if (!company) return null;
 
-  const cardStyle = {
-    background: "#fff",
-    padding: "24px",
-    borderRadius: "12px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-    marginBottom: "24px",
-  };
-
   return (
-    <>
-      <div style={{ marginBottom: "24px" }}>
-        <Link
-          href="/admin/companies"
-          style={{ color: "#64748b", textDecoration: "none", fontSize: "14px" }}
-        >
-          ← Back to Companies
-        </Link>
-      </div>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "24px" }}>
-        {company.name}
-      </h2>
+    <div className="space-y-6">
+      {/* Back */}
+      <Link
+        href="/admin/companies"
+        className="text-sm text-gray-500 hover:underline"
+      >
+        ← Back to Companies
+      </Link>
 
-      <div style={cardStyle}>
-        <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "16px" }}>
+      {/* Title */}
+      <h2 className="text-2xl font-semibold">{company.name}</h2>
+
+      {/* Card */}
+      <div className="card">
+        <h3 className="text-lg font-semibold mb-4">
           Company Information
         </h3>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <tbody>
-            <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              <td style={{ padding: "10px 0", color: "#64748b", width: "160px" }}>Name</td>
-              <td style={{ padding: "10px 0" }}>{company.name}</td>
+
+        <table className="w-full border-collapse">
+          <tbody className="divide-y">
+            <tr>
+              <td className="py-2 text-gray-500 w-40">Name</td>
+              <td className="py-2">{company.name}</td>
             </tr>
-            <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              <td style={{ padding: "10px 0", color: "#64748b" }}>Type</td>
-              <td style={{ padding: "10px 0" }}>{company.type}</td>
+
+            <tr>
+              <td className="py-2 text-gray-500">Type</td>
+              <td className="py-2">{company.type}</td>
             </tr>
-            <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              <td style={{ padding: "10px 0", color: "#64748b" }}>Created</td>
-              <td style={{ padding: "10px 0" }}>
+
+            <tr>
+              <td className="py-2 text-gray-500">Created</td>
+              <td className="py-2">
                 {new Date(company.createdAt).toLocaleString()}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }

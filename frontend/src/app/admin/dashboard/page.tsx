@@ -17,16 +17,9 @@ function StatCard({
   value: number | string;
 }) {
   return (
-    <div
-      style={{
-        background: "#ffffff",
-        padding: "24px",
-        borderRadius: "16px",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-      }}
-    >
-      <p style={{ color: "#64748b", fontSize: "14px" }}>{title}</p>
-      <h3 style={{ fontSize: "28px", marginTop: "10px" }}>{value}</h3>
+    <div className="card">
+      <p className="text-sm text-gray-500">{title}</p>
+      <h3 className="text-2xl font-semibold mt-2">{value}</h3>
     </div>
   );
 }
@@ -52,34 +45,26 @@ export default function AdminDashboardPage() {
   }, []);
 
   if (loading) {
-    return (
-      <p style={{ color: "#64748b" }}>Loading dashboard...</p>
-    );
+    return <p className="text-gray-500">Loading dashboard...</p>;
   }
 
   if (error) {
-    return (
-      <p style={{ color: "#dc2626" }}>{error}</p>
-    );
+    return <p className="text-red-500">{error}</p>;
   }
 
   return (
-    <>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "30px" }}>
+    <div className="space-y-6">
+      {/* Title */}
+      <h2 className="text-2xl font-semibold">
         Dashboard Overview
       </h2>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-          gap: "20px",
-        }}
-      >
+      {/* Stats Grid */}
+      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Colleges" value={stats?.colleges ?? 0} />
         <StatCard title="Companies" value={stats?.companies ?? 0} />
         <StatCard title="Students" value={stats?.students ?? 0} />
       </div>
-    </>
+    </div>
   );
 }

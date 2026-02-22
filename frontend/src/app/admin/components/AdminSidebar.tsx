@@ -16,47 +16,34 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: "240px",
-        background: "#ffffff",
-        borderRight: "1px solid #e2e8f0",
-        padding: "30px 20px",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "20px",
-          fontWeight: 600,
-          marginBottom: "30px",
-        }}
-      >
+    <aside className="w-60 bg-slate-900 text-slate-200 min-h-screen border-r border-slate-800 p-6">
+      {/* Title */}
+      <h2 className="text-lg font-semibold mb-6 text-white">
         Super Admin
       </h2>
 
-      {menu.map((item) => {
-        const active = pathname === item.path || pathname.startsWith(item.path + "/");
-        return (
-          <Link
-            key={item.name}
-            href={item.path}
-            style={{
-              display: "block",
-              padding: "10px 14px",
-              borderRadius: "10px",
-              marginBottom: "10px",
-              background: active
-                ? "linear-gradient(90deg,#4f46e5,#7c3aed)"
-                : "transparent",
-              color: active ? "#fff" : "#334155",
-              textDecoration: "none",
-              fontWeight: 500,
-            }}
-          >
-            {item.name}
-          </Link>
-        );
-      })}
+      {/* Menu */}
+      <nav className="space-y-2">
+        {menu.map((item) => {
+          const active =
+            pathname === item.path ||
+            pathname.startsWith(item.path + "/");
+
+          return (
+            <Link
+              key={item.name}
+              href={item.path}
+              className={`block px-3 py-2 rounded-md text-sm font-medium transition ${
+                active
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              }`}
+            >
+              {item.name}
+            </Link>
+          );
+        })}
+      </nav>
     </aside>
   );
 }
