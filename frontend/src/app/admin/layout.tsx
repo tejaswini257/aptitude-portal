@@ -17,25 +17,23 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Main area */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="flex justify-end items-center px-6 py-4 bg-white border-b">
+        <header className="flex justify-between items-center px-6 py-4 bg-white border-b">
+          <h1 className="text-lg font-semibold text-gray-700">
+            Admin Dashboard
+          </h1>
+
           <button
             onClick={logout}
-            className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600"
+            className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600 shadow-sm"
           >
             Logout
           </button>
         </header>
 
-        {/* Page content */}
-        <main className="p-6">
-          {children}
-        </main>
+        <main className="p-6 bg-gray-100 min-h-screen">{children}</main>
       </div>
     </div>
   );

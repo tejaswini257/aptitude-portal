@@ -19,7 +19,6 @@ export default function CompanyDashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        // 🔐 Check token first
         const token = localStorage.getItem("accessToken");
 
         if (!token) {
@@ -28,7 +27,6 @@ export default function CompanyDashboard() {
         }
 
         const res = await api.get("/companies/dashboard");
-
         setData(res.data);
       } catch (err: any) {
         console.error("Dashboard error:", err);
@@ -46,29 +44,15 @@ export default function CompanyDashboard() {
     fetchDashboard();
   }, [router]);
 
-  if (loading) return <p>Loading dashboard...</p>;
-  if (error) return <p>{error}</p>;
-  if (!data) return <p>No dashboard data found.</p>;
+  if (loading) return <p className="text-gray-500">Loading dashboard...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!data) return <p className="text-gray-500">No dashboard data found.</p>;
 
   return (
     <div>
-      <h2
-        style={{
-          fontSize: "26px",
-          fontWeight: 600,
-          marginBottom: "30px",
-        }}
-      >
-        Dashboard Overview
-      </h2>
+      <h2 className="page-title mb-6">Dashboard Overview</h2>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "20px",
-        }}
-      >
+      <div className="grid grid-cols-3 gap-6">
         <StatCard title="Total Tests" value={data.totalTests} />
         <StatCard title="Total Drives" value={data.totalDrives} />
         <StatCard title="Total Candidates" value={data.totalCandidates} />
@@ -85,16 +69,9 @@ function StatCard({
   value: number;
 }) {
   return (
-    <div
-      style={{
-        background: "#ffffff",
-        padding: "24px",
-        borderRadius: "16px",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-      }}
-    >
-      <p style={{ color: "#64748b", fontSize: "14px" }}>{title}</p>
-      <h3 style={{ fontSize: "28px", marginTop: "10px" }}>{value}</h3>
+    <div className="dashboard-card">
+      <p className="dashboard-card-title">{title}</p>
+      <h3 className="dashboard-card-value">{value}</h3>
     </div>
   );
 }

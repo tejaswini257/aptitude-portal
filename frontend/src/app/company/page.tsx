@@ -41,62 +41,37 @@ export default function CompaniesPage() {
     fetchCompanies();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleCreate = async () => {
     try {
-      const payload = {
-        name: form.name,
-        adminEmail: form.adminEmail,
-        adminPassword: form.adminPassword,
-      };
-
-      await api.post("/companies", payload);
-      alert("Company created successfully. Admin can log in with the email and password you set.");
+      await api.post("/companies", form);
       setForm({ name: "", adminEmail: "", adminPassword: "" });
       fetchCompanies();
     } catch (err: any) {
-      alert(
-        err?.response?.data?.message ||
-          (err?.response?.status === 403
-            ? "Only super admin can create companies."
-            : "Failed to create company")
-      );
+      alert(err?.response?.data?.message || "Failed to create company");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this company? This will remove the organization and its admin user(s).")) return;
+    if (!confirm("Delete this company?")) return;
 
     try {
       await api.delete(`/companies/${id}`);
       setCompanies((prev) => prev.filter((c) => c.id !== id));
-    } catch (err: any) {
-      alert(
-        err?.response?.data?.message ||
-          (err?.response?.status === 403
-            ? "Only super admin can delete companies."
-            : "Failed to delete company")
-      );
+    } catch {
+      alert("Failed to delete company");
     }
   };
 
-  if (loading) return <p className="p-6">Loading companies...</p>;
-  if (error) return <p className="p-6 text-red-500">{error}</p>;
+  if (loading) return <p className="text-gray-500">Loading companies...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="container">
+    <div>
+      <h2 className="page-title mb-6">Companies</h2>
 
-      {/* ✅ PAGE TITLE */}
-      <h1 className="page-title">Companies</h1>
-
-      {/* ✅ COMPANY CARD — CREATE FORM GOES HERE */}
-      <div className="card">
-        <h2>Add Company</h2>
+      {/* CREATE CARD */}
+      <div className="card mb-6">
+        <h3 className="font-semibold mb-4">Add Company</h3>
 
         <input
           className="input"
@@ -121,42 +96,44 @@ export default function CompaniesPage() {
           onChange={(e) => setForm({ ...form, adminPassword: e.target.value })}
         />
 
-        <button className="primary-btn" onClick={handleCreate}>
+        <button className="btn-primary" onClick={handleCreate}>
           Create Company
         </button>
       </div>
-      {/* ⬆️ COMPANY CARD ENDS HERE */}
 
-      {/* ✅ TABLE COMES AFTER THE CARD */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Created At</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map((c) => (
-            <tr key={c.id}>
-              <td>{c.name}</td>
-              <td>{c.type}</td>
-              <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-              <td>
-                <button
-                  className="danger-btn"
-                  onClick={() => handleDelete(c.id)}
-                >
-                  Delete
-                </button>
-              </td>
+      {/* TABLE */}
+      <div className="table-card">
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th className="table-head">Name</th>
+              <th className="table-head">Type</th>
+              <th className="table-head">Created</th>
+              <th className="table-head">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
 
+          <tbody className="divide-y">
+            {companies.map((c) => (
+              <tr key={c.id} className="table-row">
+                <td className="table-cell">{c.name}</td>
+                <td className="table-cell">{c.type}</td>
+                <td className="table-cell">
+                  {new Date(c.createdAt).toLocaleDateString()}
+                </td>
+                <td className="table-cell">
+                  <button
+                    className="btn-danger"
+                    onClick={() => handleDelete(c.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
-

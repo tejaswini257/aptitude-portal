@@ -17,12 +17,10 @@ export default function AdminSidebar() {
 
   return (
     <aside className="w-60 bg-slate-900 text-slate-200 min-h-screen border-r border-slate-800 p-6">
-      {/* Title */}
-      <h2 className="text-lg font-semibold mb-6 text-white">
-        Super Admin
+      <h2 className="text-xl font-bold text-white mb-6">
+        Aptitude Portal
       </h2>
 
-      {/* Menu */}
       <nav className="space-y-2">
         {menu.map((item) => {
           const active =
@@ -35,7 +33,7 @@ export default function AdminSidebar() {
               href={item.path}
               className={`block px-3 py-2 rounded-md text-sm font-medium transition ${
                 active
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white shadow"
                   : "text-slate-300 hover:bg-slate-800 hover:text-white"
               }`}
             >

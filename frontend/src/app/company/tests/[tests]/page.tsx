@@ -23,22 +23,33 @@ export default function SingleTestPage() {
     fetchTest();
   }, [tests]);
 
-  if (!test) return <p>Loading test...</p>;
+  if (!test) return <p className="text-gray-500">Loading test...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>{test.name}</h1>
+    <div>
+      <h2 className="page-title mb-6">{test.name}</h2>
 
-      <p>
-        Proctoring: {test.proctoringEnabled ? "Enabled" : "Disabled"}
-      </p>
+      <div className="card">
+        <div className="detail-row">
+          <span className="detail-label">Proctoring</span>
+          <span className="detail-value">
+            {test.proctoringEnabled ? (
+              <span className="badge-success">Enabled</span>
+            ) : (
+              <span className="badge-warning">Disabled</span>
+            )}
+          </span>
+        </div>
 
-      <p>
-        Result Mode:{" "}
-        {test.showResultImmediately
-          ? "Immediate"
-          : "After Evaluation"}
-      </p>
+        <div className="detail-row">
+          <span className="detail-label">Result Mode</span>
+          <span className="detail-value">
+            {test.showResultImmediately
+              ? "Immediate"
+              : "After Evaluation"}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

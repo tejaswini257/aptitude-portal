@@ -11,57 +11,29 @@ export default function CompanyHeader() {
   });
 
   return (
-    <header
-      style={{
-        padding: "20px 40px",
-        background: "#ffffff",
-        borderBottom: "1px solid #e2e8f0",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
+    <header className="app-header">
       <div>
-        <h1 style={{ fontSize: "22px", fontWeight: 600 }}>
-          Welcome Recruiter 👋
-        </h1>
-        <div style={{ fontSize: "14px", color: "#64748b" }}>{today}</div>
+        <h1 className="header-title">Welcome Recruiter 👋</h1>
+        <div className="header-subtitle">{today}</div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            background: "#f1f5f9",
-            padding: "8px 12px",
-            borderRadius: "10px",
-            width: "220px",
-          }}
-        >
-          <Search size={16} color="#64748b" />
+      <div className="flex items-center gap-6">
+        <div className="search-box">
+          <Search size={16} className="text-gray-500" />
           <input
             placeholder="Search..."
-            style={{
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              marginLeft: "8px",
-              width: "100%",
-            }}
+            className="search-input"
           />
         </div>
 
-        <Bell size={20} />
+        <Bell className="text-gray-600" size={20} />
 
         <Image
           src="https://i.pravatar.cc/40?img=5"
           alt="Profile"
           width={40}
           height={40}
-          style={{
-            borderRadius: "50%",
-          }}
+          className="avatar"
         />
       </div>
     </header>

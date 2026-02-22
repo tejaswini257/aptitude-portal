@@ -1,22 +1,20 @@
 "use client";
 
-import styles from "../company.module.css";
-
 export default function CompanyAnalytics() {
   return (
-    <div className={styles.pageWrapper}>
-      <div className={styles.pageHeader}>
-        <h2 className={styles.pageTitle}>Company Analytics</h2>
+    <div>
+      <div className="page-header">
+        <h2 className="page-title">Company Analytics</h2>
       </div>
 
-      <div className={styles.grid3}>
+      <div className="grid grid-cols-3 gap-6">
         <StatCard title="Applications" value="180" />
         <StatCard title="Shortlisted" value="62" />
         <StatCard title="Selected" value="15" />
       </div>
 
-      <div style={{ marginTop: "40px" }} className={styles.card}>
-        <h3 style={{ marginBottom: "25px" }}>Hiring Funnel</h3>
+      <div className="card mt-10">
+        <h3 className="text-lg font-semibold mb-6">Hiring Funnel</h3>
 
         <Progress label="Applied" percent={100} />
         <Progress label="Shortlisted" percent={60} />
@@ -29,24 +27,24 @@ export default function CompanyAnalytics() {
 
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <div className={styles.card}>
-      <div className={styles.statTitle}>{title}</div>
-      <div className={styles.statValue}>{value}</div>
+    <div className="dashboard-card">
+      <p className="dashboard-card-title">{title}</p>
+      <h3 className="dashboard-card-value">{value}</h3>
     </div>
   );
 }
 
 function Progress({ label, percent }: { label: string; percent: number }) {
   return (
-    <div className={styles.progressContainer}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div className="progress-container">
+      <div className="flex justify-between text-sm">
         <span>{label}</span>
         <span>{percent}%</span>
       </div>
 
-      <div className={styles.progressBar}>
+      <div className="progress-bar">
         <div
-          className={styles.progressFill}
+          className="progress-fill"
           style={{ width: `${percent}%` }}
         />
       </div>

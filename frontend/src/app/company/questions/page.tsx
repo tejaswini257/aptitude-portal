@@ -8,54 +8,21 @@ const questions = [
 
 export default function QuestionsPage() {
   return (
-    <>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "30px" }}>
-        Question Bank
-      </h2>
+    <div>
+      <h2 className="page-title mb-6">Question Bank</h2>
 
-      <div
-        style={{
-          background: "#fff",
-          padding: "24px",
-          borderRadius: "16px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-        }}
-      >
+      <div className="card">
         {questions.map((q, index) => (
-          <div
-            key={index}
-            style={{
-              padding: "16px 0",
-              borderBottom:
-                index !== questions.length - 1
-                  ? "1px solid #e2e8f0"
-                  : "none",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
+          <div key={index} className="list-item">
             <div>
-              <strong>{q.title}</strong>
-              <div style={{ fontSize: "13px", color: "#64748b" }}>
-                {q.type}
-              </div>
+              <p className="list-item-title">{q.title}</p>
+              <p className="list-item-subtitle">{q.type}</p>
             </div>
 
-            <button
-              style={{
-                background: "#4f46e5",
-                color: "#fff",
-                border: "none",
-                padding: "6px 12px",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              Edit
-            </button>
+            <button className="btn-primary">Edit</button>
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
