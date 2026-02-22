@@ -152,3 +152,37 @@
 .btn-danger {
   @apply px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600;
 }
+
+/* PAGE CONTAINER */
+.page-container {
+  @apply p-6;
+}
+
+/* DASHBOARD GRID */
+.dashboard-grid-3 {
+  @apply grid grid-cols-3 gap-6;
+}
+
+.dashboard-grid-2 {
+  @apply grid grid-cols-2 gap-6;
+}
+
+/* CARD HOVER (premium feel) */
+.card-hover {
+  @apply transition hover:-translate-y-1 hover:shadow-md;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  @apply p-6 text-gray-500 text-center;
+}
+
+/* SIDEBAR ACTIVE TRANSITION */
+.sidebar-item-active {
+  @apply bg-blue-600 text-white shadow;
+}
+
+/* TABLE WRAPPER SPACING */
+.table-wrapper {
+  @apply mt-6;
+}

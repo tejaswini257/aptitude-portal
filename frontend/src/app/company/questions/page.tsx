@@ -8,21 +8,23 @@ const questions = [
 
 export default function QuestionsPage() {
   return (
-    <div>
-      <h2 className="page-title mb-6">Question Bank</h2>
+    <>
+      <div className="page-header">
+        <h2 className="page-title">Question Bank</h2>
+      </div>
 
       <div className="card">
         {questions.map((q, index) => (
           <div key={index} className="list-item">
             <div>
-              <p className="list-item-title">{q.title}</p>
-              <p className="list-item-subtitle">{q.type}</p>
+              <div className="list-item-title">{q.title}</div>
+              <div className="list-item-subtitle">{q.type}</div>
             </div>
 
             <button className="btn-primary">Edit</button>
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 }

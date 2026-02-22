@@ -2,7 +2,7 @@
 
 export default function CompanyAnalytics() {
   return (
-    <div>
+    <>
       <div className="page-header">
         <h2 className="page-title">Company Analytics</h2>
       </div>
@@ -14,22 +14,22 @@ export default function CompanyAnalytics() {
       </div>
 
       <div className="card mt-10">
-        <h3 className="text-lg font-semibold mb-6">Hiring Funnel</h3>
+        <h3 className="mb-6 font-semibold">Hiring Funnel</h3>
 
         <Progress label="Applied" percent={100} />
         <Progress label="Shortlisted" percent={60} />
         <Progress label="Interviewed" percent={35} />
         <Progress label="Selected" percent={15} />
       </div>
-    </div>
+    </>
   );
 }
 
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <div className="dashboard-card">
-      <p className="dashboard-card-title">{title}</p>
-      <h3 className="dashboard-card-value">{value}</h3>
+      <div className="dashboard-card-title">{title}</div>
+      <div className="dashboard-card-value">{value}</div>
     </div>
   );
 }
@@ -43,10 +43,7 @@ function Progress({ label, percent }: { label: string; percent: number }) {
       </div>
 
       <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${percent}%` }}
-        />
+        <div className="progress-fill" style={{ width: `${percent}%` }} />
       </div>
     </div>
   );

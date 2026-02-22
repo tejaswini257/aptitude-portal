@@ -1,6 +1,10 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+const router = useRouter();
+
+
 
 const drives = [
   { id: 1, role: "Frontend Developer", package: "6 LPA", applicants: 120, status: "Active" },
@@ -10,14 +14,16 @@ const drives = [
 
 export default function DrivesPage() {
   return (
-    <div>
+    <>
       <div className="page-header">
         <h2 className="page-title">Recruitment Drives</h2>
 
-        <button className="btn-primary flex items-center gap-2">
-          <Plus size={16} />
-          Create Drive
-        </button>
+  <button
+  className="btn-primary"
+  onClick={() => router.push("/company/drives/create")}
+>
+  Create Drive
+</button>
       </div>
 
       <div className="table-card">
@@ -31,21 +37,21 @@ export default function DrivesPage() {
             </tr>
           </thead>
 
-          <tbody className="divide-y">
-            {drives.map((drive) => (
-              <tr key={drive.id} className="table-row">
-                <td className="table-cell">{drive.role}</td>
-                <td className="table-cell">{drive.package}</td>
-                <td className="table-cell">{drive.applicants}</td>
+          <tbody>
+            {drives.map((d) => (
+              <tr key={d.id} className="table-row">
+                <td className="table-cell">{d.role}</td>
+                <td className="table-cell">{d.package}</td>
+                <td className="table-cell">{d.applicants}</td>
                 <td className="table-cell">
                   <span
                     className={
-                      drive.status === "Active"
+                      d.status === "Active"
                         ? "badge-success"
                         : "badge-warning"
                     }
                   >
-                    {drive.status}
+                    {d.status}
                   </span>
                 </td>
               </tr>
@@ -53,6 +59,6 @@ export default function DrivesPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }

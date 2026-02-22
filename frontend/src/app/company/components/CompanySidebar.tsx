@@ -23,29 +23,25 @@ export default function CompanySidebar() {
 
   return (
     <aside className="sidebar">
-      <h2 className="sidebar-title">Company Panel</h2>
+      <h2 className="sidebar-title">Aptitude Portal</h2>
 
-      <nav>
-        {menu.map((item) => {
-          const Icon = item.icon;
-          const active =
-            pathname === item.path ||
-            pathname.startsWith(item.path + "/");
+      {menu.map((item) => {
+        const Icon = item.icon;
+        const active = pathname === item.path;
 
-          return (
-            <Link
-              key={item.name}
-              href={item.path}
-              className={`sidebar-item ${
-                active ? "sidebar-item-active" : ""
-              }`}
-            >
+        return (
+          <Link
+            key={item.name}
+            href={item.path}
+            className={`sidebar-item ${active ? "sidebar-item-active" : ""}`}
+          >
+            <div className="flex items-center gap-3">
               <Icon size={18} />
               {item.name}
-            </Link>
-          );
-        })}
-      </nav>
+            </div>
+          </Link>
+        );
+      })}
     </aside>
   );
 }

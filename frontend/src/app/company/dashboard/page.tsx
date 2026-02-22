@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
 
 type DashboardData = {
@@ -11,67 +10,34 @@ type DashboardData = {
 };
 
 export default function CompanyDashboard() {
-  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
+    api.get("/companies/dashboard").then((res) => setData(res.data));
+  }, []);
 
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        const res = await api.get("/companies/dashboard");
-        setData(res.data);
-      } catch (err: any) {
-        console.error("Dashboard error:", err);
-
-        if (err.response?.status === 401) {
-          router.push("/login");
-        } else {
-          setError("Failed to load dashboard");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboard();
-  }, [router]);
-
-  if (loading) return <p className="text-gray-500">Loading dashboard...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!data) return <p className="text-gray-500">No dashboard data found.</p>;
+  if (!data) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h2 className="page-title mb-6">Dashboard Overview</h2>
+    <>
+      <div className="page-header">
+        <h2 className="page-title">Dashboard Overview</h2>
+      </div>
 
       <div className="grid grid-cols-3 gap-6">
         <StatCard title="Total Tests" value={data.totalTests} />
         <StatCard title="Total Drives" value={data.totalDrives} />
         <StatCard title="Total Candidates" value={data.totalCandidates} />
       </div>
-    </div>
+    </>
   );
 }
 
-function StatCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: number;
-}) {
+function StatCard({ title, value }: { title: string; value: number }) {
   return (
     <div className="dashboard-card">
-      <p className="dashboard-card-title">{title}</p>
-      <h3 className="dashboard-card-value">{value}</h3>
+      <div className="dashboard-card-title">{title}</div>
+      <div className="dashboard-card-value">{value}</div>
     </div>
   );
 }
