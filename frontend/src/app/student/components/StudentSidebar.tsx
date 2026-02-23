@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Code2, BarChart3 } from "lucide-react";
+import { LayoutDashboard, BookOpen, Code2, BarChart3, ClipboardList } from "lucide-react";
 
 const menu = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/student/dashboard" },
+  { name: "Tests", icon: ClipboardList, path: "/student/tests" },
   { name: "Practice", icon: BookOpen, path: "/student/practice" },
   { name: "Coding", icon: Code2, path: "/student/coding" },
   { name: "Analytics", icon: BarChart3, path: "/student/analytics" },

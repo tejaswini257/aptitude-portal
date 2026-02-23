@@ -2,161 +2,146 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import api from "@/interceptors/axios";
 
-export default function DashboardPage() {
-  const [accuracy, setAccuracy] = useState(0);
+type DashboardStats = {
+  testsAttempted: number;
+  averageScore: number;
+};
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAccuracy(78);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, []);
+type TestItem = {
+  id: string;
+  name: string;
+  createdAt: string;
+};
 
+function StatCard({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | number;
+}) {
   return (
-    <>
-      <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "30px" }}>
-        Dashboard Overview
-      </h2>
-
-      {/* Stats */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
-          gap: "24px",
-          marginBottom: "40px",
-        }}
-      >
-        <StatCard title="Tests Attempted" value="12" />
-        <StatCard title="Average Score" value="78%" />
-        <StatCard title="Active Drives" value="3" />
-      </div>
-
-      {/* Weekly Progress */}
-      <div
-        style={{
-          background: "#fff",
-          padding: "28px",
-          borderRadius: "14px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-          marginBottom: "30px",
-        }}
-      >
-        <h3 style={{ marginBottom: "10px" }}>Weekly Performance</h3>
-        <p style={{ color: "#6b7280", marginBottom: "16px" }}>
-          You improved 12% compared to last week.
-        </p>
-
-        <div
-          style={{
-            height: "10px",
-            background: "#e5e7eb",
-            borderRadius: "6px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              width: `${accuracy}%`,
-              background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
-              transition: "width 1s ease",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div
-        style={{
-          background: "#fff",
-          padding: "28px",
-          borderRadius: "14px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-          display: "flex",
-          gap: "20px",
-        }}
-      >
-        <Link href="/student/practice">
-          <button style={buttonStyle}>Start Practice</button>
-        </Link>
-
-        <Link href="/student/coding">
-          <button style={buttonStyle}>Coding Challenges</button>
-        </Link>
-
-        <Link href="/student/analytics">
-          <button style={buttonStyle}>View Analytics</button>
-        </Link>
-      </div>
-    </>
-  );
-}
-
-function StatCard({ title, value }: any) {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        padding: "22px",
-        borderRadius: "14px",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-      }}
-    >
-      <p style={{ color: "#6b7280" }}>{title}</p>
-      <h3 style={{ fontSize: "26px", marginTop: "6px" }}>{value}</h3>
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <p className="text-sm text-gray-500">{title}</p>
+      <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
     </div>
   );
 }
 
-const buttonStyle = {
-  padding: "12px 20px",
-  background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
-  border: "none",
-  color: "#fff",
-  borderRadius: "10px",
-  cursor: "pointer",
-};
+export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [tests, setTests] = useState<TestItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-{/* Module Progress */}
-<div style={{
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
-  gap: "20px",
-  marginTop: "40px"
-}}>
-  <ProgressCard title="Quantitative" progress={70} />
-  <ProgressCard title="Logical" progress={60} />
-  <ProgressCard title="Verbal" progress={85} />
-  <ProgressCard title="Coding" progress={50} />
-</div>
+  const fetchDashboard = async () => {
+    try {
+      const [statsRes, testsRes] = await Promise.all([
+        api.get("/students/me/dashboard"),
+        api.get("/tests"),
+      ]);
+      setStats(statsRes.data);
+      setTests(testsRes.data || []);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-function ProgressCard({ title, progress }: any) {
-  return (
-    <div style={{
-      background: "#fff",
-      padding: "20px",
-      borderRadius: "14px",
-      boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-    }}>
-      <p style={{ marginBottom: "10px" }}>{title}</p>
-      <div style={{
-        height: "8px",
-        background: "#e5e7eb",
-        borderRadius: "6px",
-        overflow: "hidden"
-      }}>
-        <div style={{
-          height: "100%",
-          width: `${progress}%`,
-          background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
-          transition: "width 0.5s ease"
-        }} />
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px] text-gray-500">
+        Loading…
       </div>
-      <p style={{ marginTop: "8px", fontSize: "14px", color: "#6b7280" }}>
-        {progress}% Completed
-      </p>
+    );
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+        Dashboard Overview
+      </h2>
+
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard title="Tests Attempted" value={stats?.testsAttempted ?? 0} />
+        <StatCard
+          title="Average Score"
+          value={stats?.averageScore != null ? `${stats.averageScore}%` : "—"}
+        />
+        <StatCard title="Available Tests" value={tests.length} />
+      </div>
+
+      {/* Available Tests */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Available Tests
+        </h3>
+        {tests.length === 0 ? (
+          <p className="text-gray-500">No tests available at the moment.</p>
+        ) : (
+          <div className="space-y-3">
+            {tests.slice(0, 5).map((t) => (
+              <div
+                key={t.id}
+                className="flex justify-between items-center border border-gray-100 rounded-lg p-4 hover:bg-gray-50"
+              >
+                <div>
+                  <p className="font-medium text-gray-900">{t.name}</p>
+                  <p className="text-sm text-gray-500">
+                    Created: {new Date(t.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <Link
+                  href={`/student/tests/${t.id}`}
+                  className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700"
+                >
+                  Start Test
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+        {tests.length > 0 && (
+          <Link
+            href="/student/tests"
+            className="inline-block mt-4 text-emerald-600 hover:underline text-sm font-medium"
+          >
+            View all tests →
+          </Link>
+        )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-4">
+        <Link
+          href="/student/tests"
+          className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
+        >
+          All Tests
+        </Link>
+        <Link
+          href="/student/practice"
+          className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+        >
+          Practice
+        </Link>
+        <Link
+          href="/student/analytics"
+          className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+        >
+          Analytics
+        </Link>
+      </div>
     </div>
   );
 }

@@ -55,22 +55,40 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-    if (!user) throw new UnauthorizedException();
+  const user = await this.prisma.user.findUnique({
+    where: { email: dto.email },
+  });
+  if (!user) throw new UnauthorizedException();
 
-    const valid = await bcrypt.compare(dto.password, user.password);
-    if (!valid) throw new UnauthorizedException();
+  const valid = await bcrypt.compare(dto.password, user.password);
+  if (!valid) throw new UnauthorizedException();
 
-    const payload = {
-      userId: user.id,
-      role: user.role,
-      orgId: user.orgId,
-    };
+  // 🔥 role-aware payload
+  const payload: any = {
+    userId: user.id,
+    role: user.role,
+  };
 
-    return {
-      accessToken: await this.jwtService.signAsync(payload),
-    };
+  if (user.role === UserRole.COMPANY_ADMIN) {
+    payload.orgId = user.orgId;
   }
+
+  if (user.role === UserRole.STUDENT) {
+    payload.orgId = user.orgId ?? undefined;
+  }
+
+  if (user.role === UserRole.COLLEGE_ADMIN) {
+    payload.orgId = user.orgId ?? undefined;
+    const college = await this.prisma.college.findFirst({
+      where: { orgId: user.orgId ?? undefined },
+      select: { id: true },
+    });
+    if (college) payload.collegeId = college.id;
+  }
+
+  return {
+    accessToken: await this.jwtService.signAsync(payload),
+  };
+}
+
 }

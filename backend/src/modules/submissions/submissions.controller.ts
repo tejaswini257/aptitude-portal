@@ -1,65 +1,74 @@
 import {
-  Body,
   Controller,
-  Param,
   Post,
+  Get,
+  Param,
+  Body,
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtGuard } from '../../common/guards/jwt.guard';
 import { SubmissionsService } from './submissions.service';
-import { SubmitAnswerDto, StartSubmissionDto } from './dto';
+import { SubmitAnswerDto, StartSubmissionDto, SubmitBulkDto } from './dto';
 
 @Controller('submissions')
+@UseGuards(JwtGuard)
 export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
-  // -----------------------------
-  // START SUBMISSION
-  // -----------------------------
-  @UseGuards(AuthGuard('jwt'))
+  private getUserId(req: any): string {
+    return req.user?.userId ?? req.user?.id;
+  }
+
+  // START TEST ATTEMPT
   @Post('start')
-  startSubmission(
-    @Body() dto: StartSubmissionDto,
+  async startSubmission(@Body() dto: StartSubmissionDto, @Req() req: any) {
+    return this.submissionsService.startSubmission(dto.testId, this.getUserId(req));
+  }
+
+  // BULK SUBMIT (all answers at once)
+  @Post(':submissionId/submit-bulk')
+  async submitBulk(
+    @Param('submissionId') submissionId: string,
+    @Body() dto: SubmitBulkDto,
     @Req() req: any,
   ) {
-    const user = req.user || req.raw?.user;
-
-    if (!user) {
-      console.log('AUTH HEADER:', req.headers.authorization);
-      throw new Error('User not attached from JWT');
-    }
-
-    return this.submissionsService.startSubmission(
-      dto.testId,
-      user.userId,
+    return this.submissionsService.submitBulk(
+      submissionId,
+      dto.answers,
+      this.getUserId(req),
     );
   }
 
-  // -----------------------------
-  // SUBMIT ANSWER
-  // -----------------------------
-  @UseGuards(AuthGuard('jwt'))   // ✅ VERY IMPORTANT
+  // SUBMIT ANSWER (single)
   @Post(':submissionId/answer')
-  submitAnswer(
+  async submitAnswer(
     @Param('submissionId') submissionId: string,
     @Body() dto: SubmitAnswerDto,
     @Req() req: any,
   ) {
-    const user = req.user || req.raw?.user;
-
-    if (!user) {
-      console.log('AUTH HEADER:', req.headers.authorization);
-      console.log('REQ.USER:', req.user);
-      console.log('REQ.RAW.USER:', req.raw?.user);
-      throw new Error('User not attached from JWT');
-    }
-
+    const userId = this.getUserId(req);
     return this.submissionsService.submitAnswer(
       submissionId,
       dto,
-      user.userId,
+      userId,
+    );
+  }
+
+  // GET STUDENT SUBMISSIONS (for dashboard later)
+  @Get('me')
+  async mySubmissions(@Req() req: any) {
+    return this.submissionsService.getSubmissionsByUser(this.getUserId(req));
+  }
+
+  @Post(':submissionId/finish')
+  async finishSubmission(
+    @Param('submissionId') submissionId: string,
+    @Req() req: any,
+  ) {
+    return this.submissionsService.finishSubmission(
+      submissionId,
+      this.getUserId(req),
     );
   }
 }
-

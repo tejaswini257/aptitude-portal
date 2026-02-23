@@ -3,34 +3,42 @@ import {
   Post,
   Body,
   Get,
-  Query,
   Patch,
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Query } from '@nestjs/common';
 
-@UseGuards(JwtAuthGuard)
+
 @Controller('questions')
+@UseGuards(JwtAuthGuard)
 export class QuestionsController {
   constructor(private readonly service: QuestionsService) {}
 
-  // ➕ Create Question
+  // ================================
+  // CREATE
+  // ================================
   @Post()
-  create(@Body() dto: CreateQuestionDto) {
+  create(@Body() dto: CreateQuestionDto, @Req() req: any) {
     return this.service.create(dto);
   }
 
   // 📄 Get Questions by Test
-  @Get('by-section/:sectionId')
-findBySection(@Param('sectionId') sectionId: string) {
-  return this.service.findBySection(sectionId);
-}
+  //@Get()
+  //findByTest(@Query('testId') testId: string) {
+  //  return this.service.findByTest(testId);
+  //}
 
+  //GET questions by section
+  @Get('section/:sectionId')
+  findBySection(@Param('sectionId') sectionId: string) {
+    return this.service.findBySection(sectionId);
+  }
 
   // 🔍 Get Single Question
   @Get(':id')
@@ -38,15 +46,27 @@ findBySection(@Param('sectionId') sectionId: string) {
     return this.service.findOne(id);
   }
 
-  // ✏️ Update Question
+  // ================================
+  // UPDATE
+  // ================================
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateQuestionDto) {
+  update(@Param('id') id: string, @Body() dto: Partial<CreateQuestionDto>) {
     return this.service.update(id, dto);
   }
 
-  // ❌ Delete Question
+  // ================================
+  // DELETE
+  // ================================
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.service.delete(id);
   }
+
+  @Patch(":id/reorder")
+reorder(
+  @Param("id") id: string,
+  @Body("direction") direction: "UP" | "DOWN",
+) {
+  return this.service.reorder(id, direction);
+}
 }

@@ -13,9 +13,8 @@ import { UserRole } from '@prisma/client';
 export class StudentsService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE STUDENT (User + Student)
+  // ================= CREATE =================
   async create(dto: CreateStudentDto, orgId: string) {
-    // Validate college
     const college = await this.prisma.college.findUnique({
       where: { id: dto.collegeId },
     });
@@ -24,16 +23,16 @@ export class StudentsService {
       throw new BadRequestException('Invalid collegeId');
     }
 
-    // Validate department and ensure it belongs to the same college
     const department = await this.prisma.department.findUnique({
       where: { id: dto.departmentId },
     });
 
     if (!department || department.collegeId !== college.id) {
-      throw new BadRequestException('Invalid departmentId for this college');
+      throw new BadRequestException(
+        'Invalid departmentId for this college',
+      );
     }
 
-    // Check duplicate email
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -42,20 +41,17 @@ export class StudentsService {
       throw new BadRequestException('Email already exists');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    // Create User
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashedPassword,
         role: UserRole.STUDENT,
-        orgId: orgId,
+        orgId,
       },
     });
 
-    // Create Student
     return this.prisma.student.create({
       data: {
         rollNo: dto.rollNo,
@@ -72,10 +68,15 @@ export class StudentsService {
     });
   }
 
-  // ✅ GET STUDENTS (with optional department filter)
-  findAll(departmentId?: string) {
+  // ================= GET ALL =================
+  findAll(departmentId?: string, collegeId?: string) {
+    const where: any = {};
+
+    if (departmentId) where.departmentId = departmentId;
+    else if (collegeId) where.collegeId = collegeId;
+
     return this.prisma.student.findMany({
-      where: departmentId ? { departmentId } : {},
+      where,
       include: {
         user: true,
         college: true,
@@ -84,7 +85,7 @@ export class StudentsService {
     });
   }
 
-  // ✅ GET ONE STUDENT
+  // ================= GET ONE =================
   async findOne(id: string) {
     const student = await this.prisma.student.findUnique({
       where: { id },
@@ -102,7 +103,7 @@ export class StudentsService {
     return student;
   }
 
-  // ✅ UPDATE STUDENT
+  // ================= UPDATE =================
   async update(id: string, dto: UpdateStudentDto) {
     const existing = await this.prisma.student.findUnique({
       where: { id },
@@ -112,7 +113,6 @@ export class StudentsService {
       throw new NotFoundException('Student not found');
     }
 
-    // If department is changing, validate it and keep college consistent
     let departmentId = existing.departmentId;
 
     if (dto.departmentId) {
@@ -144,7 +144,7 @@ export class StudentsService {
     });
   }
 
-  // ✅ DELETE STUDENT
+  // ================= DELETE =================
   async delete(id: string) {
     const student = await this.prisma.student.findUnique({
       where: { id },
@@ -164,4 +164,42 @@ export class StudentsService {
       message: 'Student deleted successfully',
     };
   }
+
+  // ================= FIND BY USER ID =================
+  async findByUserId(userId: string) {
+  return this.prisma.student.findUnique({
+    where: { userId },
+    include: { college: true, department: true },
+  });
+}
+
+async getStudentAnalytics(userId: string) {
+  const student = await this.prisma.student.findUnique({
+    where: { userId },
+  });
+
+  if (!student) throw new NotFoundException('Student not found');
+
+  const submissions = await this.prisma.submission.findMany({
+    where: { studentId: student.id },
+  });
+
+
+  const total = submissions.length;
+  const sum = submissions.reduce((s, x) => s + (x.score || 0), 0);
+  const averageScore = total ? Math.round(sum / total) : 0;
+
+  return {
+    testsAttempted: total,
+    averageScore,
+    submissions: submissions.map((s) => ({
+      id: s.id,
+      testId: s.testId,
+      testName: s.testId,
+      score: s.score ?? 0,
+      submittedAt: s.submittedAt,
+    })),
+  };
+}
+
 }

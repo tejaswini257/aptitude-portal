@@ -10,6 +10,8 @@ function getPortalPathForRole(role?: string) {
       return "/college";
     case "COMPANY_ADMIN":
       return "/company/dashboard";
+    case "STUDENT":
+      return "/student/dashboard";
     default:
       return "/login";
   }
@@ -33,7 +35,8 @@ export function middleware(req: NextRequest) {
   const isProtected =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/college") ||
-    pathname.startsWith("/company");
+    pathname.startsWith("/company") ||
+    pathname.startsWith("/student");
 
   // If not logged in and hitting a protected route -> login
   if (isProtected && !token) {
@@ -78,9 +81,22 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Student area: STUDENT only
+  if (pathname.startsWith("/student") && role !== "STUDENT") {
+    url.pathname = getPortalPathForRole(role);
+    return NextResponse.redirect(url);
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/college/:path*", "/company/:path*", "/login", "/"],
+  matcher: [
+    "/admin/:path*",
+    "/college/:path*",
+    "/company/:path*",
+    "/student/:path*",
+    "/login",
+    "/",
+  ],
 };

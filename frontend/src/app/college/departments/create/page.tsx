@@ -1,74 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
+import api from "@/interceptors/axios";
 
 export default function CreateDepartmentPage() {
   const router = useRouter();
-
   const [form, setForm] = useState({
-    name: "",
-    hodName: "",
-    email: "",
-    phone: "",
-    totalStudents: "",
-    totalFaculty: "",
-  });
+  name: "",
+  hodName: "",
+  email: "",
+  phone: "",
+  totalStudents: "",
+  totalFaculty: "",
+});
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+const [collegeId, setCollegeId] = useState("");
+const [loading, setLoading] = useState(false);
+const [loadingCollege, setLoadingCollege] = useState(true);
+const [error, setError] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    api
+      .get("/colleges")
+      .then((res) => {
+        const list = res.data || [];
+        if (list.length) setCollegeId(list[0].id);
+      })
+      .catch(() => setError("Failed to load college"))
+      .finally(() => setLoadingCollege(false));
+  }, [router]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleCreate = async () => {
-    const {
-      name,
-      hodName,
-      email,
-      phone,
-      totalStudents,
-      totalFaculty,
-    } = form;
+  if (!form.name.trim()) {
+    setError("Department name is required");
+    return;
+  }
 
-    if (!name || !hodName) {
-      setError("Department name and HOD name are required");
-      return;
-    }
+  if (!collegeId) {
+    setError("College not found");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      setError("");
+  try {
+    setLoading(true);
+    setError("");
 
-      await api("/departments", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          hodName,
-          email,
-          phone,
-          totalStudents: Number(totalStudents),
-          totalFaculty: Number(totalFaculty),
-        }),
-      });
+    await api.post("/departments", {
+      name: form.name.trim(),
+      collegeId,
+      hodName: form.hodName || null,
+      email: form.email || null,
+      phone: form.phone || null,
+      totalStudents: form.totalStudents
+        ? Number(form.totalStudents)
+        : null,
+      totalFaculty: form.totalFaculty
+        ? Number(form.totalFaculty)
+        : null,
+    });
 
-      router.push("/college/departments");
-    } catch (err: any) {
-      setError(err.message || "Failed to create department");
-    } finally {
-      setLoading(false);
-    }
-  };
+    router.push("/college/departments");
+  } catch (err: any) {
+    setError(
+      err.response?.data?.message ||
+        err.message ||
+        "Failed to create department"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  if (loadingCollege) {
+    return (
+      <div className="p-8 text-gray-500">Loading college details...</div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-gray-50 px-4 py-10">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-        {/* Header */}
-        <div className="mb-8 border-b pb-4">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-gray-200 p-8">
+        <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">
             Create Department
           </h1>
@@ -77,109 +102,82 @@ export default function CreateDepartmentPage() {
           </p>
         </div>
 
-        {/* Error */}
         {error && (
-          <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-200">
+          <div className="mb-5 rounded-md bg-red-50 px-4 py-2 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Department Name */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="form-label">
-              Department Name *
-            </label>
+            <label className="form-label">Department Name *</label>
             <input
               name="name"
-              placeholder="Computer Science"
-              className="input focus:ring-2 focus:ring-green-500"
+              className="input"
               value={form.name}
               onChange={handleChange}
             />
           </div>
 
-          {/* HOD */}
           <div>
-            <label className="form-label">
-              HOD / Faculty In-Charge *
-            </label>
+            <label className="form-label">HOD / Faculty In-Charge</label>
             <input
               name="hodName"
-              placeholder="Dr. Rahul Sharma"
-              className="input focus:ring-2 focus:ring-green-500"
+              className="input"
               value={form.hodName}
               onChange={handleChange}
             />
           </div>
 
-          {/* Email */}
           <div>
-            <label className="form-label">
-              Department Email
-            </label>
+            <label className="form-label">Department Email</label>
             <input
               name="email"
               type="email"
-              placeholder="cs@college.edu"
-              className="input focus:ring-2 focus:ring-green-500"
+              className="input"
               value={form.email}
               onChange={handleChange}
             />
           </div>
 
-          {/* Phone */}
           <div>
-            <label className="form-label">
-              Contact Number
-            </label>
+            <label className="form-label">Contact Number</label>
             <input
               name="phone"
-              placeholder="+91 98765 43210"
-              className="input focus:ring-2 focus:ring-green-500"
+              className="input"
               value={form.phone}
               onChange={handleChange}
             />
           </div>
 
-          {/* Total Students */}
           <div>
-            <label className="form-label">
-              Total Students
-            </label>
+            <label className="form-label">Total Students</label>
             <input
               name="totalStudents"
               type="number"
-              placeholder="180"
-              className="input focus:ring-2 focus:ring-green-500"
+              className="input"
               value={form.totalStudents}
               onChange={handleChange}
             />
           </div>
 
-          {/* Total Faculty */}
           <div>
-            <label className="form-label">
-              Total Faculty
-            </label>
+            <label className="form-label">Total Faculty</label>
             <input
               name="totalFaculty"
               type="number"
-              placeholder="22"
-              className="input focus:ring-2 focus:ring-green-500"
+              className="input"
               value={form.totalFaculty}
               onChange={handleChange}
             />
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 mt-10">
+                <div className="flex gap-4 mt-8">
           <button
             onClick={() => router.back()}
             disabled={loading}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
           >
             Cancel
           </button>
@@ -187,7 +185,7 @@ export default function CreateDepartmentPage() {
           <button
             onClick={handleCreate}
             disabled={loading}
-            className="w-full rounded-lg bg-green-600 px-4 py-2.5 text-white font-medium hover:bg-green-700 shadow-sm transition disabled:opacity-60"
+            className="w-full rounded-lg bg-green-600 px-4 py-2 text-white font-medium hover:bg-green-700 disabled:opacity-60"
           >
             {loading ? "Creating..." : "Create Department"}
           </button>

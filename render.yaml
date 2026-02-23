@@ -1,0 +1,19 @@
+# Render Blueprint - Backend service for aptitude-portal
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: aptitude-backend
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: node dist/src/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: PORT
+        value: 10000

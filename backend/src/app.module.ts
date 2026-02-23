@@ -11,11 +11,14 @@ import { CompanyTestsModule } from './modules/company-tests/company-tests.module
 import { DrivesModule } from './modules/drives/drives.module';
 
 // 👇 ADD THIS
-import { OrganizationController } from './modules/organization/organization.controller';
+//import { OrganizationController } from './modules/organization/organization.controller';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
-import { CompaniesModule } from './modules/companies/companies.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SectionsModule } from './modules/sections/sections.module';
+import { PracticeSetsModule } from './modules/practice-sets/practice-sets.module';
+
+
 
 @Module({
   imports: [
@@ -31,8 +34,9 @@ import { AdminModule } from './modules/admin/admin.module';
     CompanyModule,
     CompanyTestsModule,
     DrivesModule,
-    CompaniesModule,
     AdminModule,
+    SectionsModule,
+    PracticeSetsModule,
   ],
 })
 export class AppModule {}

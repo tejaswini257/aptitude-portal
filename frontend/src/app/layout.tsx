@@ -1,10 +1,4 @@
-import "../styles/tailwind.css"
-import "../styles/global.css"
-import "../styles/theme.css"
-import "../styles/components.css"
-import "../styles/forms.module.css"
-import "../styles/tables.css"
-
+import "./globals.css";
 
 export default function RootLayout({
   children,

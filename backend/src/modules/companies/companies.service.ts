@@ -4,7 +4,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateCompanyDto } from './dto/create-company.dto';
+import { CreateCompanyDto } from '../company/dto/create-company.dto';
+
 import { UserRole } from '@prisma/client';
 import { OrgType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';

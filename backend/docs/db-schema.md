@@ -127,7 +127,7 @@ Fields:
 - eligibilityCriteria (JSON)
 - proctoringConfig (JSON)
 - createdById (FK → User)
-- organizationId (FK → Organization)
+- orgId (FK → Organization)
 
 Relations:
 - One Test → Many Questions

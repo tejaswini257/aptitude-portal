@@ -33,11 +33,38 @@ export class StudentsController {
     return this.studentsService.create(dto, orgId);
   }
 
-  // ✅ GET STUDENTS (optionally by department)
-  // GET /students?departmentId=
+  // ✅ GET STUDENTS (optional: departmentId or collegeId)
   @Get()
-  findAll(@Query('departmentId') departmentId?: string) {
-    return this.studentsService.findAll(departmentId);
+  findAll(
+    @Query('departmentId') departmentId?: string,
+    @Query('collegeId') collegeId?: string,
+  ) {
+    return this.studentsService.findAll(departmentId, collegeId);
+  }
+
+  // =============================
+  // ✅ STUDENT SELF ROUTES (must be before :id to avoid 'me' being captured)
+  // =============================
+
+  @Roles(UserRole.STUDENT)
+  @Get('me')
+  getMe(@Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
+    return this.studentsService.findByUserId(userId);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Get('me/dashboard')
+  getMyDashboard(@Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
+    return this.studentsService.getStudentAnalytics(userId);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Get('me/analytics')
+  getMyAnalytics(@Req() req: any) {
+    const userId = req.user?.userId ?? req.user?.id;
+    return this.studentsService.getStudentAnalytics(userId);
   }
 
   // ✅ GET SINGLE STUDENT
@@ -59,4 +86,5 @@ export class StudentsController {
   remove(@Param('id') id: string) {
     return this.studentsService.delete(id);
   }
+
 }
