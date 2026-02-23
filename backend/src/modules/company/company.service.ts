@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { OrgType, UserRole } from '@prisma/client';
@@ -42,13 +39,79 @@ export class CompanyService {
     return this.prisma.organization.findMany({
       where: { type: OrgType.COMPANY },
       include: {
-        users: true,
+        users: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            createdAt: true,
+          },
+        },
       },
     });
   }
 
+  async findOne(id: string) {
+    const company = await this.prisma.organization.findFirst({
+      where: {
+        id,
+        type: OrgType.COMPANY,
+      },
+      include: {
+        users: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return company;
+  }
+
+  async remove(id: string) {
+    const company = await this.prisma.organization.findFirst({
+      where: {
+        id,
+        type: OrgType.COMPANY,
+      },
+      include: {
+        users: {
+          select: { id: true },
+        },
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    const userIds = company.users.map((user) => user.id);
+
+    await this.prisma.$transaction(async (tx) => {
+      if (userIds.length > 0) {
+        await tx.user.deleteMany({
+          where: { id: { in: userIds } },
+        });
+      }
+
+      await tx.organization.delete({
+        where: { id: company.id },
+      });
+    });
+
+    return { message: 'Company deleted successfully' };
+  }
+
   // COMPANY DASHBOARD
-  async getDashboard(user: any) {
+  async getDashboard(user: { orgId: string }) {
     const orgId = user.orgId;
 
     if (!orgId) {
@@ -68,7 +131,7 @@ export class CompanyService {
       select: { id: true },
     });
 
-    const testIds = tests.map(t => t.id);
+    const testIds = tests.map((t) => t.id);
 
     const totalCandidates = await this.prisma.submission.count({
       where: {

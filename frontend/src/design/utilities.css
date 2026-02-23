@@ -31,6 +31,8 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   outline: none;
 }
 
@@ -39,15 +41,6 @@
   box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
-.btn-primary {
+.btn-block {
   width: 100%;
-  padding: 10px;
-  background: var(--color-primary);
-  color: white;
-  border-radius: var(--radius-sm);
-  transition: 0.2s;
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-hover);
 }

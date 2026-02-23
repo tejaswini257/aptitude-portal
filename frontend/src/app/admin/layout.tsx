@@ -1,5 +1,6 @@
 "use client";
 
+import BrandLogo from "@/components/BrandLogo";
 import AdminSidebar from "./components/AdminSidebar";
 
 function logout() {
@@ -16,24 +17,25 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="portal-shell">
       <AdminSidebar />
 
-      <div className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center px-6 py-4 bg-white border-b">
-          <h1 className="text-lg font-semibold text-gray-700">
-            Admin Dashboard
-          </h1>
+      <div className="portal-shell-main">
+        <header className="portal-header">
+          <div className="portal-header-brand">
+            <BrandLogo compact />
+            <h1 className="portal-header-title">Admin Dashboard</h1>
+          </div>
 
           <button
             onClick={logout}
-            className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600 shadow-sm"
+            className="btn btn-danger"
           >
             Logout
           </button>
         </header>
 
-        <main className="p-6 bg-gray-100 min-h-screen">{children}</main>
+        <main className="portal-content">{children}</main>
       </div>
     </div>
   );

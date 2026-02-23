@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import api from "@/interceptors/axios";
 
 type Stats = {
@@ -10,6 +10,22 @@ type Stats = {
   departments: number;
   companies: number;
   ongoingDrives: number;
+};
+
+type ApiErrorShape = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+};
+
+type DashboardCard = {
+  title: string;
+  value: number;
+  path: string;
+  tone: "info" | "success" | "accent";
 };
 
 export default function CollegeDashboardPage() {
@@ -24,22 +40,26 @@ export default function CollegeDashboardPage() {
       router.replace("/login");
       return;
     }
-    (async () => {
+
+    const loadStats = async () => {
       try {
         const res = await api.get("/colleges/dashboard/stats");
-        setStats(res.data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || "Failed to load stats");
+        setStats(res.data as Stats);
+      } catch (err: unknown) {
+        const e = err as ApiErrorShape;
+        setError(e?.response?.data?.message || e?.message || "Failed to load stats.");
       } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    loadStats();
   }, [router]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[200px] text-gray-500">
-        Loading dashboard…
+      <div className="flex items-center justify-center min-h-[200px] text-secondary">
+        Loading dashboard...
       </div>
     );
   }
@@ -52,30 +72,33 @@ export default function CollegeDashboardPage() {
     );
   }
 
-  const s = stats || { students: 0, departments: 0, companies: 0, ongoingDrives: 0 };
-
-  const cards = [
-    { title: "Students", value: s.students, path: "/college/students", color: "bg-emerald-500" },
-    { title: "Departments", value: s.departments, path: "/college/departments", color: "bg-blue-500" },
-    { title: "Companies", value: s.companies, path: "/college/companies", color: "bg-violet-500" },
-    { title: "Ongoing Drives", value: s.ongoingDrives, path: "/college/drives", color: "bg-amber-500" },
+  const summary = stats ?? { students: 0, departments: 0, companies: 0, ongoingDrives: 0 };
+  const cards: DashboardCard[] = [
+    { title: "Students", value: summary.students, path: "/college/students", tone: "success" },
+    {
+      title: "Departments",
+      value: summary.departments,
+      path: "/college/departments",
+      tone: "info",
+    },
+    { title: "Companies", value: summary.companies, path: "/college/companies", tone: "accent" },
+    { title: "Ongoing Drives", value: summary.ongoingDrives, path: "/college/drives", tone: "info" },
   ];
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dashboard</h1>
-      <p className="text-gray-500 mb-8">Overview of your college</p>
+    <div className="page space-y-6">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">College Dashboard</h2>
+          <p className="page-subtitle">Overview of student participation, departments, and placement activities.</p>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((c) => (
-          <Link
-            key={c.title}
-            href={c.path}
-            className="block bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition"
-          >
-            <div className={`w-10 h-10 rounded-lg ${c.color} opacity-90 mb-4`} />
-            <div className="text-2xl font-bold text-gray-900">{c.value}</div>
-            <div className="text-sm text-gray-500">{c.title}</div>
+      <div className="dashboard-grid-3">
+        {cards.map((card) => (
+          <Link key={card.title} href={card.path} className={`dashboard-card tone-${card.tone} card-link`}>
+            <p className="dashboard-card-title">{card.title}</p>
+            <h3 className="dashboard-card-value">{card.value}</h3>
           </Link>
         ))}
       </div>

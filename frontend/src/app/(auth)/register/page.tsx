@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
+import BrandLogo from "@/components/BrandLogo";
 
 type Role = "SUPER_ADMIN" | "COLLEGE_ADMIN" | "COMPANY_ADMIN";
 
@@ -10,6 +11,14 @@ type Organization = {
   id: string;
   name: string;
   type: string;
+};
+
+type ApiErrorShape = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
 };
 
 export default function RegisterPage() {
@@ -34,9 +43,7 @@ export default function RegisterPage() {
       .then((res) => {
         const list: Organization[] = Array.isArray(res.data) ? res.data : [];
         setOrganizations(list);
-        if (!orgId && list.length > 0) {
-          setOrgId(list[0].id);
-        }
+        setOrgId((prev) => (prev || list.length === 0 ? prev : list[0].id));
       })
       .catch(() => {
         setOrgError(
@@ -68,20 +75,24 @@ export default function RegisterPage() {
       });
 
       router.push("/login");
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      const error = err as ApiErrorShape;
+      setError(error?.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-app">
+    <div className="auth-page">
       <form
         onSubmit={handleSubmit}
-        className="w-96 card space-y-4"
+        className="auth-card space-y-4"
       >
-        <h1 className="text-2xl font-semibold text-center">Register</h1>
+        <div className="flex justify-center">
+          <BrandLogo />
+        </div>
+        <h1 className="text-2xl font-semibold text-center">Create Portal Account</h1>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -155,7 +166,7 @@ export default function RegisterPage() {
 
         {/* Button */}
         <button
-          className="btn-primary"
+          className="btn btn-primary btn-block"
           disabled={
             loading ||
             (role !== "SUPER_ADMIN" &&

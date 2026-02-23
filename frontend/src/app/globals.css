@@ -18,9 +18,10 @@ html, body {
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+  line-height: 1.45;
 }
 
 .app-layout {
@@ -38,4 +39,10 @@ body {
 .app-content {
   flex: 1;
   padding: 40px;
+}
+
+@media (max-width: 1024px) {
+  .app-content {
+    padding: 24px 16px;
+  }
 }

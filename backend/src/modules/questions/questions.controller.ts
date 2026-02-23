@@ -1,20 +1,24 @@
 import {
-  Controller,
-  Post,
   Body,
-  Get,
-  Query,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { DifficultyLevel } from '@prisma/client';
 import { QuestionsService } from './questions.service';
-import { Req } from '@nestjs/common';
-
-
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+type AuthenticatedRequest = {
+  user: {
+    orgId?: string;
+  };
+};
 
 @Controller('questions')
 @UseGuards(JwtAuthGuard)
@@ -22,8 +26,8 @@ export class QuestionsController {
   constructor(private readonly service: QuestionsService) {}
 
   @Post()
-  create(@Body() dto: any, @Req() req: any) {
-    return this.service.create(dto, req.user.orgId);
+  create(@Body() dto: unknown, @Req() req: AuthenticatedRequest) {
+    return this.service.create(dto, req.user.orgId || '');
   }
 
   @Get('test/:testId')
@@ -31,8 +35,23 @@ export class QuestionsController {
     return this.service.findByTest(testId);
   }
 
+  @Get('practice/sections')
+  getPracticeSections() {
+    return this.service.getPracticeSections();
+  }
+
+  @Get('practice')
+  getPracticeQuestions(
+    @Query('topic') topic?: string,
+    @Query('difficulty') difficulty?: DifficultyLevel,
+    @Query('limit') limit?: string,
+  ) {
+    const parsedLimit = limit ? Number(limit) : undefined;
+    return this.service.getPracticeQuestions(topic, difficulty, parsedLimit);
+  }
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: any) {
+  update(@Param('id') id: string, @Body() dto: unknown) {
     return this.service.update(id, dto);
   }
 

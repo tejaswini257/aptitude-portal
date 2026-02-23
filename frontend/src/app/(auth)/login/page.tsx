@@ -3,6 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
+import BrandLogo from "@/components/BrandLogo";
+
+type ApiErrorShape = {
+  message?: string;
+  code?: string;
+  response?: {
+    data?: {
+      message?: string;
+    };
+  } | null;
+};
 
 function getPortalPathForRole(role?: string) {
   switch (role) {
@@ -59,12 +70,13 @@ export default function LoginPage() {
 
       const target = getPortalPathForRole(role);
       router.push(target);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as ApiErrorShape;
       console.error(err);
       const isNetworkError =
-        err?.message === "Network Error" ||
-        err?.code === "ERR_NETWORK" ||
-        err?.response == null;
+        error?.message === "Network Error" ||
+        error?.code === "ERR_NETWORK" ||
+        error?.response == null;
       if (isNetworkError) {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -74,21 +86,24 @@ export default function LoginPage() {
         setNetworkErrorTip(true);
         return;
       } else {
-        const msg = err?.response?.data?.message;
+        const msg = error?.response?.data?.message;
         setError(msg || "Login failed");
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-50">
+    <div className="auth-page">
       {/* Login Card */}
       <form
         onSubmit={handleLogin}
-        className="w-96 p-6 bg-white border rounded-lg shadow space-y-4"
+        className="auth-card space-y-4"
         suppressHydrationWarning
       >
-        <h1 className="text-2xl font-semibold text-center">Login</h1>
+        <div className="flex justify-center">
+          <BrandLogo />
+        </div>
+        <h1 className="text-2xl font-semibold text-center">Sign in to AptiCore</h1>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {networkErrorTip && (
@@ -109,7 +124,7 @@ export default function LoginPage() {
         <input
           type="email"
           placeholder="Email"
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -119,7 +134,7 @@ export default function LoginPage() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="input"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -128,7 +143,7 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+          className="btn btn-primary btn-block"
           suppressHydrationWarning
         >
           Login

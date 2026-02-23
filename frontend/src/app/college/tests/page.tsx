@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import api from "@/interceptors/axios";
 
 type TestItem = {
@@ -11,6 +11,20 @@ type TestItem = {
   createdAt: string;
   showResultImmediately: boolean;
   attemptCount?: number;
+  rules?: {
+    marksPerQuestion?: number;
+    negativeMarking?: boolean;
+    negativeMarks?: number | null;
+  };
+  sections?: Array<{ timeLimit?: number }>;
+};
+
+type ApiErrorShape = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
 };
 
 export default function CollegeTestsPage() {
@@ -19,118 +33,186 @@ export default function CollegeTestsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
     name: "",
+    durationMinutes: 30,
+    marksPerQuestion: 1,
+    negativeMarking: false,
+    negativeMarks: 0,
     showResultImmediately: true,
+    proctoringEnabled: false,
   });
-  const [creating, setCreating] = useState(false);
 
   const fetchTests = async () => {
     try {
       const res = await api.get("/tests?withAttemptCount=true");
-      setTests(res.data || []);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to load tests");
+      setTests(Array.isArray(res.data) ? (res.data as TestItem[]) : []);
+    } catch (err: unknown) {
+      const e = err as ApiErrorShape;
+      setError(e?.response?.data?.message || "Failed to load tests");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTests();
+    void fetchTests();
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreate = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!createForm.name.trim()) return;
     try {
       setCreating(true);
       await api.post("/tests", {
         name: createForm.name.trim(),
+        durationMinutes: createForm.durationMinutes,
+        marksPerQuestion: createForm.marksPerQuestion,
+        negativeMarking: createForm.negativeMarking,
+        negativeMarks: createForm.negativeMarking ? createForm.negativeMarks : null,
         showResultImmediately: createForm.showResultImmediately,
+        proctoringEnabled: createForm.proctoringEnabled,
       });
       setShowCreate(false);
-      setCreateForm({ name: "", showResultImmediately: true });
-      fetchTests();
-    } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to create test");
+      setCreateForm({
+        name: "",
+        durationMinutes: 30,
+        marksPerQuestion: 1,
+        negativeMarking: false,
+        negativeMarks: 0,
+        showResultImmediately: true,
+        proctoringEnabled: false,
+      });
+      await fetchTests();
+    } catch (err: unknown) {
+      const e = err as ApiErrorShape;
+      window.alert(e?.response?.data?.message || "Failed to create test");
     } finally {
       setCreating(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px] text-gray-500">
-        Loading tests…
-      </div>
-    );
+    return <div className="text-secondary">Loading tests...</div>;
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Tests</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
-        >
+    <div className="page space-y-6">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">College Tests</h2>
+          <p className="page-subtitle">Create structured tests with duration and marking policy.</p>
+        </div>
+        <button onClick={() => setShowCreate(true)} className="btn btn-primary">
           + Create Test
         </button>
       </div>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
       {showCreate && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
-            <h2 className="text-xl font-semibold mb-4">Create Test</h2>
+          <div className="card w-full max-w-xl">
+            <h3 className="font-semibold text-xl mb-4">Create Test</h3>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Test Name *
-                </label>
+                <label className="field-label">Test Name *</label>
                 <input
-                  type="text"
+                  className="input"
                   value={createForm.name}
-                  onChange={(e) =>
-                    setCreateForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  onChange={(e) => setCreateForm((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="e.g. Mid Sem Assessment"
                   required
                 />
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="grid md:grid-cols-2 gap-3">
+                <div>
+                  <label className="field-label">Duration (minutes)</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={5}
+                    value={createForm.durationMinutes}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({ ...prev, durationMinutes: Number(e.target.value) }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="field-label">Marks/Question</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={1}
+                    value={createForm.marksPerQuestion}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({ ...prev, marksPerQuestion: Number(e.target.value) }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <label className="check-field">
                 <input
                   type="checkbox"
-                  id="showResult"
+                  checked={createForm.negativeMarking}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, negativeMarking: e.target.checked }))
+                  }
+                />
+                <span>Enable negative marking</span>
+              </label>
+
+              <div>
+                <label className="field-label">Negative Marks</label>
+                <input
+                  className="input"
+                  type="number"
+                  min={0}
+                  value={createForm.negativeMarks}
+                  disabled={!createForm.negativeMarking}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, negativeMarks: Number(e.target.value) }))
+                  }
+                />
+              </div>
+
+              <label className="check-field">
+                <input
+                  type="checkbox"
                   checked={createForm.showResultImmediately}
                   onChange={(e) =>
-                    setCreateForm((f) => ({
-                      ...f,
+                    setCreateForm((prev) => ({
+                      ...prev,
                       showResultImmediately: e.target.checked,
                     }))
                   }
                 />
-                <label htmlFor="showResult" className="text-sm text-gray-700">
-                  Show result immediately after submit
-                </label>
-              </div>
+                <span>Show result immediately</span>
+              </label>
+
+              <label className="check-field">
+                <input
+                  type="checkbox"
+                  checked={createForm.proctoringEnabled}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({
+                      ...prev,
+                      proctoringEnabled: e.target.checked,
+                    }))
+                  }
+                />
+                <span>Enable proctoring</span>
+              </label>
+
               <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
+                <button type="button" onClick={() => setShowCreate(false)} className="btn btn-secondary">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={creating}
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
-                >
-                  {creating ? "Creating…" : "Create"}
+                <button type="submit" disabled={creating} className="btn btn-primary">
+                  {creating ? "Creating..." : "Create"}
                 </button>
               </div>
             </form>
@@ -138,43 +220,45 @@ export default function CollegeTestsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr className="text-left">
-              <th className="p-4">Test Name</th>
-              <th className="p-4">Created</th>
-              <th className="p-4">Students Attempted</th>
-              <th className="p-4">Show Result</th>
-              <th className="p-4">Action</th>
+      <div className="table-card">
+        <div className="table-toolbar">
+          <h3 className="font-semibold">Tests</h3>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th className="table-head">Test Name</th>
+              <th className="table-head">Duration</th>
+              <th className="table-head">Marking</th>
+              <th className="table-head">Students Attempted</th>
+              <th className="table-head">Action</th>
             </tr>
           </thead>
           <tbody>
             {tests.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-gray-500">
+                <td colSpan={5} className="table-cell text-center text-secondary">
                   No tests yet. Create one to get started.
                 </td>
               </tr>
             ) : (
-              tests.map((t) => (
+              tests.map((test) => (
                 <tr
-                  key={t.id}
-                  className="border-t hover:bg-gray-50 cursor-pointer"
-                  onClick={() => router.push(`/college/tests/${t.id}`)}
+                  key={test.id}
+                  className="table-row cursor-pointer"
+                  onClick={() => router.push(`/college/tests/${test.id}`)}
                 >
-                  <td className="p-4 font-medium">{t.name}</td>
-                  <td className="p-4">
-                    {new Date(t.createdAt).toLocaleDateString()}
+                  <td className="table-cell font-semibold">{test.name}</td>
+                  <td className="table-cell">{test.sections?.[0]?.timeLimit ?? 0} min</td>
+                  <td className="table-cell">
+                    +{test.rules?.marksPerQuestion ?? 1} /{" "}
+                    {test.rules?.negativeMarking ? `-${test.rules?.negativeMarks ?? 0}` : "0"}
                   </td>
-                  <td className="p-4">{t.attemptCount ?? 0}</td>
-                  <td className="p-4">
-                    {t.showResultImmediately ? "Yes" : "No"}
-                  </td>
-                  <td className="p-4">
+                  <td className="table-cell">{test.attemptCount ?? 0}</td>
+                  <td className="table-cell">
                     <Link
-                      href={`/college/tests/${t.id}`}
-                      className="text-emerald-600 hover:underline"
+                      href={`/college/tests/${test.id}`}
+                      className="table-link"
                       onClick={(e) => e.stopPropagation()}
                     >
                       View Details

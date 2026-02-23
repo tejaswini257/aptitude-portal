@@ -1,39 +1,42 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Put,
-  Delete,
   Body,
+  Controller,
+  Delete,
+  Get,
   Param,
+  Post,
+  Put,
   Query,
-  UseGuards,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import { UserRole } from '@prisma/client';
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
 import { JwtGuard } from '../../common/guards/jwt.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
+
+type AuthenticatedRequest = {
+  user: {
+    userId: string;
+    orgId: string;
+  };
+};
 
 @Controller('students')
 @UseGuards(JwtGuard, RolesGuard)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  // ✅ CREATE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Post()
-  create(@Body() dto: CreateStudentDto, @Req() req: Request) {
-    const orgId = (req as any).user?.orgId as string;
-
-    return this.studentsService.create(dto, orgId);
+  create(@Body() dto: CreateStudentDto, @Req() req: AuthenticatedRequest) {
+    return this.studentsService.create(dto, req.user.orgId);
   }
 
-  // ✅ GET STUDENTS (optional: departmentId or collegeId)
   @Get()
   findAll(
     @Query('departmentId') departmentId?: string,
@@ -42,49 +45,59 @@ export class StudentsController {
     return this.studentsService.findAll(departmentId, collegeId);
   }
 
-  // ✅ GET SINGLE STUDENT
+  @Roles(UserRole.STUDENT)
+  @Get('me')
+  getMe(@Req() req: AuthenticatedRequest) {
+    return this.studentsService.findByUserId(req.user.userId);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Get('me/profile')
+  getMyProfile(@Req() req: AuthenticatedRequest) {
+    return this.studentsService.getMyProfile(req.user.userId);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Put('me/profile')
+  updateMyProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateStudentProfileDto,
+  ) {
+    return this.studentsService.updateMyProfile(req.user.userId, dto);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Get('me/dashboard')
+  getMyDashboard(@Req() req: AuthenticatedRequest) {
+    return this.studentsService.getStudentAnalytics(req.user.userId);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Get('me/analytics')
+  getMyAnalytics(@Req() req: AuthenticatedRequest) {
+    return this.studentsService.getStudentAnalytics(req.user.userId);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @Get('me/history')
+  getMyHistory(@Req() req: AuthenticatedRequest) {
+    return this.studentsService.getStudentHistory(req.user.userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studentsService.findOne(id);
   }
 
-  // ✅ UPDATE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
     return this.studentsService.update(id, dto);
   }
 
-  // ✅ DELETE STUDENT (Admin only)
   @Roles(UserRole.SUPER_ADMIN, UserRole.COLLEGE_ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.studentsService.delete(id);
   }
-
-  // =============================
-// ✅ STUDENT SELF ROUTES
-// =============================
-
-// GET: logged-in student profile
-@Roles(UserRole.STUDENT)
-@Get('me')
-getMe(@Req() req: any) {
-  return this.studentsService.findByUserId(req.user.userId);
-}
-
-// GET: student dashboard stats (tests attempted, avg score, etc.)
-@Roles(UserRole.STUDENT)
-@Get('me/dashboard')
-getMyDashboard(@Req() req: any) {
-  return this.studentsService.getStudentAnalytics(req.user.userId);
-}
-
-// GET: student analytics
-@Roles(UserRole.STUDENT)
-@Get('me/analytics')
-getMyAnalytics(@Req() req: any) {
-  return this.studentsService.getStudentAnalytics(req.user.userId);
-}
-
 }

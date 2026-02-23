@@ -2,18 +2,21 @@
 
 export default function CompanyAnalytics() {
   return (
-    <>
+    <div className="page space-y-6">
       <div className="page-header">
-        <h2 className="page-title">Company Analytics</h2>
+        <div>
+          <h2 className="page-title">Company Analytics</h2>
+          <p className="page-subtitle">Visualize conversion from applications to final hires.</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="dashboard-grid-3">
         <StatCard title="Applications" value="180" />
         <StatCard title="Shortlisted" value="62" />
         <StatCard title="Selected" value="15" />
       </div>
 
-      <div className="card mt-10">
+      <div className="card">
         <h3 className="mb-6 font-semibold">Hiring Funnel</h3>
 
         <Progress label="Applied" percent={100} />
@@ -21,7 +24,7 @@ export default function CompanyAnalytics() {
         <Progress label="Interviewed" percent={35} />
         <Progress label="Selected" percent={15} />
       </div>
-    </>
+    </div>
   );
 }
 

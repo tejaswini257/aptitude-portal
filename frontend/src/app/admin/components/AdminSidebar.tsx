@@ -1,47 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Building2,
+  BriefcaseBusiness,
+  Users,
+  ClipboardList,
+  BarChart3,
+  ShieldCheck,
+  ReceiptText,
+  Activity,
+} from "lucide-react";
+import PortalSidebar from "@/components/PortalSidebar";
 
 const menu = [
-  { name: "Dashboard", path: "/admin/dashboard" },
-  { name: "Colleges", path: "/admin/colleges" },
-  { name: "Companies", path: "/admin/companies" },
-  { name: "Students", path: "/admin/students" },
-  { name: "Tests", path: "/admin/tests" },
-  { name: "Analytics", path: "/admin/analytics" },
+  { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Colleges", path: "/admin/colleges", icon: Building2 },
+  { name: "Companies", path: "/admin/companies", icon: BriefcaseBusiness },
+  { name: "Students", path: "/admin/students", icon: Users },
+  { name: "Tests", path: "/admin/tests", icon: ClipboardList },
+  { name: "Roles", path: "/admin/roles", icon: ShieldCheck },
+  { name: "Subscriptions", path: "/admin/subscriptions", icon: ReceiptText },
+  { name: "Monitoring", path: "/admin/monitoring", icon: Activity },
+  { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
 ];
 
 export default function AdminSidebar() {
-  const pathname = usePathname();
-
-  return (
-    <aside className="w-60 bg-slate-900 text-slate-200 min-h-screen border-r border-slate-800 p-6">
-      <h2 className="text-xl font-bold text-white mb-6">
-        Aptitude Portal
-      </h2>
-
-      <nav className="space-y-2">
-        {menu.map((item) => {
-          const active =
-            pathname === item.path ||
-            pathname.startsWith(item.path + "/");
-
-          return (
-            <Link
-              key={item.name}
-              href={item.path}
-              className={`block px-3 py-2 rounded-md text-sm font-medium transition ${
-                active
-                  ? "bg-blue-600 text-white shadow"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
-              }`}
-            >
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
-  );
+  return <PortalSidebar title="Aptitude Portal" menu={menu} />;
 }

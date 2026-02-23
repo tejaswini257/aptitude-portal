@@ -1,152 +1,170 @@
 "use client";
 
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import api from "@/interceptors/axios";
 
-const questionBank: any = {
-  logical: [
-    {
-      id: 1,
-      question: "Find the next number: 2, 6, 12, 20, ?",
-      options: ["28", "30", "32", "36"],
-      answer: "30",
-    },
-    {
-      id: 2,
-      question: "If A=1, B=2 then CAT = ?",
-      options: ["24", "20", "26", "23"],
-      answer: "24",
-    },
-  ],
-  quantitative: [
-    {
-      id: 1,
-      question: "Average of 5 numbers is 20. Total?",
-      options: ["80", "100", "120", "90"],
-      answer: "100",
-    },
-  ],
-verbal: [
-  {
-    id: 1,
-    question: "Which of the following is a synonym of 'Happy'?",
-    options: ["Sad", "Joyful", "Angry", "Tired"],
-    answer: "Joyful",
-  },
-],
+type QuestionOption = {
+  id: string;
+  optionText: string;
+};
+
+type PracticeQuestion = {
+  id: string;
+  questionText: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  correctAnswer: string | null;
+  options: QuestionOption[];
+};
+
+const DIFFICULTY_OPTIONS = ["EASY", "MEDIUM", "HARD"] as const;
+type ApiErrorShape = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
 };
 
 export default function PracticeTopicPage() {
-  const { topic } = useParams();
-  const questions = questionBank[topic as string] || [];
-
-  const [selected, setSelected] = useState<any>({});
+  const params = useParams<{ topic: string }>();
+  const topic = decodeURIComponent(params.topic || "");
+  const [difficulty, setDifficulty] = useState<(typeof DIFFICULTY_OPTIONS)[number]>("EASY");
+  const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
+  const [selected, setSelected] = useState<Record<string, string>>({});
   const [score, setScore] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchQuestions = useCallback(async (difficultyLevel: (typeof DIFFICULTY_OPTIONS)[number]) => {
+    setLoading(true);
+    try {
+      const res = await api.get("/questions/practice", {
+        params: {
+          topic,
+          difficulty: difficultyLevel,
+          limit: 15,
+        },
+      });
+      setQuestions(Array.isArray(res.data) ? (res.data as PracticeQuestion[]) : []);
+      setSelected({});
+      setScore(null);
+      setError("");
+    } catch (err: unknown) {
+      const e = err as ApiErrorShape;
+      setError(e?.response?.data?.message || "Failed to load practice questions.");
+    } finally {
+      setLoading(false);
+    }
+  }, [topic]);
+
+  useEffect(() => {
+    void fetchQuestions(difficulty);
+  }, [topic, difficulty, fetchQuestions]);
 
   const handleSubmit = () => {
     let total = 0;
-    questions.forEach((q: any) => {
-      if (selected[q.id] === q.answer) total++;
+    questions.forEach((question) => {
+      if (selected[question.id] === question.correctAnswer) total += 1;
     });
     setScore(total);
   };
 
-  const progress =
-    questions.length > 0
-      ? (Object.keys(selected).length / questions.length) * 100
-      : 0;
+  const attempted = Object.keys(selected).length;
+  const progress = questions.length ? (attempted / questions.length) * 100 : 0;
+
+  const scorePercent = useMemo(() => {
+    if (score == null || questions.length === 0) return null;
+    return Math.round((score / questions.length) * 100);
+  }, [score, questions.length]);
 
   return (
-    <>
-      <h2 style={{ fontSize: "26px", marginBottom: "20px" }}>
-        {topic?.toString().toUpperCase()} Practice
-      </h2>
+    <div className="page space-y-6">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">{topic} Practice</h2>
+          <p className="page-subtitle">Choose difficulty and attempt topic-focused questions.</p>
+        </div>
 
-      {/* Progress Bar */}
-      <div
-        style={{
-          height: "8px",
-          background: "#e5e7eb",
-          borderRadius: "6px",
-          marginBottom: "30px",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: `${progress}%`,
-            background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
-            transition: "width 0.4s ease",
-          }}
-        />
+        <select
+          className="input max-w-[180px]"
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value as (typeof DIFFICULTY_OPTIONS)[number])}
+        >
+          {DIFFICULTY_OPTIONS.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {questions.map((q: any) => (
-        <div
-          key={q.id}
-          style={{
-            background: "#fff",
-            padding: "24px",
-            borderRadius: "14px",
-            boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-            marginBottom: "20px",
-          }}
-        >
-          <p style={{ fontWeight: 600, marginBottom: "12px" }}>
-            {q.id}. {q.question}
+      <div className="card">
+        <div className="flex items-center justify-between mb-2 text-sm text-secondary">
+          <span>Progress</span>
+          <span>
+            {attempted}/{questions.length}
+          </span>
+        </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      {loading ? <p className="text-secondary">Loading questions...</p> : null}
+      {error ? <p className="text-red-500">{error}</p> : null}
+
+      {!loading && !error && questions.length === 0 ? (
+        <div className="card empty-state">No questions available for this topic and difficulty.</div>
+      ) : null}
+
+      <div className="space-y-4">
+        {questions.map((question, index) => (
+          <article key={question.id} className="card space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-semibold">
+                Q{index + 1}. {question.questionText}
+              </p>
+              <span className="badge-warning">{question.difficulty}</span>
+            </div>
+
+            <div className="grid gap-2">
+              {question.options.map((option) => (
+                <label key={option.id} className="check-field">
+                  <input
+                    type="radio"
+                    name={`question-${question.id}`}
+                    checked={selected[question.id] === option.optionText}
+                    onChange={() => setSelected((prev) => ({ ...prev, [question.id]: option.optionText }))}
+                  />
+                  <span>{option.optionText}</span>
+                </label>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {questions.length > 0 ? (
+        <div className="flex items-center gap-3">
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            Submit Practice
+          </button>
+          <button className="btn btn-secondary" onClick={() => void fetchQuestions(difficulty)}>
+            Reload Questions
+          </button>
+        </div>
+      ) : null}
+
+      {score != null ? (
+        <div className="card">
+          <h3 className="font-semibold text-lg">Practice Result</h3>
+          <p className="mt-2 text-secondary">
+            Score: <strong className="text-primary">{score}</strong> / {questions.length}
+            {scorePercent != null ? ` (${scorePercent}%)` : ""}
           </p>
-
-          {q.options.map((option: string) => (
-            <label
-              key={option}
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="radio"
-                name={`question-${q.id}`}
-                value={option}
-                onChange={() =>
-                  setSelected({ ...selected, [q.id]: option })
-                }
-              />{" "}
-              {option}
-            </label>
-          ))}
         </div>
-      ))}
-
-      {questions.length > 0 && (
-        <button
-          onClick={handleSubmit}
-          style={{
-            padding: "12px 20px",
-            background: "linear-gradient(90deg,#4f46e5,#7c3aed)",
-            border: "none",
-            color: "#fff",
-            borderRadius: "10px",
-            cursor: "pointer",
-          }}
-        >
-          Submit
-        </button>
-      )}
-
-      {score !== null && (
-        <div
-          style={{
-            marginTop: "20px",
-            fontSize: "18px",
-            fontWeight: 600,
-          }}
-        >
-          Your Score: {score} / {questions.length}
-        </div>
-      )}
-    </>
+      ) : null}
+    </div>
   );
 }

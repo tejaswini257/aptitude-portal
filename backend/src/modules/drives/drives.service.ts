@@ -4,6 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CreateDriveDto } from './dto/create-drive.dto';
 
 @Injectable()
 export class DrivesService {
@@ -12,7 +13,7 @@ export class DrivesService {
   // -----------------------------
   // CREATE DRIVE (already exists)
   // -----------------------------
-  async createDrive(dto: any, companyId: string) {
+  async createDrive(dto: CreateDriveDto, companyId: string) {
     const { randomUUID } = await import('crypto');
     return this.prisma.drive.create({
       data: {
@@ -24,7 +25,43 @@ export class DrivesService {
         endDate: new Date(dto.endDate),
         description: dto.description ?? null,
       },
+      include: {
+        test: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
+  }
+
+  async findAll(companyId: string) {
+    const drives = await this.prisma.drive.findMany({
+      where: { companyId },
+      orderBy: { startDate: 'desc' },
+      include: {
+        test: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return Promise.all(
+      drives.map(async (drive) => {
+        const applicants = await this.prisma.submission.count({
+          where: { testId: drive.testId },
+        });
+
+        return {
+          ...drive,
+          applicants,
+        };
+      }),
+    );
   }
 
   // -----------------------------
@@ -57,11 +94,9 @@ export class DrivesService {
       select: { collegeId: true },
     });
 
-    const existingIds = existing.map(e => e.collegeId);
+    const existingIds = existing.map((e) => e.collegeId);
 
-    const newCollegeIds = collegeIds.filter(
-      id => !existingIds.includes(id),
-    );
+    const newCollegeIds = collegeIds.filter((id) => !existingIds.includes(id));
 
     if (newCollegeIds.length === 0) {
       return { message: 'Colleges already invited' };
@@ -107,11 +142,7 @@ export class DrivesService {
   // -----------------------------
   // REMOVE COLLEGE FROM DRIVE
   // -----------------------------
-  async removeCollege(
-    driveId: string,
-    collegeId: string,
-    companyId: string,
-  ) {
+  async removeCollege(driveId: string, collegeId: string, companyId: string) {
     const drive = await this.prisma.drive.findUnique({
       where: { id: driveId },
     });

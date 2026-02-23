@@ -8,9 +8,12 @@ const questions = [
 
 export default function QuestionsPage() {
   return (
-    <>
+    <div className="page space-y-6">
       <div className="page-header">
-        <h2 className="page-title">Question Bank</h2>
+        <div>
+          <h2 className="page-title">Question Bank</h2>
+          <p className="page-subtitle">Manage aptitude and coding questions used in company tests.</p>
+        </div>
       </div>
 
       <div className="card">
@@ -25,6 +28,6 @@ export default function QuestionsPage() {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

@@ -1,126 +1,124 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import api from "@/interceptors/axios";
+
+type ApiErrorShape = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
 
 export default function AddCompanyPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [form, setForm] = useState({
     name: "",
     adminEmail: "",
     adminPassword: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
 
-    if (!form.name || !form.adminEmail || !form.adminPassword) {
-      setError("Please fill all fields.");
+    const payload = {
+      name: form.name.trim(),
+      adminEmail: form.adminEmail.trim(),
+      adminPassword: form.adminPassword,
+    };
+
+    if (!payload.name || !payload.adminEmail || !payload.adminPassword) {
+      setError("Please fill all required fields.");
       return;
     }
 
-    if (form.adminPassword.length < 6) {
+    if (payload.adminPassword.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
 
     setLoading(true);
-
     try {
-      await api.post("/companies", {
-        name: form.name,
-        adminEmail: form.adminEmail,
-        adminPassword: form.adminPassword,
-      });
-
+      await api.post("/companies", payload);
       router.push("/admin/companies");
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to create company");
+    } catch (err: unknown) {
+      const e = err as ApiErrorShape;
+      setError(e?.response?.data?.message || "Failed to create company.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Back */}
-      <Link
-        href="/admin/companies"
-        className="text-sm text-gray-500 hover:underline"
-      >
-        ← Back to Companies
-      </Link>
-
-      {/* Title */}
-      <h2 className="text-2xl font-semibold">Add Company</h2>
+    <div className="page space-y-6">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Add Company</h2>
+          <p className="page-subtitle">Create a new recruiter organization and its primary admin login.</p>
+        </div>
+        <Link href="/admin/companies" className="btn btn-secondary">
+          Back to Companies
+        </Link>
+      </div>
 
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="card max-w-md space-y-3"
-      >
-        <label className="text-sm font-medium">Company Name *</label>
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          required
-          placeholder="Company Name"
-          className="input"
-        />
+      <form onSubmit={handleSubmit} className="card max-w-xl space-y-4">
+        <div>
+          <label className="field-label">Company Name *</label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            placeholder="Example: Vertex Technologies"
+            className="input"
+          />
+        </div>
 
-        <label className="text-sm font-medium">Admin Email *</label>
-        <input
-          name="adminEmail"
-          type="email"
-          value={form.adminEmail}
-          onChange={handleChange}
-          required
-          placeholder="admin@company.com"
-          className="input"
-        />
+        <div>
+          <label className="field-label">Admin Email *</label>
+          <input
+            name="adminEmail"
+            type="email"
+            value={form.adminEmail}
+            onChange={handleChange}
+            required
+            placeholder="admin@company.com"
+            className="input"
+          />
+        </div>
 
-        <label className="text-sm font-medium">
-          Admin Password * (min 6 characters)
-        </label>
-        <input
-          name="adminPassword"
-          type="password"
-          value={form.adminPassword}
-          onChange={handleChange}
-          required
-          minLength={6}
-          placeholder="Password"
-          className="input"
-        />
+        <div>
+          <label className="field-label">Admin Password * (min 6 characters)</label>
+          <input
+            name="adminPassword"
+            type="password"
+            value={form.adminPassword}
+            onChange={handleChange}
+            required
+            minLength={6}
+            placeholder="Password"
+            className="input"
+          />
+        </div>
 
-        {/* Buttons */}
         <div className="flex gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary"
-          >
-            {loading ? "Saving..." : "Add Company"}
+          <button type="submit" disabled={loading} className="btn btn-primary">
+            {loading ? "Creating..." : "Create Company"}
           </button>
-
-          <Link
-            href="/admin/companies"
-            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 text-sm"
-          >
+          <Link href="/admin/companies" className="btn btn-secondary">
             Cancel
           </Link>
         </div>

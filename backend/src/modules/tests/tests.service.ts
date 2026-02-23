@@ -1,57 +1,76 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
-import { randomUUID } from 'crypto';
-
 
 @Injectable()
 export class TestsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  // Create test (schema: name, orgId, rulesId, showResultImmediately, proctoringEnabled)
   async create(dto: CreateTestDto, orgId: string) {
-  if (!orgId) {
-    throw new BadRequestException(
-      'orgId is required to create a test. Log in as a College Admin or Company Admin.',
-    );
+    if (!orgId) {
+      throw new BadRequestException(
+        'orgId is required to create a test. Log in as a College Admin or Company Admin.',
+      );
+    }
+
+    const marksPerQuestion = dto.marksPerQuestion ?? 1;
+    const negativeMarking = dto.negativeMarking ?? false;
+    const negativeMarks = negativeMarking ? (dto.negativeMarks ?? 0) : null;
+    const durationMinutes = dto.durationMinutes ?? 30;
+
+    const rules = await this.prisma.rules.create({
+      data: {
+        id: randomUUID(),
+        totalMarks: 0,
+        marksPerQuestion,
+        negativeMarking,
+        negativeMarks,
+      },
+    });
+
+    const test = await this.prisma.test.create({
+      data: {
+        name: dto.name,
+        orgId,
+        rulesId: rules.id,
+        showResultImmediately: dto.showResultImmediately ?? false,
+        proctoringEnabled: dto.proctoringEnabled ?? false,
+      },
+    });
+
+    const section = await this.prisma.section.create({
+      data: {
+        id: randomUUID(),
+        sectionName: 'General',
+        orgId,
+        isActive: true,
+      },
+    });
+
+    await this.prisma.testSection.create({
+      data: {
+        id: randomUUID(),
+        testId: test.id,
+        sectionId: section.id,
+        timeLimit: durationMinutes,
+      },
+    });
+
+    return this.findOne(test.id, orgId);
   }
 
-  // 1️⃣ Create default rules (Prisma auto-generates ID)
-  const rules = await this.prisma.rules.create({
-    data: {
-      id: randomUUID(),
-      totalMarks: 0,
-      marksPerQuestion: 1,
-      negativeMarking: false,
-      negativeMarks: null,
-    },
-  });
-
-  // 2️⃣ Create test linked to org + rules
-  return this.prisma.test.create({
-    data: {
-      name: dto.name,
-      orgId,
-      rulesId: rules.id,
-      showResultImmediately: dto.showResultImmediately ?? false,
-      proctoringEnabled: dto.proctoringEnabled ?? false,
-    },
-  });
-}
-
-
-
-  // ✅ GET ALL (optionally with attempt count for college/company dashboard)
   async findAll(orgId: string, withAttemptCount = false) {
     const tests = await this.prisma.test.findMany({
       where: { orgId },
       orderBy: { createdAt: 'desc' },
-      include: { rules: true, sections: true } as any,
+      include: {
+        rules: true,
+        sections: {
+          include: { section: { select: { id: true, sectionName: true } } },
+        },
+      } as any,
     });
 
     if (!withAttemptCount) return tests;
@@ -59,63 +78,91 @@ export class TestsService {
     const counts = await this.prisma.submission.groupBy({
       by: ['testId'],
       _count: { testId: true },
-      where: { testId: { in: tests.map((t) => t.id) } },
+      where: { testId: { in: tests.map((test) => test.id) } },
     });
     const countMap = Object.fromEntries(
-      counts.map((c) => [c.testId, c._count.testId]),
+      counts.map((count) => [count.testId, count._count.testId]),
     );
 
-    return tests.map((t) => ({
-      ...t,
-      attemptCount: countMap[t.id] ?? 0,
+    return tests.map((test) => ({
+      ...test,
+      attemptCount: countMap[test.id] ?? 0,
     }));
   }
 
-  // ✅ GET ONE
   async findOne(id: string, orgId: string) {
-    const include = { rules: true, sections: true };
     const test = await this.prisma.test.findFirst({
       where: { id, orgId },
-      include: include as any,
+      include: {
+        rules: true,
+        sections: {
+          include: { section: { select: { id: true, sectionName: true } } },
+        },
+      } as any,
     });
 
     if (!test) throw new NotFoundException('Test not found');
-
     return test;
   }
 
-  // UPDATE (only schema fields)
   async update(id: string, dto: UpdateTestDto) {
-    const data: Record<string, unknown> = {};
-    if (dto.name != null) data.name = dto.name;
-    if (dto.showResultImmediately != null)
-      data.showResultImmediately = dto.showResultImmediately;
-    if (dto.proctoringEnabled != null)
-      data.proctoringEnabled = dto.proctoringEnabled;
-    return this.prisma.test.update({
-      where: { id },
-      data: data as any,
-    });
+    const existing = await this.prisma.test.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Test not found');
+
+    const testUpdate: Record<string, unknown> = {};
+    if (dto.name != null) testUpdate.name = dto.name;
+    if (dto.showResultImmediately != null) {
+      testUpdate.showResultImmediately = dto.showResultImmediately;
+    }
+    if (dto.proctoringEnabled != null) {
+      testUpdate.proctoringEnabled = dto.proctoringEnabled;
+    }
+
+    if (Object.keys(testUpdate).length > 0) {
+      await this.prisma.test.update({
+        where: { id },
+        data: testUpdate as any,
+      });
+    }
+
+    const rulesUpdate: Record<string, unknown> = {};
+    if (dto.marksPerQuestion != null) rulesUpdate.marksPerQuestion = dto.marksPerQuestion;
+    if (dto.negativeMarking != null) rulesUpdate.negativeMarking = dto.negativeMarking;
+    if (dto.negativeMarks != null || dto.negativeMarking === false) {
+      rulesUpdate.negativeMarks = dto.negativeMarking === false ? null : dto.negativeMarks;
+    }
+
+    if (Object.keys(rulesUpdate).length > 0) {
+      await this.prisma.rules.update({
+        where: { id: existing.rulesId },
+        data: rulesUpdate as any,
+      });
+    }
+
+    if (dto.durationMinutes != null) {
+      const sectionLink = await this.prisma.testSection.findFirst({
+        where: { testId: id },
+      });
+
+      if (sectionLink) {
+        await this.prisma.testSection.update({
+          where: { id: sectionLink.id },
+          data: { timeLimit: dto.durationMinutes },
+        });
+      }
+    }
+
+    return this.findOne(id, existing.orgId);
   }
 
-  // ✅ DELETE
   async remove(id: string, orgId: string) {
-    const test = await this.prisma.test.findFirst({
-      where: { id, orgId },
-    });
-
+    const test = await this.prisma.test.findFirst({ where: { id, orgId } });
     if (!test) throw new NotFoundException('Test not found');
-
-    return this.prisma.test.delete({
-      where: { id },
-    });
+    return this.prisma.test.delete({ where: { id } });
   }
 
-  /** Get submissions for a test (college/company admin) - students who attempted + scores */
   async getSubmissionsForTest(testId: string, orgId: string) {
-    const test = await this.prisma.test.findFirst({
-      where: { id: testId, orgId },
-    });
+    const test = await this.prisma.test.findFirst({ where: { id: testId, orgId } });
     if (!test) throw new NotFoundException('Test not found');
 
     const submissions = await this.prisma.submission.findMany({
@@ -131,35 +178,31 @@ export class TestsService {
       orderBy: { submittedAt: 'desc' },
     });
 
-    return submissions.map((s) => ({
-      id: s.id,
-      studentId: s.studentId,
-      studentEmail: s.student?.user?.email ?? '—',
-      rollNo: s.student?.rollNo ?? '—',
-      department: s.student?.department?.name ?? '—',
-      score: s.score,
-      submittedAt: s.submittedAt,
+    return submissions.map((submission) => ({
+      id: submission.id,
+      studentId: submission.studentId,
+      studentEmail: submission.student?.user?.email ?? '--',
+      rollNo: submission.student?.rollNo ?? '--',
+      department: submission.student?.department?.name ?? '--',
+      score: submission.score,
+      submittedAt: submission.submittedAt,
     }));
   }
 
   async getQuestionsForTest(testId: string) {
-    const include = {
-      section: {
-        include: { questions: { include: { options: true } } },
-      },
-    };
     const testSections = await this.prisma.testSection.findMany({
       where: { testId },
-      include: include as any,
+      include: {
+        section: {
+          include: { questions: { include: { options: true } } },
+        },
+      } as any,
     });
 
-    return testSections.map((ts: any) => ({
-      sectionId: ts.sectionId,
-      sectionName: ts.section?.sectionName || 'Section',
-      questions: ts.section?.questions || [],
+    return testSections.map((testSection: any) => ({
+      sectionId: testSection.sectionId,
+      sectionName: testSection.section?.sectionName || 'Section',
+      questions: testSection.section?.questions || [],
     }));
   }
-
-
-
 }
