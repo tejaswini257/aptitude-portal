@@ -14,7 +14,7 @@ export default function CompanyDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    api.get("/companies/dashboard").then((res) => setData(res.data));
+    api.get("/company/dashboard").then((res) => setData(res.data));
   }, []);
 
   if (!data) return <p className="text-secondary">Loading dashboard...</p>;

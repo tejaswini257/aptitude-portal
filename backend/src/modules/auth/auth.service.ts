@@ -64,12 +64,19 @@ export class AuthService {
     if (!valid) throw new UnauthorizedException();
 
     // Check if blocked
-    const [blockedRecord] = await this.prisma.$queryRawUnsafe<Array<{ reason: string }>>(
-      `SELECT reason FROM blocked_users WHERE user_id = $1`,
-      user.id
-    );
-    if (blockedRecord) {
-      throw new UnauthorizedException(`Your account is blocked. Reason: ${blockedRecord.reason || 'Admin action'}`);
+    try {
+      const [blockedRecord] = await this.prisma.$queryRawUnsafe<Array<{ reason: string }>>(
+        `SELECT reason FROM blocked_users WHERE user_id = $1`,
+        user.id
+      );
+      if (blockedRecord) {
+        throw new UnauthorizedException(`Your account is blocked. Reason: ${blockedRecord.reason || 'Admin action'}`);
+      }
+    } catch (e: any) {
+      if (e instanceof UnauthorizedException) {
+        throw e;
+      }
+      // If table doesn't exist, ignore and continue login
     }
 
     // 🔥 role-aware payload

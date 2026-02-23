@@ -100,13 +100,25 @@ export class AdminService implements OnModuleInit {
   }
 
   async getDashboardStats() {
-    const [colleges, companies, students] = await Promise.all([
+    const [colleges, companies, students, tests, submissionsAgg] = await Promise.all([
       this.prisma.college.count(),
       this.prisma.organization.count({ where: { type: OrgType.COMPANY } }),
       this.prisma.student.count(),
+      this.prisma.test.count(),
+      this.prisma.submission.aggregate({
+        _count: { id: true },
+        _avg: { score: true }
+      })
     ]);
 
-    return { colleges, companies, students };
+    return {
+      colleges,
+      companies,
+      students,
+      totalTests: tests,
+      totalSubmissions: submissionsAgg._count.id,
+      averageScore: Math.round(submissionsAgg._avg.score || 0)
+    };
   }
 
   async getRolePermissions() {

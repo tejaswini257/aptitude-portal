@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { QuestionType, DifficultyLevel, QuestionUsage, CreatorRole } from '@prisma/client';
 
 export class CreateCompanyTestDto {
   name!: string;
@@ -11,6 +12,13 @@ export class CreateCompanyTestDto {
   negativeMarks?: number;
   showResultImmediately?: boolean;
   proctoringEnabled?: boolean;
+  questions?: Array<{
+    title: string;
+    type: QuestionType;
+    difficulty: DifficultyLevel;
+    correctAnswer: string;
+    options: string[];
+  }>;
 }
 
 @Injectable()
@@ -64,6 +72,35 @@ export class CompanyTestsService {
         timeLimit: durationMinutes,
       },
     });
+
+    if (dto.questions && dto.questions.length > 0) {
+      for (const q of dto.questions) {
+        const questionId = randomUUID();
+        await this.prisma.question.create({
+          data: {
+            id: questionId,
+            sectionId: section.id,
+            orgId: orgId,
+            difficulty: q.difficulty,
+            questionText: q.title,
+            allowedFor: QuestionUsage.TEST,
+            createdBy: orgId,
+            creatorRole: CreatorRole.COMPANY,
+            type: q.type,
+            correctAnswer: q.correctAnswer,
+            isActive: true,
+            options: {
+              create: q.options.map((opt, idx) => ({
+                id: randomUUID(),
+                optionCode: `${String.fromCharCode(65 + idx)}`,
+                optionText: opt,
+                isCorrect: opt === q.correctAnswer
+              }))
+            }
+          }
+        });
+      }
+    }
 
     return this.findOne(test.id, orgId);
   }

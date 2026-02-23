@@ -32,11 +32,11 @@
 }
 
 .card-link:hover {
-  border-color: #bfdbfe;
+  border-color: var(--color-info);
 }
 
 .card-link:focus-visible {
-  outline: 2px solid #60a5fa;
+  outline: 2px solid var(--color-info);
   outline-offset: 2px;
 }
 
@@ -58,7 +58,7 @@
 .btn-primary {
   background: var(--primary);
   border-color: var(--primary);
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .btn-primary:hover {
@@ -80,12 +80,13 @@
 .btn-danger {
   background: var(--danger);
   border-color: var(--danger);
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .btn-danger:hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  opacity: 0.9;
 }
 
 .btn:disabled {
@@ -154,7 +155,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 10px 8px 14px;
-  color: #93c5fd;
+  color: var(--color-sidebar-item);
 }
 
 .portal-sidebar-nav {
@@ -177,12 +178,12 @@
 
 .portal-sidebar-link:hover {
   background: var(--color-sidebar-hover);
-  color: #ffffff;
+  color: var(--color-surface);
 }
 
 .portal-sidebar-link.is-active {
-  background: linear-gradient(90deg, #1d4ed8 0%, #0ea5e9 100%);
-  color: #ffffff;
+  background: var(--color-sidebar-active);
+  color: var(--color-surface);
 }
 
 .portal-sidebar-link-icon {
@@ -247,11 +248,11 @@
 }
 
 .portal-sidebar .brand-logo-text strong {
-  color: #f8fafc;
+  color: var(--color-surface);
 }
 
 .portal-sidebar .brand-logo-text span {
-  color: #93c5fd;
+  color: var(--color-sidebar-item);
 }
 
 @media (max-width: 1100px) {

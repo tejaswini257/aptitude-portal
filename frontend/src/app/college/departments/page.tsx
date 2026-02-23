@@ -90,12 +90,12 @@ export default function DepartmentsPage() {
     <div className="page space-y-6">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Departments</h1>
+          <h2 className="page-title">Departments</h2>
           <p className="page-subtitle">Manage all departments under your college.</p>
         </div>
 
         <button onClick={() => router.push("/college/departments/create")} className="btn btn-primary">
-          + Add Department
+          Add Department
         </button>
       </div>
 
@@ -106,42 +106,53 @@ export default function DepartmentsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="dashboard-grid-3">
         {departments.map((department) => (
           <article
             key={department.id}
-            className="card card-link p-0 overflow-hidden hover:shadow-md transition"
+            className="card card-link p-0 overflow-hidden flex flex-col"
           >
-            <div className="p-5 space-y-4">
+            <div className="p-5 flex-1 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="inline-flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full">
-                  <Building2 size={14} />
+                <div className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 uppercase tracking-wide">
+                  <Building2 size={13} />
                   <span>Department</span>
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold leading-tight">{department.name}</h2>
+              <h3 className="text-xl font-bold text-primary leading-tight">
+                {department.name}
+              </h3>
 
-              <div className="flex items-center gap-2 text-sm text-secondary">
+              <div className="flex items-center gap-1.5 text-sm text-secondary">
                 <CalendarDays size={14} />
                 <span>Created: {new Date(department.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
 
-            <div className="px-5 py-4 border-t bg-slate-50/80 flex items-center justify-between gap-2">
-              <Link href={`/college/departments/${department.id}/students`} className="btn btn-secondary">
-                <GraduationCap size={15} />
-                <span>Students</span>
+            <div className="px-5 py-4 border-t border-default bg-surface flex flex-wrap items-center justify-between gap-3">
+              <Link
+                href={`/college/departments/${department.id}/students`}
+                className="btn btn-secondary"
+              >
+                <GraduationCap size={15} className="mr-1.5" />
+                Students
               </Link>
 
               <div className="flex items-center gap-2">
-                <Link href={`/college/departments/${department.id}/edit`} className="btn btn-secondary">
-                  <Pencil size={14} />
-                  <span>Edit</span>
+                <Link
+                  href={`/college/departments/${department.id}/edit`}
+                  className="btn btn-secondary"
+                  aria-label="Edit department"
+                >
+                  <Pencil size={15} />
                 </Link>
-                <button onClick={() => void handleDelete(department.id)} className="btn btn-danger">
-                  <Trash2 size={14} />
-                  <span>Delete</span>
+                <button
+                  onClick={() => void handleDelete(department.id)}
+                  className="btn btn-danger"
+                  aria-label="Delete department"
+                >
+                  <Trash2 size={15} />
                 </button>
               </div>
             </div>

@@ -7,7 +7,7 @@
 }
 
 .dashboard-card {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
@@ -15,15 +15,15 @@
 }
 
 .dashboard-card.tone-info {
-  border-color: #bfdbfe;
+  border-color: var(--color-info);
 }
 
 .dashboard-card.tone-success {
-  border-color: #bbf7d0;
+  border-color: var(--color-success);
 }
 
 .dashboard-card.tone-accent {
-  border-color: #a5f3fc;
+  border-color: var(--color-primary);
 }
 
 .dashboard-card-title {
@@ -54,18 +54,18 @@
   justify-content: space-between;
   padding: 16px 18px;
   border-bottom: 1px solid var(--color-border);
-  background: #f8fafc;
+  background: var(--color-surface-muted);
 }
 
 .table-head {
-  background: #f8fafc;
+  background: var(--color-surface-muted);
   border-bottom: 1px solid var(--color-border);
   text-align: left;
   padding: 12px 16px;
   font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: #334155;
+  color: var(--color-text-secondary);
 }
 
 .table-cell {
@@ -75,21 +75,22 @@
 }
 
 .table-row {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border);
   transition: background-color 0.16s ease;
 }
 
 .table-row:hover {
-  background: #f8fbff;
+  background: var(--color-primary-soft);
 }
 
 .table-link {
-  color: #1d4ed8;
+  color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
 }
 
 .table-link:hover {
+  color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
@@ -104,13 +105,13 @@
 }
 
 .badge-success {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .badge-warning {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
 }
 
 .progress-container {
@@ -123,13 +124,13 @@
   border-radius: 999px;
   margin-top: 8px;
   overflow: hidden;
-  background: #e2e8f0;
+  background: var(--color-border);
 }
 
 .progress-fill {
   height: 9px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #0ea5e9 0%, #2563eb 100%);
+  background: var(--color-primary);
 }
 
 .list-item {
@@ -138,7 +139,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .list-item:last-child {
@@ -161,7 +162,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .detail-row:last-child {
@@ -222,6 +223,7 @@
 }
 
 @media (max-width: 900px) {
+
   .dashboard-grid-3,
   .dashboard-grid-2 {
     grid-template-columns: 1fr;

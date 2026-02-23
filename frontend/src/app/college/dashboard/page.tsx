@@ -89,7 +89,7 @@ export default function CollegeDashboardPage() {
     <div className="page space-y-6">
       <div className="page-header">
         <div>
-          <h2 className="page-title">College Dashboard</h2>
+          <h2 className="page-title">College</h2>
           <p className="page-subtitle">Overview of student participation, departments, and placement activities.</p>
         </div>
       </div>

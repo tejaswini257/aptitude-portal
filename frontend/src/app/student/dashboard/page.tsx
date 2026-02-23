@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
   return (
     <div className="page space-y-8">
-      <h2 className="page-title">Dashboard Overview</h2>
+      <h2 className="page-title">Student Overview</h2>
 
       {error && <p className="text-red-500">{error}</p>}
 

@@ -61,46 +61,49 @@ export default function CollegeStudentsPage() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Students</h1>
+    <div className="page space-y-6">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Students</h2>
+          <p className="page-subtitle">Manage your college students and their details.</p>
+        </div>
         <Link
           href="/college/students/add"
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
+          className="btn btn-primary"
         >
-          + Add Student
+          Add Student
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr className="text-left">
-              <th className="p-4">Email</th>
-              <th className="p-4">Roll No</th>
-              <th className="p-4">Year</th>
-              <th className="p-4">Department</th>
-              <th className="p-4">Actions</th>
+      <div className="table-card">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="table-head">Email</th>
+              <th className="table-head">Roll No</th>
+              <th className="table-head">Year</th>
+              <th className="table-head">Department</th>
+              <th className="table-head text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {students.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-gray-500">
+                <td colSpan={5} className="empty-state">
                   No students yet.
                 </td>
               </tr>
             ) : (
               students.map((s) => (
-                <tr key={s.id} className="border-t hover:bg-gray-50">
-                  <td className="p-4">{s.user?.email ?? "—"}</td>
-                  <td className="p-4">{s.rollNo}</td>
-                  <td className="p-4">{s.year}</td>
-                  <td className="p-4">{s.department?.name ?? "—"}</td>
-                  <td className="p-4">
+                <tr key={s.id} className="table-row">
+                  <td className="table-cell font-medium">{s.user?.email ?? "—"}</td>
+                  <td className="table-cell">{s.rollNo}</td>
+                  <td className="table-cell">{s.year}</td>
+                  <td className="table-cell">{s.department?.name ?? "—"}</td>
+                  <td className="table-cell text-center">
                     <Link
                       href={`/college/students/edit/${s.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="table-link"
                     >
                       Edit
                     </Link>
