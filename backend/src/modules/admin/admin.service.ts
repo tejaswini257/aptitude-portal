@@ -64,7 +64,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 
 @Injectable()
 export class AdminService implements OnModuleInit {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async onModuleInit() {
     await this.ensureAdminTables();
@@ -86,6 +86,15 @@ export class AdminService implements OnModuleInit {
         validity_days INT NOT NULL,
         updated_by TEXT,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await this.prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS blocked_users (
+        user_id TEXT PRIMARY KEY,
+        reason TEXT,
+        blocked_by TEXT,
+        blocked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
   }
@@ -265,5 +274,62 @@ export class AdminService implements OnModuleInit {
       proctoringEvents: events,
       checkedAt: new Date().toISOString(),
     };
+  }
+
+  async getUsersWithBlockStatus() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        organization: {
+          select: { name: true, type: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const blockedRecords = await this.prisma.$queryRawUnsafe<Array<{ user_id: string, reason: string, blocked_at: Date }>>(
+      `SELECT user_id, reason, blocked_at FROM blocked_users`
+    );
+    const blockedMap = new Map();
+    blockedRecords.forEach(r => blockedMap.set(r.user_id, r));
+
+    return users.map(user => {
+      const blockInfo = blockedMap.get(user.id);
+      return {
+        ...user,
+        organizationName: user.organization?.name || 'Platform',
+        isBlocked: !!blockInfo,
+        blockReason: blockInfo?.reason || null,
+        blockedAt: blockInfo?.blocked_at || null,
+      };
+    });
+  }
+
+  async blockUser(userId: string, reason: string, blockedBy: string) {
+    await this.prisma.$executeRawUnsafe(
+      `
+        INSERT INTO blocked_users (user_id, reason, blocked_by, blocked_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (user_id) DO UPDATE SET 
+          reason = EXCLUDED.reason,
+          blocked_by = EXCLUDED.blocked_by,
+          blocked_at = NOW()
+      `,
+      userId,
+      reason,
+      blockedBy
+    );
+    return { success: true, message: 'User blocked successfully' };
+  }
+
+  async unblockUser(userId: string) {
+    await this.prisma.$executeRawUnsafe(
+      `DELETE FROM blocked_users WHERE user_id = $1`,
+      userId
+    );
+    return { success: true, message: 'User unblocked successfully' };
   }
 }

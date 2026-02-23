@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
     const exists = await this.prisma.user.findUnique({
@@ -55,40 +55,49 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-  const user = await this.prisma.user.findUnique({
-    where: { email: dto.email },
-  });
-  if (!user) throw new UnauthorizedException();
-
-  const valid = await bcrypt.compare(dto.password, user.password);
-  if (!valid) throw new UnauthorizedException();
-
-  // 🔥 role-aware payload
-  const payload: any = {
-    userId: user.id,
-    role: user.role,
-  };
-
-  if (user.role === UserRole.COMPANY_ADMIN) {
-    payload.orgId = user.orgId;
-  }
-
-  if (user.role === UserRole.STUDENT) {
-    payload.orgId = user.orgId ?? undefined;
-  }
-
-  if (user.role === UserRole.COLLEGE_ADMIN) {
-    payload.orgId = user.orgId ?? undefined;
-    const college = await this.prisma.college.findFirst({
-      where: { orgId: user.orgId ?? undefined },
-      select: { id: true },
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
     });
-    if (college) payload.collegeId = college.id;
-  }
+    if (!user) throw new UnauthorizedException();
 
-  return {
-    accessToken: await this.jwtService.signAsync(payload),
-  };
-}
+    const valid = await bcrypt.compare(dto.password, user.password);
+    if (!valid) throw new UnauthorizedException();
+
+    // Check if blocked
+    const [blockedRecord] = await this.prisma.$queryRawUnsafe<Array<{ reason: string }>>(
+      `SELECT reason FROM blocked_users WHERE user_id = $1`,
+      user.id
+    );
+    if (blockedRecord) {
+      throw new UnauthorizedException(`Your account is blocked. Reason: ${blockedRecord.reason || 'Admin action'}`);
+    }
+
+    // 🔥 role-aware payload
+    const payload: any = {
+      userId: user.id,
+      role: user.role,
+    };
+
+    if (user.role === UserRole.COMPANY_ADMIN) {
+      payload.orgId = user.orgId;
+    }
+
+    if (user.role === UserRole.STUDENT) {
+      payload.orgId = user.orgId ?? undefined;
+    }
+
+    if (user.role === UserRole.COLLEGE_ADMIN) {
+      payload.orgId = user.orgId ?? undefined;
+      const college = await this.prisma.college.findFirst({
+        where: { orgId: user.orgId ?? undefined },
+        select: { id: true },
+      });
+      if (college) payload.collegeId = college.id;
+    }
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+    };
+  }
 
 }

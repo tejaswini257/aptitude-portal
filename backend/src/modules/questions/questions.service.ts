@@ -9,7 +9,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class QuestionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: unknown, orgId: string) {
     const payload = dto as {
@@ -40,7 +40,7 @@ export class QuestionsService {
         createdBy: payload.createdBy,
         creatorRole: payload.creatorRole,
         correctAnswer: payload.correctAnswer ?? null,
-        codingMeta: payload.codingMeta ?? null,
+        codingMeta: payload.codingMeta ? (payload.codingMeta as any) : undefined,
         options: {
           create: (payload.options || []).map((option) => ({
             optionCode: option.optionCode,
@@ -110,13 +110,13 @@ export class QuestionsService {
         ...(difficulty ? { difficulty } : {}),
         ...(topic
           ? {
-              section: {
-                sectionName: {
-                  contains: topic,
-                  mode: 'insensitive',
-                },
+            section: {
+              sectionName: {
+                contains: topic,
+                mode: 'insensitive',
               },
-            }
+            },
+          }
           : {}),
       },
       select: {
@@ -166,10 +166,10 @@ export class QuestionsService {
         ...(payload.questionText ? { questionText: payload.questionText } : {}),
         ...(payload.correctAnswer !== undefined
           ? {
-              correctAnswer: payload.correctAnswer
-                ? String(payload.correctAnswer)
-                : null,
-            }
+            correctAnswer: payload.correctAnswer
+              ? String(payload.correctAnswer)
+              : null,
+          }
           : {}),
       },
     });

@@ -19,17 +19,17 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { SubsciptionGuard } from '../../common/guards/subsciption.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
-type AuthenticatedRequest = {
+interface AuthenticatedRequest {
   user: {
     orgId: string;
   };
-};
+}
 
 @Controller('company/tests')
 @UseGuards(JwtGuard, RolesGuard, SubsciptionGuard)
 @Roles(UserRole.COMPANY_ADMIN)
 export class CompanyTestsController {
-  constructor(private readonly service: CompanyTestsService) {}
+  constructor(private readonly service: CompanyTestsService) { }
 
   @Post()
   create(@Body() dto: CreateCompanyTestDto, @Req() req: AuthenticatedRequest) {

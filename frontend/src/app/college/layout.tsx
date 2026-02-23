@@ -24,7 +24,6 @@ export default function CollegeLayout({
         <header className="portal-header">
           <div className="portal-header-brand">
             <BrandLogo compact />
-            <h1 className="portal-header-title">College Dashboard</h1>
           </div>
 
           <button

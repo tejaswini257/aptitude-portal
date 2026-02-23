@@ -19,9 +19,6 @@ const menu = [
   { name: "Companies", path: "/admin/companies", icon: BriefcaseBusiness },
   { name: "Students", path: "/admin/students", icon: Users },
   { name: "Tests", path: "/admin/tests", icon: ClipboardList },
-  { name: "Roles", path: "/admin/roles", icon: ShieldCheck },
-  { name: "Subscriptions", path: "/admin/subscriptions", icon: ReceiptText },
-  { name: "Monitoring", path: "/admin/monitoring", icon: Activity },
   { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
 ];
 

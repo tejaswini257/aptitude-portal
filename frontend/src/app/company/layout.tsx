@@ -24,7 +24,6 @@ export default function CompanyLayout({
         <header className="portal-header">
           <div className="portal-header-brand">
             <BrandLogo compact />
-            <h1 className="portal-header-title">Company Dashboard</h1>
           </div>
 
           <button

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/interceptors/axios";
@@ -8,7 +8,7 @@ import api from "@/interceptors/axios";
 type College = { id: string; collegeName: string };
 type Department = { id: string; name: string };
 
-export default function AddStudentPage() {
+function AddStudentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledDeptId = searchParams.get("departmentId") || "";
@@ -231,5 +231,13 @@ export default function AddStudentPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function AddStudentPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[200px] text-gray-500">Loading…</div>}>
+      <AddStudentForm />
+    </Suspense>
   );
 }

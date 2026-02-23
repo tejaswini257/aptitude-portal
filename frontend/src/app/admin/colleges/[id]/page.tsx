@@ -65,9 +65,26 @@ export default function CollegeDetailPage() {
       </Link>
 
       {/* Title */}
-      <h2 className="text-2xl font-semibold">
-        {college.collegeName}
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">
+          {college.collegeName}
+        </h2>
+        <button
+          className={`btn px-4 ${college.isApproved ? "btn-outline text-red-600 border-red-600 hover:bg-red-50" : "btn-primary"}`}
+          onClick={async () => {
+            const action = college.isApproved ? "Unapprove" : "Approve";
+            if (!window.confirm(`Are you sure you want to ${action} ${college.collegeName}?`)) return;
+            try {
+              await api.put(`/colleges/${college.id}`, { isApproved: !college.isApproved });
+              setCollege(prev => prev ? { ...prev, isApproved: !prev.isApproved } : null);
+            } catch (err: any) {
+              window.alert(err?.response?.data?.message || "Failed to update approval status.");
+            }
+          }}
+        >
+          {college.isApproved ? "Unapprove" : "Approve"}
+        </button>
+      </div>
 
       {/* College Info */}
       <div className="card">

@@ -24,7 +24,6 @@ export default function AdminLayout({
         <header className="portal-header">
           <div className="portal-header-brand">
             <BrandLogo compact />
-            <h1 className="portal-header-title">Admin Dashboard</h1>
           </div>
 
           <button

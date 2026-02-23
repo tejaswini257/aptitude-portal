@@ -23,7 +23,6 @@ export default function StudentLayout({
         <header className="portal-header">
           <div className="portal-header-brand">
             <BrandLogo compact />
-            <h1 className="portal-header-title">Student Dashboard</h1>
           </div>
           <button onClick={logout} className="btn btn-danger">
             Logout

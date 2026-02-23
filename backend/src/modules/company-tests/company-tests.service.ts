@@ -2,8 +2,8 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 
-export interface CreateCompanyTestDto {
-  name: string;
+export class CreateCompanyTestDto {
+  name!: string;
   rulesId?: string | null;
   durationMinutes?: number;
   marksPerQuestion?: number;
@@ -15,7 +15,7 @@ export interface CreateCompanyTestDto {
 
 @Injectable()
 export class CompanyTestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: CreateCompanyTestDto, orgId: string) {
     const marksPerQuestion = dto.marksPerQuestion ?? 1;

@@ -28,7 +28,7 @@ type UpdateRolePermissionsDto = {
 @UseGuards(JwtGuard, RolesGuard)
 @Roles(UserRole.SUPER_ADMIN)
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
 
   @Get('dashboard/stats')
   getDashboardStats() {
@@ -74,5 +74,24 @@ export class AdminController {
   @Get('monitoring')
   getMonitoring() {
     return this.adminService.getMonitoringOverview();
+  }
+
+  @Get('users')
+  getUsers() {
+    return this.adminService.getUsersWithBlockStatus();
+  }
+
+  @Put('users/:id/block')
+  blockUser(
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.adminService.blockUser(id, reason || 'Admin blocked', req.user.id);
+  }
+
+  @Put('users/:id/unblock')
+  unblockUser(@Param('id') id: string) {
+    return this.adminService.unblockUser(id);
   }
 }
