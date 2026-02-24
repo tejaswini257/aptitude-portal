@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type StudentProfile = {
   studentId: string;
@@ -121,7 +122,7 @@ export default function StudentProfilePage() {
       await fetchData();
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      window.alert(e?.response?.data?.message || "Failed to save profile.");
+      toast.error(e?.response?.data?.message || "Failed to save profile.");
     } finally {
       setSaving(false);
     }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 const languageOptions = ["cpp", "java", "python", "javascript"];
 
@@ -46,31 +47,31 @@ export default function CodingQuestionForm({ sectionId, setQuestions }) {
   };
 
   const handleSubmit = async () => {
-  const res = await api.post("/questions", {
-    sectionId,
-    type: "CODING",
-    difficulty: form.difficulty,
-    questionText: form.questionText,
-    marks: form.marks,
-    order: form.order,
-    codingMeta: {
-      constraints: form.constraints,
-      inputFormat: form.inputFormat,
-      outputFormat: form.outputFormat,
-      sampleInput: form.sampleInput,
-      sampleOutput: form.sampleOutput,
-      testCases: form.testCases,
-      timeLimitMs: form.timeLimitMs,
-      memoryLimitMb: form.memoryLimitMb,
-      allowedLanguages: form.allowedLanguages,
-    },
-  });
+    const res = await api.post("/questions", {
+      sectionId,
+      type: "CODING",
+      difficulty: form.difficulty,
+      questionText: form.questionText,
+      marks: form.marks,
+      order: form.order,
+      codingMeta: {
+        constraints: form.constraints,
+        inputFormat: form.inputFormat,
+        outputFormat: form.outputFormat,
+        sampleInput: form.sampleInput,
+        sampleOutput: form.sampleOutput,
+        testCases: form.testCases,
+        timeLimitMs: form.timeLimitMs,
+        memoryLimitMb: form.memoryLimitMb,
+        allowedLanguages: form.allowedLanguages,
+      },
+    });
 
-  // 👇 This is the important line
-  setQuestions((prev) => [...prev, res.data]);
+    // 👇 This is the important line
+    setQuestions((prev) => [...prev, res.data]);
 
-  alert("Coding question created successfully");
-};
+    toast.success("Coding question created successfully");
+  };
 
   return (
     <div className="space-y-6 bg-white p-6 rounded shadow">

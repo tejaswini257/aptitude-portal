@@ -3,9 +3,11 @@ import { CollegesController } from './college.controller';
 import { CollegesService } from './college.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 
+import { PublicCollegeController } from './public-college.controller';
+
 @Module({
   imports: [PrismaModule],
-  controllers: [CollegesController],
+  controllers: [CollegesController, PublicCollegeController],
   providers: [CollegesService],
 })
-export class CollegesModule {}
+export class CollegesModule { }

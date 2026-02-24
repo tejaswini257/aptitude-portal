@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Building2, CalendarDays, GraduationCap, Pencil, Trash2 } from "lucide-react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type Department = {
   id: string;
@@ -86,7 +87,7 @@ export default function DepartmentsPage() {
       setDepartments((prev) => prev.filter((department) => department.id !== id));
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      window.alert(e?.response?.data?.message || e?.message || "Delete failed");
+      toast.error(e?.response?.data?.message || e?.message || "Delete failed");
     }
   };
 

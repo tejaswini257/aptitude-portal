@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 export default function QuestionBankPage() {
   const [search, setSearch] = useState("");
@@ -94,7 +95,7 @@ export default function QuestionBankPage() {
                       await api.delete(`/sections/${section.id}`);
                       fetchSections();
                     } catch (err: any) {
-                      alert(err?.response?.data?.message || "Failed to delete");
+                      toast.error(err?.response?.data?.message || "Failed to delete");
                     }
                   }}
                   className="inline-flex items-center px-4 py-2 border border-red-300 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition"

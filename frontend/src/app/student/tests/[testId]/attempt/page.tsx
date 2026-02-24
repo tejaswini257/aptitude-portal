@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/interceptors/axios";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 export default function AttemptTestPage() {
   const { id } = useParams();
@@ -17,9 +18,9 @@ export default function AttemptTestPage() {
   const [loading, setLoading] = useState(true);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const startTest = async () => {
-  const res = await api.post("/submissions/start", { testId: id });
-  setSubmissionId(res.data.id);
-};
+    const res = await api.post("/submissions/start", { testId: id });
+    setSubmissionId(res.data.id);
+  };
 
   // ================================
   // FETCH TEST
@@ -39,7 +40,7 @@ export default function AttemptTestPage() {
         setTimeLeft(data.sections[0].timeLimit * 60);
       }
     } catch {
-      alert("Failed to load test");
+      toast.error("Failed to load test");
     } finally {
       setLoading(false);
     }
@@ -72,24 +73,24 @@ export default function AttemptTestPage() {
   }, [currentSectionIndex]);
 
   const moveToNextSection = async () => {
-  // If NOT last section → just move
-  if (currentSectionIndex < test.sections.length - 1) {
-    setCurrentSectionIndex(prev => prev + 1);
-    setCurrentQuestionIndex(0);
-    return;
-  }
+    // If NOT last section → just move
+    if (currentSectionIndex < test.sections.length - 1) {
+      setCurrentSectionIndex(prev => prev + 1);
+      setCurrentQuestionIndex(0);
+      return;
+    }
 
-  // 🔥 LAST SECTION → Finish test
-  try {
-    await api.post(`/submissions/${submissionId}/finish`);
+    // 🔥 LAST SECTION → Finish test
+    try {
+      await api.post(`/submissions/${submissionId}/finish`);
 
-    alert("Test submitted successfully");
+      toast.success("Test submitted successfully");
 
-    router.push(`/student/tests/${id}/result`);
-  } catch (err) {
-    alert("Failed to submit test");
-  }
-};
+      router.push(`/student/tests/${id}/result`);
+    } catch (err) {
+      toast.error("Failed to submit test");
+    }
+  };
 
   // ================================
   // SAVE ANSWER
@@ -114,9 +115,9 @@ export default function AttemptTestPage() {
         })),
       });
 
-      alert("Test submitted successfully!");
+      toast.success("Test submitted successfully!");
     } catch {
-      alert("Submission failed");
+      toast.error("Submission failed");
     }
   };
 
@@ -147,11 +148,10 @@ export default function AttemptTestPage() {
           <button
             key={sec.id}
             onClick={() => setCurrentSectionIndex(index)}
-            className={`block w-full text-left p-2 rounded mb-2 ${
-              currentSectionIndex === index
+            className={`block w-full text-left p-2 rounded mb-2 ${currentSectionIndex === index
                 ? "bg-emerald-600 text-white"
                 : "hover:bg-gray-200"
-            }`}
+              }`}
           >
             {sec.section.sectionName}
           </button>
@@ -182,11 +182,10 @@ export default function AttemptTestPage() {
           {question.options.map((opt: any) => (
             <label
               key={opt.optionCode}
-              className={`block border rounded p-3 cursor-pointer ${
-                answers[question.id] === opt.optionCode
+              className={`block border rounded p-3 cursor-pointer ${answers[question.id] === opt.optionCode
                   ? "bg-emerald-100 border-emerald-500"
                   : "hover:bg-gray-50"
-              }`}
+                }`}
             >
               <input
                 type="radio"

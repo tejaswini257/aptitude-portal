@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
 import { AlertCircle, ArrowLeft } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 type Option = {
   id: string;
@@ -93,9 +94,10 @@ export default function StudentTestPage() {
       await api.post(`/submissions/${submissionId}/submit-bulk`, {
         answers: answerList,
       });
+      toast.success("Test submitted successfully");
       router.push("/student/dashboard");
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to submit test");
+      toast.error(err?.response?.data?.message || "Failed to submit test");
     }
   };
 
@@ -202,8 +204,8 @@ export default function StudentTestPage() {
               key={q.id}
               onClick={() => setCurrentQuestion(index)}
               className={`aspect-square flex items-center justify-center rounded-lg border font-medium text-sm transition-colors ${answers[q.id]
-                  ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
-                  : "bg-white border-default text-secondary hover:border-gray-400"
+                ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
+                : "bg-white border-default text-secondary hover:border-gray-400"
                 } ${currentQuestion === index ? "ring-2 ring-emerald-500/30 ring-offset-1" : ""}`}
             >
               {index + 1}

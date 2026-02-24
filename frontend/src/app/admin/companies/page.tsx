@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type Company = {
   id: string;
@@ -39,7 +40,7 @@ export default function AdminCompaniesPage() {
       const e = err as ApiErrorShape;
       setError(
         e?.response?.data?.message ||
-          (e?.response?.status === 403 ? "Access denied." : "Failed to load companies")
+        (e?.response?.status === 403 ? "Access denied." : "Failed to load companies")
       );
     } finally {
       setLoading(false);
@@ -70,7 +71,7 @@ export default function AdminCompaniesPage() {
       setCompanies((prev) => prev.filter((c) => c.id !== company.id));
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      window.alert(e?.response?.data?.message || "Failed to delete company.");
+      toast.error(e?.response?.data?.message || "Failed to delete company.");
     } finally {
       setDeletingId(null);
     }

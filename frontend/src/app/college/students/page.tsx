@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type Student = {
   id: string;
@@ -83,8 +84,9 @@ export default function StudentsPage() {
       setStudents((prev) =>
         prev.filter((s) => s.id !== id)
       );
+      toast.success("Student deleted successfully");
     } catch (err: any) {
-      alert(
+      toast.error(
         err.response?.data?.message ||
         "Failed to delete student"
       );

@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
     const exists = await this.prisma.user.findUnique({
@@ -23,12 +23,28 @@ export class AuthService {
     });
     if (exists) throw new BadRequestException('Email already exists');
 
-    // Validate organization for non-super admin roles
-    if (dto.role !== UserRole.SUPER_ADMIN) {
+    let resolvedOrgId = dto.orgId;
+
+    if (dto.role === UserRole.STUDENT) {
+      if (!dto.collegeId || !dto.departmentId || !dto.rollNo || !dto.year) {
+        throw new BadRequestException('Student registration requires college, department, rollNo, and year');
+      }
+
+      const college = await this.prisma.college.findUnique({ where: { id: dto.collegeId } });
+      if (!college) throw new BadRequestException('Invalid college ID');
+
+      const department = await this.prisma.department.findUnique({ where: { id: dto.departmentId, collegeId: dto.collegeId } });
+      if (!department) throw new BadRequestException('Invalid department for the selected college');
+
+      resolvedOrgId = college.orgId;
+
+      const existingStudent = await this.prisma.student.findFirst({
+        where: { rollNo: dto.rollNo, collegeId: dto.collegeId }
+      });
+      if (existingStudent) throw new BadRequestException('Roll Number already registered in this college');
+    } else if (dto.role !== UserRole.SUPER_ADMIN) {
       if (!dto.orgId) {
-        throw new BadRequestException(
-          'Organization ID is required for this role',
-        );
+        throw new BadRequestException('Organization ID is required for this role');
       }
 
       const org = await this.prisma.organization.findUnique({
@@ -42,16 +58,30 @@ export class AuthService {
 
     const password = await bcrypt.hash(dto.password, 10);
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        password,
-        role: dto.role,
-        orgId: dto.role === UserRole.SUPER_ADMIN ? null : dto.orgId,
-      },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: dto.email,
+          password,
+          role: dto.role,
+          orgId: dto.role === UserRole.SUPER_ADMIN ? null : resolvedOrgId,
+        },
+      });
 
-    return { userId: user.id };
+      if (dto.role === UserRole.STUDENT && dto.collegeId && dto.departmentId && dto.rollNo && dto.year) {
+        await tx.student.create({
+          data: {
+            userId: user.id,
+            collegeId: dto.collegeId,
+            departmentId: dto.departmentId,
+            rollNo: dto.rollNo,
+            year: Number(dto.year),
+          }
+        });
+      }
+
+      return { userId: user.id };
+    });
   }
 
   async login(dto: LoginDto) {

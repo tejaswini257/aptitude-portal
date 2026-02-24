@@ -12,7 +12,7 @@ const menu = [
   { name: "Tests", path: "/college/tests" },
   { name: "Practice Sets", path: "/college/practice" },
   { name: "Drives", path: "/college/drives" },
-  { name: "Analytics", path: "/college/analytics" },
+  { name: "Instructors", path: "/college/instructors" },
   { name: "Companies", path: "/college/companies" },
   { name: "Question Bank", path: "/college/question-bank" },
 
@@ -31,8 +31,8 @@ export default function CollegeSidebar() {
             key={item.path}
             href={item.path}
             className={`block px-4 py-2 rounded-lg transition ${pathname === item.path
-                ? "bg-emerald-500 text-white"
-                : "text-gray-700 hover:bg-gray-100"
+              ? "bg-emerald-500 text-white"
+              : "text-gray-700 hover:bg-gray-100"
               }`}
           >
             {item.name}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type TestItem = {
   id: string;
@@ -70,7 +71,7 @@ export default function CollegeTestsPage() {
       await api.patch(`/tests/${id}/toggle-publish`, {});
       fetchTests();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to toggle publish");
+      toast.error(err?.response?.data?.message || "Failed to toggle publish");
     }
   };
 
@@ -79,7 +80,7 @@ export default function CollegeTestsPage() {
       await api.patch(`/tests/${id}/toggle-active`, {});
       fetchTests();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to toggle active");
+      toast.error(err?.response?.data?.message || "Failed to toggle active");
     }
   };
 
@@ -139,7 +140,7 @@ export default function CollegeTestsPage() {
       setSections((prev) => [...prev, res.data]);
       setNewSectionName("");
     } catch {
-      alert("Failed to create section");
+      toast.error("Failed to create section");
     }
   };
 
@@ -185,7 +186,7 @@ export default function CollegeTestsPage() {
         router.push(`/college/tests/${res.data.id}/builder`);
       }
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to create test");
+      toast.error(err?.response?.data?.message || "Failed to create test");
     } finally {
       setCreating(false);
     }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getStudent, updateStudent } from "@/services/student.service";
 import { getDepartments, Department } from "@/services/department.service";
 import styles from "./edit.module.css";
+import { toast } from "react-hot-toast";
 
 interface StudentForm {
   rollNo: string;
@@ -80,7 +81,7 @@ export default function EditStudentPage() {
       });
       router.push("/college/students");
     } catch (error) {
-      alert("Failed to update student");
+      toast.error("Failed to update student");
     }
   };
 

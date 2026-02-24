@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type PlatformUser = {
   id: string;
@@ -50,7 +51,7 @@ export default function AdminUsersPage() {
       }
       await fetchUsers();
     } catch (err: any) {
-      window.alert(err?.response?.data?.message || "Action failed.");
+      toast.error(err?.response?.data?.message || "Action failed.");
     } finally {
       setProcessingId(null);
     }

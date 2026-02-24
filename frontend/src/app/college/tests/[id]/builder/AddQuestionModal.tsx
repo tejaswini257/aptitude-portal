@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 export default function AddQuestionModal({
   testId,
@@ -66,7 +67,7 @@ export default function AddQuestionModal({
       onClose();
     } catch (err) {
       console.error(err);
-      alert("Failed to add question to test");
+      toast.error("Failed to add question to test");
     }
   };
 
@@ -90,7 +91,7 @@ export default function AddQuestionModal({
       await addToTest(questionId);
     } catch (err) {
       console.error(err);
-      alert("Failed to create and add question");
+      toast.error("Failed to create and add question");
     }
   };
 
@@ -106,21 +107,19 @@ export default function AddQuestionModal({
 
         <div className="flex border-b">
           <button
-            className={`flex-1 py-3 font-medium ${
-              activeTab === "bank"
-                ? "border-b-2 border-emerald-600 text-emerald-600"
-                : "text-gray-500 hover:bg-gray-50"
-            }`}
+            className={`flex-1 py-3 font-medium ${activeTab === "bank"
+              ? "border-b-2 border-emerald-600 text-emerald-600"
+              : "text-gray-500 hover:bg-gray-50"
+              }`}
             onClick={() => setActiveTab("bank")}
           >
             Select from Bank
           </button>
           <button
-            className={`flex-1 py-3 font-medium ${
-              activeTab === "create"
-                ? "border-b-2 border-emerald-600 text-emerald-600"
-                : "text-gray-500 hover:bg-gray-50"
-            }`}
+            className={`flex-1 py-3 font-medium ${activeTab === "create"
+              ? "border-b-2 border-emerald-600 text-emerald-600"
+              : "text-gray-500 hover:bg-gray-50"
+              }`}
             onClick={() => setActiveTab("create")}
           >
             Create New Question

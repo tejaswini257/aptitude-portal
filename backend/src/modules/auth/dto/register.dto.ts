@@ -20,4 +20,20 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   orgId?: string;
+
+  // Student specific fields
+  @IsOptional()
+  @IsString()
+  collegeId?: string;
+
+  @IsOptional()
+  @IsString()
+  departmentId?: string;
+
+  @IsOptional()
+  @IsString()
+  rollNo?: string;
+
+  @IsOptional()
+  year?: number;
 }

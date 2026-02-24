@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type Section = { id: string; sectionName: string };
 type PracticeSet = { id: string; name: string; sectionTimer: number };
@@ -53,7 +54,7 @@ export default function CollegePracticePage() {
       setForm({ name: "", sectionId: "", sectionTimer: 30, visibility: "PRIVATE" });
       fetch();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to create");
+      toast.error(err?.response?.data?.message || "Failed to create");
     } finally {
       setCreating(false);
     }

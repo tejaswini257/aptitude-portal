@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 /* ===============================
    MOCK DATA (Replace with API later)
@@ -195,7 +196,7 @@ export default function ChallengePage() {
       <div style={{ display: "flex", gap: "16px" }}>
         <button
           style={buttonStyle}
-          onClick={() => alert("Mock Run Executed")}
+          onClick={() => toast("Mock Run Executed: Passed")}
         >
           Run Code
         </button>

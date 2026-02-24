@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/interceptors/axios";
+import { toast } from "react-hot-toast";
 
 type Company = {
   id: string;
@@ -28,9 +29,9 @@ export default function CompaniesPage() {
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
-          (err?.response?.status === 403
-            ? "Only super admin can view companies."
-            : "Failed to load companies")
+        (err?.response?.status === 403
+          ? "Only super admin can view companies."
+          : "Failed to load companies")
       );
     } finally {
       setLoading(false);
@@ -47,7 +48,7 @@ export default function CompaniesPage() {
       setForm({ name: "", adminEmail: "", adminPassword: "" });
       fetchCompanies();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to create company");
+      toast.error(err?.response?.data?.message || "Failed to create company");
     }
   };
 
@@ -58,7 +59,7 @@ export default function CompaniesPage() {
       await api.delete(`/companies/${id}`);
       setCompanies((prev) => prev.filter((c) => c.id !== id));
     } catch {
-      alert("Failed to delete company");
+      toast.error("Failed to delete company");
     }
   };
 
