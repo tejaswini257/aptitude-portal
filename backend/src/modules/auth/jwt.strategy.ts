@@ -24,7 +24,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       userId: payload.userId ?? userFromDb.id,
       role: payload.role,
       orgId: payload.orgId ?? userFromDb.orgId,
-      userId: userFromDb.id,
     };
   }
 }

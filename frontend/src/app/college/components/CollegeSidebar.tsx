@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, Building2, Users, ClipboardList, Briefcase, BarChart3, Handshake } from "lucide-react";
 import PortalSidebar from "@/components/PortalSidebar";
 
@@ -28,11 +30,10 @@ export default function CollegeSidebar() {
           <Link
             key={item.path}
             href={item.path}
-            className={`block px-4 py-2 rounded-lg transition ${
-              pathname === item.path
+            className={`block px-4 py-2 rounded-lg transition ${pathname === item.path
                 ? "bg-emerald-500 text-white"
                 : "text-gray-700 hover:bg-gray-100"
-            }`}
+              }`}
           >
             {item.name}
           </Link>

@@ -41,7 +41,7 @@ export default function CollegeDashboardPage() {
       return;
     }
 
-    (async () => {
+    const loadStats = async () => {
       try {
         const res = await api.get("/colleges/dashboard/stats");
         setStats(res.data);
@@ -108,24 +108,24 @@ export default function CollegeDashboardPage() {
   ];
 
   return (
-  <div className="max-w-7xl mx-auto">
-    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dashboard</h1>
-    <p className="text-gray-500 mb-8">Overview of your college</p>
+    <div className="max-w-7xl mx-auto">
+      <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dashboard</h1>
+      <p className="text-gray-500 mb-8">Overview of your college</p>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {cards.map((c) => (
-        <Link
-          key={c.title}
-          href={c.path}
-          className="block bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition"
-        >
-          <div className={`w-10 h-10 rounded-lg ${c.color} opacity-90 mb-4`} />
-          <div className="text-2xl font-bold text-gray-900">{c.value}</div>
-          <div className="text-sm text-gray-500">{c.title}</div>
-        </Link>
-      ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {cards.map((c) => (
+          <Link
+            key={c.title}
+            href={c.path}
+            className="block bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition"
+          >
+            <div className={`w-10 h-10 rounded-lg ${c.color} opacity-90 mb-4`} />
+            <div className="text-2xl font-bold text-gray-900">{c.value}</div>
+            <div className="text-sm text-gray-500">{c.title}</div>
+          </Link>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
 
 }

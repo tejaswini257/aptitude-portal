@@ -26,11 +26,8 @@ model User {
   orgId        String?
   createdAt    DateTime      @default(now())
   student      Student?
-<<<<<<< HEAD
   instructor   Instructor?
-=======
   organization Organization? @relation(fields: [orgId], references: [id])
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
 }
 
 model College {
@@ -61,17 +58,10 @@ model Department {
   hodName       String?
   phone         String?
   totalFaculty  Int?
-<<<<<<< HEAD
-
-  college   College   @relation(fields: [collegeId], references: [id])
-  students  Student[]
-  instructors Instructor[]
-=======
   totalStudents Int?
-  college       College   @relation(fields: [collegeId], references: [id])
+  college       College      @relation(fields: [collegeId], references: [id])
   students      Student[]
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
-
+  instructors   Instructor[]
   @@unique([name, collegeId])
   @@index([collegeId])
 }
@@ -92,7 +82,6 @@ model Student {
   @@unique([rollNo, collegeId])
 }
 
-<<<<<<< HEAD
 model Instructor {
   id           String   @id @default(uuid())
   userId       String   @unique
@@ -104,9 +93,6 @@ model Instructor {
   user       User       @relation(fields: [userId], references: [id])
   department Department @relation(fields: [departmentId], references: [id])
 }
-
-=======
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
 model Test {
   id                    String         @id @default(uuid())
   name                  String

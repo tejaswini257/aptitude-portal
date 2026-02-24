@@ -59,69 +59,91 @@ export default function PracticeSetPage() {
     );
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">Practice</h2>
-      <div className="h-2 bg-gray-200 rounded mb-6 overflow-hidden">
+    <div className="page space-y-6 max-w-4xl mx-auto">
+      <div className="page-header border-b pb-4">
+        <div>
+          <h2 className="page-title">Practice</h2>
+          <p className="page-subtitle">Progress: {Math.round(progress)}%</p>
+        </div>
+      </div>
+
+      <div className="h-2 bg-gray-100 rounded-full mb-8 overflow-hidden">
         <div
-          className="h-full bg-emerald-600 transition-all"
+          className="h-full bg-emerald-500 transition-all duration-300 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      {questions.map((q) => (
-        <div
-          key={q.id}
-          className="bg-white p-6 rounded-xl border mb-4 shadow-sm"
-        >
-          <p className="font-medium mb-3">{q.questionText}</p>
-          <div className="space-y-2">
-            {q.options.map((opt) => (
-              <label
-                key={opt.id}
-                className={`block border p-3 rounded cursor-pointer ${
-                  selected[q.id] === opt.optionCode
-                    ? "border-emerald-600 bg-emerald-50"
-                    : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={q.id}
-                  value={opt.optionCode}
-                  checked={selected[q.id] === opt.optionCode}
-                  onChange={() =>
-                    setSelected((prev) => ({ ...prev, [q.id]: opt.optionCode }))
-                  }
-                  className="mr-2"
-                />
-                {opt.optionText}
-              </label>
-            ))}
+      <div className="space-y-6">
+        {questions.map((q, idx) => (
+          <div
+            key={q.id}
+            className="card p-6 border border-default shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex gap-4 mb-4">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50 text-indigo-700 font-semibold flex-shrink-0">
+                {idx + 1}
+              </span>
+              <p className="font-medium text-lg leading-relaxed">{q.questionText}</p>
+            </div>
+
+            <div className="space-y-3 pl-12">
+              {q.options.map((opt) => (
+                <label
+                  key={opt.id}
+                  className={`flex items-center gap-3 border p-4 rounded-xl cursor-pointer transition-colors ${selected[q.id] === opt.optionCode
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-900 font-medium shadow-sm"
+                      : "border-gray-200 hover:bg-gray-50 hover:border-emerald-200"
+                    }`}
+                >
+                  <input
+                    type="radio"
+                    name={q.id}
+                    value={opt.optionCode}
+                    checked={selected[q.id] === opt.optionCode}
+                    onChange={() =>
+                      setSelected((prev) => ({ ...prev, [q.id]: opt.optionCode }))
+                    }
+                    className="w-5 h-5 text-emerald-600 border-gray-300 focus:ring-emerald-500 transition-shadow"
+                  />
+                  <span className="flex-1">{opt.optionText}</span>
+                </label>
+              ))}
+            </div>
           </div>
+        ))}
+      </div>
+
+      <div className="card bg-gray-50 flex items-center justify-between p-6">
+        <div>
+          {submitted && score !== null ? (
+            <p className="text-lg font-semibold text-emerald-700">
+              Submitted! You selected {Object.keys(selected).length} answers.
+            </p>
+          ) : (
+            <p className="text-secondary text-sm">Make sure to review all answers before submitting.</p>
+          )}
         </div>
-      ))}
 
-      {!submitted && (
-        <button
-          onClick={handleSubmit}
-          className="px-5 py-2 bg-emerald-600 text-white rounded-lg font-medium"
-        >
-          Submit
-        </button>
-      )}
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/student/practice")}
+            className="btn btn-outline"
+          >
+            ← Back to Practice Sets
+          </button>
 
-      {submitted && score !== null && (
-        <p className="mt-4 text-lg font-semibold">
-          Submitted! You selected {Object.keys(selected).length} answers.
-        </p>
-      )}
-
-      <button
-        onClick={() => router.push("/student/practice")}
-        className="mt-6 text-emerald-600 hover:underline"
-      >
-        ← Back to Practice Sets
-      </button>
+          {!submitted && (
+            <button
+              onClick={handleSubmit}
+              className="btn btn-primary px-8"
+              disabled={Object.keys(selected).length === 0}
+            >
+              Submit Practice
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

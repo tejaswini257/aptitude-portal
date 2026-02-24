@@ -25,20 +25,30 @@ export default function PracticePage() {
   if (loading) return <div className="p-6">Loading…</div>;
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">Practice Sets</h2>
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Practice Sets</h2>
+          <p className="page-subtitle">Hone your skills with these practice exercises.</p>
+        </div>
+      </div>
+
       {sets.length === 0 ? (
-        <p className="text-gray-500">No practice sets available.</p>
+        <div className="card text-center p-12">
+          <p className="text-secondary text-lg">No practice sets available.</p>
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {sets.map((ps) => (
-            <Link key={ps.id} href={`/student/practice/set/${ps.id}`}>
-              <div className="bg-white p-6 rounded-xl border hover:border-emerald-400 transition cursor-pointer">
-                <h3 className="font-semibold text-gray-900">{ps.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">
+            <Link key={ps.id} href={`/student/practice/set/${ps.id}`} className="card hover:border-primary transition cursor-pointer flex flex-col justify-between">
+              <div>
+                <h3 className="font-semibold text-primary mb-2">{ps.name}</h3>
+                <p className="text-secondary mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                   {ps.sectionTimer} min timer
                 </p>
               </div>
+              <button className="btn btn-outline w-full justify-center">Start Practice</button>
             </Link>
           ))}
         </div>

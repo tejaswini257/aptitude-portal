@@ -1,0 +1,108 @@
+﻿node.exe : Debugger listening on ws://127.0.0.1:64302/de4abb44-f081-4efd-b170-ec70d3597504
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Debugger listen...70-ec70d3597504:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+Debugger listening on ws://127.0.0.1:64307/493b978b-2efc-4123-8595-f1e23aeb6ae8
+For help, see: https://nodejs.org/en/docs/inspector
+Debugger attached.
+src/app/college/dashboard/page.tsx(55,6): error TS1005: ')' expected.
+src/app/college/departments/page.tsx(110,1): error TS1185: Merge conflict marker encountered.
+src/app/college/departments/page.tsx(152,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(152,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(152,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(152,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(152,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(152,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(152,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(159,9): error TS1005: '</' expected.
+src/app/college/departments/page.tsx(161,1): error TS1185: Merge conflict marker encountered.
+src/app/college/departments/page.tsx(231,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(231,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(231,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(231,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(231,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(231,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(231,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/departments/page.tsx(263,3): error TS1128: Declaration or statement expected.
+src/app/college/students/page.tsx(102,1): error TS1185: Merge conflict marker encountered.
+src/app/college/students/page.tsx(181,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(181,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(181,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(181,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(181,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(181,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(181,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/students/page.tsx(187,19): error TS1005: '</' expected.
+src/app/college/students/page.tsx(188,1): error TS1185: Merge conflict marker encountered.
+src/app/college/students/page.tsx(192,15): error TS1128: Declaration or statement expected.
+src/app/college/students/page.tsx(193,13): error TS1109: Expression expected.
+src/app/college/students/page.tsx(193,15): error TS1128: Declaration or statement expected.
+src/app/college/students/page.tsx(204,1): error TS1185: Merge conflict marker encountered.
+src/app/college/students/page.tsx(239,1): error TS1185: Merge conflict marker encountered.
+src/app/college/students/page.tsx(242,23): error TS17002: Expected corresponding JSX closing tag for 'Link'.
+src/app/college/students/page.tsx(256,11): error TS1128: Declaration or statement expected.
+src/app/college/students/page.tsx(257,9): error TS1109: Expression expected.
+src/app/college/students/page.tsx(258,7): error TS1109: Expression expected.
+src/app/college/students/page.tsx(259,5): error TS1109: Expression expected.
+src/app/college/students/page.tsx(260,3): error TS1109: Expression expected.
+src/app/college/students/page.tsx(261,1): error TS1128: Declaration or statement expected.
+src/app/college/tests/page.tsx(14,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(29,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(37,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(49,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(51,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(55,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(63,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(64,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(79,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(128,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(145,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(198,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(202,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(216,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(238,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(249,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(266,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(266,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(266,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(266,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(266,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(266,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(266,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(269,13): error TS1005: '</' expected.
+src/app/college/tests/page.tsx(271,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(499,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(499,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(499,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(499,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(499,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(499,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(499,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(501,15): error TS1005: '</' expected.
+src/app/college/tests/page.tsx(503,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(508,10): error TS17008: JSX element 'table' has no corresponding closing tag.
+src/app/college/tests/page.tsx(677,9): error TS17002: Expected corresponding JSX closing tag for 'tr'.
+src/app/college/tests/page.tsx(678,7): error TS17002: Expected corresponding JSX closing tag for 'thead'.
+src/app/college/tests/page.tsx(680,1): error TS1128: Declaration or statement expected.
+src/app/college/tests/page.tsx(692,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(692,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(692,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(692,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(692,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(692,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(692,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/college/tests/page.tsx(703,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(728,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(795,1): error TS1185: Merge conflict marker encountered.
+src/app/college/tests/page.tsx(800,5): error TS1128: Declaration or statement expected.
+src/app/college/tests/page.tsx(801,3): error TS1109: Expression expected.
+src/app/student/tests/[testId]/page.tsx(209,13): error TS1005: ',' expected.
+src/app/student/tests/[testId]/page.tsx(217,12): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/student/tests/[testId]/page.tsx(222,1): error TS1128: Declaration or statement expected.
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...

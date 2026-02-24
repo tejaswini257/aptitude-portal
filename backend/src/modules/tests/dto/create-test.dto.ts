@@ -2,8 +2,11 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
+  IsInt,
   IsOptional,
   IsString,
+  Max,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';

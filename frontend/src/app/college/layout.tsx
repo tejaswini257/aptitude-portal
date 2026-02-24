@@ -1,5 +1,5 @@
 "use client";
-import "../../styles/tailwind.css";   // ✅ Correct Tailwind entry
+
 
 import BrandLogo from "@/components/BrandLogo";
 import CollegeSidebar from "./components/CollegeSidebar";

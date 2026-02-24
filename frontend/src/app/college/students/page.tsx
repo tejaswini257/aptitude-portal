@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import api from "@/interceptors/axios";
 
 type Student = {
@@ -85,7 +86,7 @@ export default function StudentsPage() {
     } catch (err: any) {
       alert(
         err.response?.data?.message ||
-          "Failed to delete student"
+        "Failed to delete student"
       );
     }
   };
@@ -99,7 +100,6 @@ export default function StudentsPage() {
   }
 
   return (
-<<<<<<< HEAD
     <div className="page space-y-6">
       <div className="page-header">
         <div>
@@ -114,24 +114,8 @@ export default function StudentsPage() {
         </Link>
       </div>
 
-      <div className="table-card">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="table-head">Email</th>
-              <th className="table-head">Roll No</th>
-              <th className="table-head">Year</th>
-              <th className="table-head">Department</th>
-              <th className="table-head text-center">Actions</th>
-=======
-    <div>
-      <h1 className="text-2xl font-semibold mb-6">
-        Students
-      </h1>
-
       {/* Filters Section */}
       <div className="flex flex-wrap gap-4 mb-6">
-
         {/* Search */}
         <input
           placeholder="Search by email, department, year..."
@@ -168,78 +152,39 @@ export default function StudentsPage() {
         </select>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left">
+      <div className="table-card">
+        <table className="w-full border-collapse">
+          <thead>
             <tr>
-              <th className="p-4">Email</th>
-              <th className="p-4">Roll No</th>
-              <th className="p-4">Year</th>
-              <th className="p-4">Department</th>
-              <th className="p-4">Actions</th>
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
+              <th className="table-head">Email</th>
+              <th className="table-head">Roll No</th>
+              <th className="table-head">Year</th>
+              <th className="table-head">Department</th>
+              <th className="table-head text-center">Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {filteredStudents.length === 0 ? (
               <tr>
-<<<<<<< HEAD
                 <td colSpan={5} className="empty-state">
                   No students yet.
                 </td>
               </tr>
             ) : (
-              students.map((s) => (
+              filteredStudents.map((s) => (
                 <tr key={s.id} className="table-row">
                   <td className="table-cell font-medium">{s.user?.email ?? "—"}</td>
                   <td className="table-cell">{s.rollNo}</td>
                   <td className="table-cell">{s.year}</td>
                   <td className="table-cell">{s.department?.name ?? "—"}</td>
-                  <td className="table-cell text-center">
+                  <td className="table-cell text-center flex gap-2 justify-center">
                     <Link
-                      href={`/college/students/edit/${s.id}`}
-                      className="table-link"
-=======
-                <td
-                  colSpan={5}
-                  className="p-8 text-center text-gray-500"
-                >
-                  No students found.
-                </td>
-              </tr>
-            ) : (
-              filteredStudents.map((s) => (
-                <tr
-                  key={s.id}
-                  className="border-t hover:bg-gray-50"
-                >
-                  <td className="p-4">
-                    {s.user?.email}
-                  </td>
-                  <td className="p-4">
-                    {s.rollNo}
-                  </td>
-                  <td className="p-4">
-                    {s.year}
-                  </td>
-                  <td className="p-4">
-                    {s.department?.name}
-                  </td>
-
-                  <td className="p-4 flex gap-4">
-                    <button
-                      onClick={() =>
-                        router.push(
-                          `/college/departments/${s.department?.id}/students/${s.id}/edit`
-                        )
-                      }
-                      className="text-blue-600 hover:underline"
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
+                      href={`/college/departments/${s.department?.id}/students/${s.id}/edit`}
+                      className="table-link mr-2 text-blue-600 hover:underline"
                     >
                       Edit
-                    </button>
+                    </Link>
 
                     <button
                       onClick={() =>

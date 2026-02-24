@@ -131,7 +131,6 @@ export default function StudentTestPage() {
         </button>
       </div>
     );
-  }
 
   const section = sections[currentSection];
   const question = section?.questions[currentQuestion];
@@ -139,27 +138,29 @@ export default function StudentTestPage() {
   if (!question) return null;
 
   return (
-    <div className="flex h-screen">
-      <div className="w-3/4 p-8 border-r">
-        <div className="flex justify-between mb-6">
-          <h2 className="text-xl font-semibold">{section.sectionName}</h2>
-          <div className="text-red-600 font-semibold">⏳ {formatTime(timeLeft)}</div>
+    <div className="flex h-screen bg-surface">
+      <div className="w-3/4 p-8 border-r border-default bg-white flex flex-col">
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-default">
+          <h2 className="text-2xl font-semibold text-primary">{section.sectionName}</h2>
+          <div className="text-red-500 font-semibold px-4 py-2 bg-red-50 rounded-full border border-red-100 flex items-center gap-2">
+            <span>⏳</span> {formatTime(timeLeft)}
+          </div>
         </div>
 
         <div className="mb-6">
-          <h3 className="font-medium mb-4">
-            Q{currentQuestion + 1}. {question.questionText}
+          <h3 className="font-medium text-lg text-primary mb-6">
+            <span className="text-secondary mr-2">Q{currentQuestion + 1}.</span>
+            {question.questionText}
           </h3>
 
           <div className="space-y-3">
             {question.options.map((opt) => (
               <label
                 key={opt.id}
-                className={`block border p-3 rounded cursor-pointer ${
-                  answers[question.id] === opt.optionCode
-                    ? "border-emerald-600 bg-emerald-50"
-                    : ""
-                }`}
+                className={`block border p-4 rounded-xl cursor-pointer transition-all duration-200 ${answers[question.id] === opt.optionCode
+                  ? "border-emerald-500 bg-emerald-50/50 shadow-sm"
+                  : "border-default hover:border-gray-300 hover:bg-gray-50"
+                  }`}
               >
                 <input
                   type="radio"
@@ -177,46 +178,39 @@ export default function StudentTestPage() {
           </div>
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between mt-auto pt-6 border-t border-default">
           <button
             onClick={handleNext}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
+            className="btn btn-primary"
           >
             Save & Next
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-red-600 text-white rounded"
+            className="btn btn-danger"
           >
             Submit Test
           </button>
         </div>
       </div>
 
-      <div className="w-1/4 p-6 bg-gray-50 overflow-y-auto">
-        <h3 className="font-semibold mb-4">Questions</h3>
+      <div className="w-1/4 p-6 bg-surface overflow-y-auto border-l border-default">
+        <h3 className="font-semibold text-primary mb-6">Question Palette</h3>
         <div className="grid grid-cols-5 gap-3">
           {section.questions.map((q, index) => (
             <button
               key={q.id}
               onClick={() => setCurrentQuestion(index)}
-              className={`p-2 rounded border text-sm ${
-                answers[q.id] ? "bg-emerald-600 text-white" : "bg-white"
-              }`}
+              className={`aspect-square flex items-center justify-center rounded-lg border font-medium text-sm transition-colors ${answers[q.id]
+                  ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
+                  : "bg-white border-default text-secondary hover:border-gray-400"
+                } ${currentQuestion === index ? "ring-2 ring-emerald-500/30 ring-offset-1" : ""}`}
             >
               {index + 1}
             </button>
-          ) : (
-            <button
-              onClick={handleTestSubmit}
-              disabled={!selectedAnswer}
-              className="btn btn-primary bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 min-w-32"
-            >
-              Submit Test
-            </button>
-          )}
+          ))}
         </div>
       </div>
-    </div>
+    </div >
   );
 }

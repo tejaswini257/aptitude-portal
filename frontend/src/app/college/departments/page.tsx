@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState,useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Building2, CalendarDays, GraduationCap, Pencil, Trash2 } from "lucide-react";
@@ -29,21 +29,21 @@ export default function DepartmentsPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-const [form, setForm] = useState({
-  name: "",
-  hodName: "",
-  email: "",
-  phone: "",
-  totalStudents: "",
-  totalFaculty: "",
-});
+  const [form, setForm] = useState({
+    name: "",
+    hodName: "",
+    email: "",
+    phone: "",
+    totalStudents: "",
+    totalFaculty: "",
+  });
 
 
-const filteredDepartments = useMemo(() => {
-  return departments.filter(d =>
-    d.name.toLowerCase().includes(search.toLowerCase())
-  );
-}, [search, departments]);
+  const filteredDepartments = useMemo(() => {
+    return departments.filter(d =>
+      d.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, departments]);
 
 
 
@@ -107,7 +107,6 @@ const filteredDepartments = useMemo(() => {
   }
 
   return (
-<<<<<<< HEAD
     <div className="page space-y-6">
       <div className="page-header">
         <div>
@@ -119,37 +118,16 @@ const filteredDepartments = useMemo(() => {
           Add Department
         </button>
       </div>
-=======
-    <div className="min-h-screen bg-gray-50 px-8 py-10">
-      {/* Header */}
-      <div className="flex flex-col gap-4 mb-6">
-  <div className="flex items-center justify-between">
-    <div>
-      <h1 className="text-2xl font-semibold text-gray-900">Departments</h1>
-      <p className="text-gray-500">
-        Manage all departments under your college
-      </p>
-    </div>
 
-    <button
-      onClick={() => router.push("/college/departments/create")}
-      className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition"
-    >
-      + Add Department
-    </button>
-  </div>
-
-  {/* ✅ SEARCH BAR - NOW BELOW THE LINE */}
-  <input
-    type="text"
-    placeholder="Search departments..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2"
-  />
-</div>
-
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search departments..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2"
+        />
+      </div>
 
       {departments.length === 0 && (
         <div className="card empty-state">
@@ -158,9 +136,8 @@ const filteredDepartments = useMemo(() => {
         </div>
       )}
 
-<<<<<<< HEAD
       <div className="dashboard-grid-3">
-        {departments.map((department) => (
+        {filteredDepartments.map((department) => (
           <article
             key={department.id}
             className="card card-link p-0 overflow-hidden flex flex-col"
@@ -211,53 +188,7 @@ const filteredDepartments = useMemo(() => {
             </div>
           </article>
         ))}
-=======
-      {/* Department Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-  {filteredDepartments.map((d) => (
-    <div
-      key={d.id}
-      onClick={() => router.push(`/college/departments/${d.id}`)}
-      className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-2xl transition overflow-hidden"
-    >
-      <div className="p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          {d.name}
-        </h2>
-
-        <p className="text-sm text-gray-500">
-          Created: {new Date(d.createdAt).toLocaleDateString()}
-        </p>
->>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
       </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 border-t flex justify-between items-center text-sm bg-gray-50" onClick={(e) => e.stopPropagation()}>
-        
-        <Link
-          href={`/college/departments/${d.id}/students`}
-          className="text-blue-600 font-medium hover:underline"
-        >
-          View Students
-        </Link>
-
-        <Link
-          href={`/college/departments/${d.id}/edit`}
-          className="text-gray-600 hover:text-gray-900"
-        >
-          Edit
-        </Link>
-
-        <button
-          onClick={() => handleDelete(d.id)}
-          className="text-red-500 hover:text-red-700"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
 
     </div>
   );
