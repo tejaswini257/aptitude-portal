@@ -9,25 +9,25 @@ import { UserRole } from '@prisma/client';
 @UseGuards(JwtGuard, RolesGuard)
 @Roles(UserRole.INSTRUCTOR)
 export class InstructorController {
-    constructor(private readonly instructorService: InstructorService) { }
+  constructor(private readonly instructorService: InstructorService) {}
 
-    @Get('me')
-    getProfile(@Request() req: any) {
-        return this.instructorService.getProfile(req.user.id);
-    }
+  @Get('me')
+  getProfile(@Request() req: any) {
+    return this.instructorService.getProfile(req.user.id);
+  }
 
-    @Get('dashboard')
-    getDashboardStats(@Request() req: any) {
-        return this.instructorService.getDashboardStats(req.user.id);
-    }
+  @Get('dashboard')
+  getDashboardStats(@Request() req: any) {
+    return this.instructorService.getDashboardStats(req.user.id);
+  }
 
-    @Get('students')
-    getStudents(@Request() req: any) {
-        return this.instructorService.getStudents(req.user.id);
-    }
+  @Get('students')
+  getStudents(@Request() req: any) {
+    return this.instructorService.getStudents(req.user.id);
+  }
 
-    @Get('tests')
-    getTests(@Request() req: any) {
-        return this.instructorService.getTests(req.user.id);
-    }
+  @Get('tests')
+  getTests(@Request() req: any) {
+    return this.instructorService.getTests(req.user.id);
+  }
 }

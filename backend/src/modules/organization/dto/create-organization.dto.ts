@@ -15,4 +15,3 @@ export class UpdateOrganizationDto {
   @IsString()
   name?: string;
 }
-

@@ -10,4 +10,3 @@ import { AuthModule } from '../auth/auth.module';
   providers: [SubmissionsService],
 })
 export class SubmissionsModule {}
-

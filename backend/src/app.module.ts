@@ -17,8 +17,6 @@ import { HealthModule } from './health/health.module';
 import { SectionsModule } from './modules/sections/sections.module';
 import { PracticeSetsModule } from './modules/practice-sets/practice-sets.module';
 
-
-
 @Module({
   imports: [
     PrismaModule,
@@ -40,4 +38,4 @@ import { PracticeSetsModule } from './modules/practice-sets/practice-sets.module
     PracticeSetsModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

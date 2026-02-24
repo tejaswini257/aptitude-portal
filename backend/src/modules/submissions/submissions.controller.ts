@@ -23,7 +23,10 @@ export class SubmissionsController {
   // START TEST ATTEMPT
   @Post('start')
   async startSubmission(@Body() dto: StartSubmissionDto, @Req() req: any) {
-    return this.submissionsService.startSubmission(dto.testId, this.getUserId(req));
+    return this.submissionsService.startSubmission(
+      dto.testId,
+      this.getUserId(req),
+    );
   }
 
   // BULK SUBMIT (all answers at once)
@@ -48,11 +51,7 @@ export class SubmissionsController {
     @Req() req: any,
   ) {
     const userId = this.getUserId(req);
-    return this.submissionsService.submitAnswer(
-      submissionId,
-      dto,
-      userId,
-    );
+    return this.submissionsService.submitAnswer(submissionId, dto, userId);
   }
 
   // GET STUDENT SUBMISSIONS (for dashboard later)

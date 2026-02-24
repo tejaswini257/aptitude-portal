@@ -1,9 +1,13 @@
 // src/modules/sections/sections.service.ts
 
-import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
-import { SectionType } from "@prisma/client";
-import { PrismaService } from "src/prisma/prisma.service";
-import { CreateSectionDto } from "./dto/create-section.dto";
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
+import { SectionType } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateSectionDto } from './dto/create-section.dto';
 
 @Injectable()
 export class SectionsService {
@@ -11,7 +15,6 @@ export class SectionsService {
 
   // ✅ Create Section
   async create(createSectionDto: CreateSectionDto, orgId: string) {
-
     const existing = await this.prisma.section.findFirst({
       where: {
         sectionName: createSectionDto.sectionName,
@@ -20,7 +23,7 @@ export class SectionsService {
     });
 
     if (existing) {
-      throw new BadRequestException("Section with this name already exists");
+      throw new BadRequestException('Section with this name already exists');
     }
 
     // DTO allows UNSEEN_PARAGRAPH; ensure Prisma receives valid SectionType (run `npx prisma generate` if schema was updated)
@@ -54,7 +57,7 @@ export class SectionsService {
       where: { id, orgId },
       include: {
         questions: {
-          orderBy: { order: "asc" },
+          orderBy: { order: 'asc' },
           include: {
             options: true,
             codingQuestion: true,
@@ -72,7 +75,7 @@ export class SectionsService {
     });
 
     if (!section) {
-      throw new NotFoundException("Section not found");
+      throw new NotFoundException('Section not found');
     }
 
     return section;
@@ -102,7 +105,7 @@ export class SectionsService {
     });
 
     if (!section) {
-      throw new NotFoundException("Section not found");
+      throw new NotFoundException('Section not found');
     }
 
     await this.prisma.testSection.deleteMany({
@@ -127,13 +130,15 @@ export class SectionsService {
     const section = await this.prisma.section.findFirst({
       where: { id, orgId },
     });
-    if (!section) throw new NotFoundException("Section not found");
+    if (!section) throw new NotFoundException('Section not found');
 
     return this.prisma.section.update({
       where: { id },
       data: {
         ...(data.sectionName != null && { sectionName: data.sectionName }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
       },
     });
   }

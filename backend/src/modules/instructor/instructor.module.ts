@@ -4,8 +4,8 @@ import { InstructorService } from './instructor.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Module({
-    controllers: [InstructorController],
-    providers: [InstructorService, PrismaService],
-    exports: [InstructorService],
+  controllers: [InstructorController],
+  providers: [InstructorService, PrismaService],
+  exports: [InstructorService],
 })
-export class InstructorModule { }
+export class InstructorModule {}

@@ -1,13 +1,10 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTestDto } from './dto/create-test.dto';
 
 @Injectable()
 export class TestService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async createTest(dto: CreateTestDto, user: any) {
     const {
@@ -40,9 +37,7 @@ export class TestService {
     }
 
     if (startTime && endTime && new Date(startTime) >= new Date(endTime)) {
-      throw new BadRequestException(
-        'startTime must be earlier than endTime',
-      );
+      throw new BadRequestException('startTime must be earlier than endTime');
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -64,7 +59,9 @@ export class TestService {
           endTime: endTime ? new Date(endTime) : null,
           durationMode: durationMode as any,
           totalDuration,
-          resultPublishTime: resultPublishTime ? new Date(resultPublishTime) : null,
+          resultPublishTime: resultPublishTime
+            ? new Date(resultPublishTime)
+            : null,
           rulesId: createdRules.id,
         },
       });
@@ -117,7 +114,6 @@ export class TestService {
     user: any,
   ) {
     return this.prisma.$transaction(async (tx) => {
-
       const test = await tx.test.findUnique({
         where: { id: testId },
         include: { rules: true },
@@ -147,10 +143,9 @@ export class TestService {
 
       const newOrder = lastQuestion ? lastQuestion.order + 1 : 1;
 
-      const negativeMarks =
-        test.rules.negativeMarking
-          ? test.rules.negativeMarks ?? 0
-          : 0;
+      const negativeMarks = test.rules.negativeMarking
+        ? (test.rules.negativeMarks ?? 0)
+        : 0;
 
       const snapshot = {
         questionText: question.questionText,
@@ -217,10 +212,7 @@ export class TestService {
     const sections = test.sections.map((ts) => {
       const questions = grouped[ts.sectionId] || [];
 
-      const sectionTotal = questions.reduce(
-        (sum, q) => sum + q.marks,
-        0,
-      );
+      const sectionTotal = questions.reduce((sum, q) => sum + q.marks, 0);
 
       totalMarks += sectionTotal;
 
@@ -252,11 +244,7 @@ export class TestService {
     };
   }
 
-  async removeQuestion(
-    testId: string,
-    testQuestionId: string,
-    user: any,
-  ) {
+  async removeQuestion(testId: string, testQuestionId: string, user: any) {
     const test = await this.prisma.test.findFirst({
       where: {
         id: testId,
@@ -278,11 +266,7 @@ export class TestService {
 
     return { message: 'Question removed successfully' };
   }
-  async reorderQuestion(
-    testQuestionId: string,
-    newOrder: number,
-    user: any,
-  ) {
+  async reorderQuestion(testQuestionId: string, newOrder: number, user: any) {
     return this.prisma.$transaction(async (tx) => {
       const question = await tx.testQuestion.findUnique({
         where: { id: testQuestionId },
@@ -367,11 +351,7 @@ export class TestService {
     });
   }
 
-  async togglePublish(
-    testId: string,
-    isPublished: boolean,
-    user: any,
-  ) {
+  async togglePublish(testId: string, isPublished: boolean, user: any) {
     return this.prisma.$transaction(async (tx) => {
       const test = await tx.test.findFirst({
         where: {
@@ -406,9 +386,7 @@ export class TestService {
         });
 
         if (!totalMarks._sum.marks || totalMarks._sum.marks <= 0) {
-          throw new BadRequestException(
-            'Total marks must be greater than 0',
-          );
+          throw new BadRequestException('Total marks must be greater than 0');
         }
 
         if (!test.sections.length) {
@@ -432,11 +410,7 @@ export class TestService {
     });
   }
 
-  async toggleActive(
-    testId: string,
-    isActive: boolean,
-    user: any,
-  ) {
+  async toggleActive(testId: string, isActive: boolean, user: any) {
     return this.prisma.$transaction(async (tx) => {
       const test = await tx.test.findFirst({
         where: {
@@ -451,9 +425,7 @@ export class TestService {
 
       // Must be published before activating
       if (isActive && !test.isPublished) {
-        throw new BadRequestException(
-          'Cannot activate an unpublished test',
-        );
+        throw new BadRequestException('Cannot activate an unpublished test');
       }
 
       // Optional: Validate start & end time
@@ -465,9 +437,7 @@ export class TestService {
         }
 
         if (new Date(test.startTime) >= new Date(test.endTime)) {
-          throw new BadRequestException(
-            'Invalid test schedule',
-          );
+          throw new BadRequestException('Invalid test schedule');
         }
       }
 
@@ -506,9 +476,7 @@ export class TestService {
     }
 
     if (!test.isPublished) {
-      throw new BadRequestException(
-        'Only published tests can be previewed',
-      );
+      throw new BadRequestException('Only published tests can be previewed');
     }
 
     const testQuestions = await this.prisma.testQuestion.findMany({

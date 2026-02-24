@@ -13,43 +13,43 @@ export class CollegesService {
   constructor(private prisma: PrismaService) {}
 
   // ✅ CREATE COLLEGE
-async create(dto: CreateCollegeDto) {
-  const org = await this.prisma.organization.findUnique({
-    where: { id: dto.orgId },
-  });
+  async create(dto: CreateCollegeDto) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: dto.orgId },
+    });
 
-  if (!org) {
-    throw new NotFoundException('Organization not found');
+    if (!org) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return this.prisma.college.create({
+      data: {
+        // scalar fields
+        orgId: dto.orgId,
+        collegeName: dto.collegeName,
+        collegeType: dto.collegeType,
+        address: dto.address,
+        contactPerson: dto.contactPerson,
+        contactEmail: dto.contactEmail,
+        mobile: dto.mobile,
+        maxStudents: dto.maxStudents,
+        isApproved: false,
+      },
+    });
   }
-
-  return this.prisma.college.create({
-    data: {
-      // scalar fields
-      orgId: dto.orgId,
-      collegeName: dto.collegeName,
-      collegeType: dto.collegeType,
-      address: dto.address,
-      contactPerson: dto.contactPerson,
-      contactEmail: dto.contactEmail,
-      mobile: dto.mobile,
-      maxStudents: dto.maxStudents,
-      isApproved: false,
-    },
-  });
-}
 
   // ✅ GET ALL COLLEGES
   findAll(user) {
-  if (user.role === 'SUPER_ADMIN') {
-    return this.prisma.college.findMany();   // no filter
-  }
+    if (user.role === 'SUPER_ADMIN') {
+      return this.prisma.college.findMany(); // no filter
+    }
 
-  return this.prisma.college.findMany({
-    where: {
-      orgId: user.orgId,
-    },
-  });
-}
+    return this.prisma.college.findMany({
+      where: {
+        orgId: user.orgId,
+      },
+    });
+  }
 
   // ✅ GET COLLEGE BY ID
   async findOne(id: string) {
@@ -93,28 +93,30 @@ async create(dto: CreateCollegeDto) {
         ongoingDrives: 0,
       };
     }
-    const [students, departments, companies, ongoingDrives] = await Promise.all([
-      this.prisma.student.count({ where: { collegeId: college.id } }),
-      this.prisma.department.count({ where: { collegeId: college.id } }),
-      this.prisma.organization.count({
-        where: { type: OrgType.COMPANY },
-      }),
-      (async () => {
-        const openDriveIds = (
-          await this.prisma.drive.findMany({
-            where: { isOpenDrive: true },
-            select: { id: true },
-          })
-        ).map((d) => d.id);
-        if (openDriveIds.length === 0) return 0;
-        return this.prisma.driveCollege.count({
-          where: {
-            collegeId: college.id,
-            driveId: { in: openDriveIds },
-          },
-        });
-      })(),
-    ]);
+    const [students, departments, companies, ongoingDrives] = await Promise.all(
+      [
+        this.prisma.student.count({ where: { collegeId: college.id } }),
+        this.prisma.department.count({ where: { collegeId: college.id } }),
+        this.prisma.organization.count({
+          where: { type: OrgType.COMPANY },
+        }),
+        (async () => {
+          const openDriveIds = (
+            await this.prisma.drive.findMany({
+              where: { isOpenDrive: true },
+              select: { id: true },
+            })
+          ).map((d) => d.id);
+          if (openDriveIds.length === 0) return 0;
+          return this.prisma.driveCollege.count({
+            where: {
+              collegeId: college.id,
+              driveId: { in: openDriveIds },
+            },
+          });
+        })(),
+      ],
+    );
     return {
       students,
       departments,

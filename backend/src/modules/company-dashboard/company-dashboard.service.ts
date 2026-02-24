@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CompanyDashboardService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getDashboard(user: any) {
     const orgId = user?.orgId;
@@ -39,11 +39,11 @@ export class CompanyDashboardService {
       },
       include: {
         student: {
-          include: { user: true }
+          include: { user: true },
         },
         test: {
-          select: { name: true }
-        }
+          select: { name: true },
+        },
       },
       orderBy: { submittedAt: 'desc' },
     });
@@ -53,8 +53,8 @@ export class CompanyDashboardService {
     let passCount = 0;
     const passingThreshold = 60; // Assuming 60% is passing for now
 
-    submissions.forEach(sub => {
-      // Handle cases where sub.score might be out of 100 or something else. 
+    submissions.forEach((sub) => {
+      // Handle cases where sub.score might be out of 100 or something else.
       // Assuming score is a percentage or absolute value. For now, doing simple math.
       const score = sub.score || 0;
       totalScore += score;
@@ -63,7 +63,8 @@ export class CompanyDashboardService {
       }
     });
 
-    const averageScore = totalCandidates > 0 ? Math.round(totalScore / totalCandidates) : 0;
+    const averageScore =
+      totalCandidates > 0 ? Math.round(totalScore / totalCandidates) : 0;
     const failCount = totalCandidates - passCount;
 
     return {
@@ -73,13 +74,13 @@ export class CompanyDashboardService {
       averageScore,
       passCount,
       failCount,
-      recentSubmissions: submissions.slice(0, 5).map(sub => ({
+      recentSubmissions: submissions.slice(0, 5).map((sub) => ({
         id: sub.id,
         studentName: sub.student.user.email, // Best effort without full profile
         testName: sub.test.name,
         score: sub.score,
         submittedAt: sub.submittedAt,
-        status: (sub.score || 0) >= passingThreshold ? 'Passed' : 'Failed'
+        status: (sub.score || 0) >= passingThreshold ? 'Passed' : 'Failed',
       })),
     };
   }

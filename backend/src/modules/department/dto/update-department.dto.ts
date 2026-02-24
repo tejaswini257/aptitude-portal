@@ -1,7 +1,6 @@
 import { IsOptional, IsString, IsInt } from 'class-validator';
 
 export class UpdateDepartmentDto {
-
   @IsOptional()
   @IsString()
   name?: string;
@@ -26,4 +25,3 @@ export class UpdateDepartmentDto {
   @IsInt()
   totalFaculty?: number;
 }
-

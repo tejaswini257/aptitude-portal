@@ -5,14 +5,14 @@ import {
   IsString,
   MaxLength,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 const SECTION_TYPES = [
-  "MCQ",
-  "CODING",
-  "PASSAGE_WRITING",
-  "PASSAGE_DROPDOWN",
-  "UNSEEN_PARAGRAPH",
+  'MCQ',
+  'CODING',
+  'PASSAGE_WRITING',
+  'PASSAGE_DROPDOWN',
+  'UNSEEN_PARAGRAPH',
 ] as const;
 
 export class CreateSectionDto {

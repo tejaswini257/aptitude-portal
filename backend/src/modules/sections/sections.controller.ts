@@ -8,15 +8,15 @@ import {
   Param,
   UseGuards,
   Delete,
-} from "@nestjs/common";
-import { SectionsService } from "./sections.service";
-import { JwtGuard } from "../../common/guards/jwt.guard";
-import { RolesGuard } from "../../common/guards/roles.guard";
-import { Roles } from "../../common/decorators/roles.decorator";
-import { UserRole } from "@prisma/client";
-import { CreateSectionDto } from "./dto/create-section.dto";
+} from '@nestjs/common';
+import { SectionsService } from './sections.service';
+import { JwtGuard } from '../../common/guards/jwt.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
+import { CreateSectionDto } from './dto/create-section.dto';
 
-@Controller("sections")
+@Controller('sections')
 @UseGuards(JwtGuard, RolesGuard)
 export class SectionsController {
   constructor(private readonly service: SectionsService) {}
@@ -39,8 +39,8 @@ export class SectionsController {
 
   // ✅ Get Sections Attached to Test (must be before :id)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
-  @Get("test/:testId")
-  findByTest(@Param("testId") testId: string, @Req() req: any) {
+  @Get('test/:testId')
+  findByTest(@Param('testId') testId: string, @Req() req: any) {
     const orgId = req.user?.orgId;
     if (!orgId) return [];
     return this.service.findByTest(testId, orgId);
@@ -48,17 +48,17 @@ export class SectionsController {
 
   // ✅ Get Single Section (for Question Builder page)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
-  @Get(":id")
-  findOne(@Param("id") id: string, @Req() req: any) {
+  @Get(':id')
+  findOne(@Param('id') id: string, @Req() req: any) {
     const orgId = req.user?.orgId;
     return this.service.findOne(id, orgId);
   }
 
   // ✅ Update Section (title, description)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
-  @Patch(":id")
+  @Patch(':id')
   update(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Body() body: { sectionName?: string; description?: string },
     @Req() req: any,
   ) {
@@ -68,8 +68,8 @@ export class SectionsController {
 
   // ✅ Delete Section
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
-  @Delete(":id")
-  delete(@Param("id") id: string, @Req() req: any) {
+  @Delete(':id')
+  delete(@Param('id') id: string, @Req() req: any) {
     const orgId = req.user?.orgId;
     return this.service.delete(id, orgId);
   }

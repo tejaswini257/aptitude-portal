@@ -26,7 +26,7 @@ type AuthenticatedRequest = {
 @Controller('questions')
 @UseGuards(JwtAuthGuard)
 export class QuestionsController {
-  constructor(private readonly service: QuestionsService) { }
+  constructor(private readonly service: QuestionsService) {}
 
   // CREATE
   @Post()
@@ -36,7 +36,10 @@ export class QuestionsController {
 
   // GET QUESTIONS BY TEST
   @Get('test/:testId')
-  findByTest(@Param('testId') testId: string, @Req() req: AuthenticatedRequest) {
+  findByTest(
+    @Param('testId') testId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.service.findByTest(testId, req.user.orgId!);
   }
 

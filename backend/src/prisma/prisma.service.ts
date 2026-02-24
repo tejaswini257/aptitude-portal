@@ -17,11 +17,11 @@ export class PrismaService
       } catch (err: any) {
         const isLast = attempt === MAX_RETRIES;
         console.warn(
-          `[Prisma] Database connection attempt ${attempt}/${MAX_RETRIES} failed: ${err?.message || err}`
+          `[Prisma] Database connection attempt ${attempt}/${MAX_RETRIES} failed: ${err?.message || err}`,
         );
         if (isLast) {
           console.error(
-            '[Prisma] Cannot reach database. Check: 1) DATABASE_URL in .env (Neon: use ?sslmode=require), 2) Neon project is active in dashboard, 3) Network/firewall.'
+            '[Prisma] Cannot reach database. Check: 1) DATABASE_URL in .env (Neon: use ?sslmode=require), 2) Neon project is active in dashboard, 3) Network/firewall.',
           );
           throw err;
         }
@@ -34,5 +34,3 @@ export class PrismaService
     await this.$disconnect();
   }
 }
-
-

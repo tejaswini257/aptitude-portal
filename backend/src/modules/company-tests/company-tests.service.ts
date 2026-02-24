@@ -1,12 +1,21 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { QuestionType, DifficultyLevel, QuestionUsage, CreatorRole } from '@prisma/client';
+import {
+  QuestionType,
+  DifficultyLevel,
+  QuestionUsage,
+  CreatorRole,
+} from '@prisma/client';
 
 import { CreateCompanyTestDto } from './dto/create-test.dto';
 @Injectable()
 export class CompanyTestsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateCompanyTestDto, orgId: string) {
     const marksPerQuestion = dto.marksPerQuestion ?? 1;
@@ -77,10 +86,10 @@ export class CompanyTestsService {
                 id: randomUUID(),
                 optionCode: `${String.fromCharCode(65 + idx)}`,
                 optionText: opt,
-                isCorrect: opt === q.correctAnswer
-              }))
-            }
-          }
+                isCorrect: opt === q.correctAnswer,
+              })),
+            },
+          },
         });
       }
     }
@@ -127,7 +136,9 @@ export class CompanyTestsService {
       ...(dto.showResultImmediately !== undefined
         ? { showResultImmediately: dto.showResultImmediately }
         : {}),
-      ...(dto.proctoringEnabled !== undefined ? { proctoringEnabled: dto.proctoringEnabled } : {}),
+      ...(dto.proctoringEnabled !== undefined
+        ? { proctoringEnabled: dto.proctoringEnabled }
+        : {}),
     };
 
     if (Object.keys(testData).length > 0) {
@@ -138,9 +149,15 @@ export class CompanyTestsService {
     }
 
     const rulesData: Record<string, unknown> = {
-      ...(dto.marksPerQuestion !== undefined ? { marksPerQuestion: dto.marksPerQuestion } : {}),
-      ...(dto.negativeMarking !== undefined ? { negativeMarking: dto.negativeMarking } : {}),
-      ...(dto.negativeMarks !== undefined ? { negativeMarks: dto.negativeMarks } : {}),
+      ...(dto.marksPerQuestion !== undefined
+        ? { marksPerQuestion: dto.marksPerQuestion }
+        : {}),
+      ...(dto.negativeMarking !== undefined
+        ? { negativeMarking: dto.negativeMarking }
+        : {}),
+      ...(dto.negativeMarks !== undefined
+        ? { negativeMarks: dto.negativeMarks }
+        : {}),
     };
 
     if (Object.keys(rulesData).length > 0) {

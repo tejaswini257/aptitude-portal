@@ -1,5 +1,5 @@
-import { IsString, IsOptional, IsInt } from "class-validator";
-import { Type } from "class-transformer";   // ✅ ADD THIS
+import { IsString, IsOptional, IsInt } from 'class-validator';
+import { Type } from 'class-transformer'; // ✅ ADD THIS
 
 export class CreateDepartmentDto {
   @IsString()
@@ -21,12 +21,12 @@ export class CreateDepartmentDto {
   phone?: string;
 
   @IsOptional()
-  @Type(() => Number)      // ✅ VERY IMPORTANT
+  @Type(() => Number) // ✅ VERY IMPORTANT
   @IsInt()
   totalStudents?: number;
 
   @IsOptional()
-  @Type(() => Number)      // ✅ VERY IMPORTANT
+  @Type(() => Number) // ✅ VERY IMPORTANT
   @IsInt()
   totalFaculty?: number;
 }

@@ -50,8 +50,8 @@ export class DepartmentController {
   }
 
   // ✅ GET DEPARTMENT BY ID
-@Get(':id')
-findOne(@Param('id') id: string) {
-return this.departmentService.findOne(id);
-}
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.departmentService.findOne(id);
+  }
 }

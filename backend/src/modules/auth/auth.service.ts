@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async register(dto: RegisterDto) {
     const exists = await this.prisma.user.findUnique({
@@ -65,12 +65,13 @@ export class AuthService {
 
     // Check if blocked
     try {
-      const [blockedRecord] = await this.prisma.$queryRawUnsafe<Array<{ reason: string }>>(
-        `SELECT reason FROM blocked_users WHERE user_id = $1`,
-        user.id
-      );
+      const [blockedRecord] = await this.prisma.$queryRawUnsafe<
+        Array<{ reason: string }>
+      >(`SELECT reason FROM blocked_users WHERE user_id = $1`, user.id);
       if (blockedRecord) {
-        throw new UnauthorizedException(`Your account is blocked. Reason: ${blockedRecord.reason || 'Admin action'}`);
+        throw new UnauthorizedException(
+          `Your account is blocked. Reason: ${blockedRecord.reason || 'Admin action'}`,
+        );
       }
     } catch (e: any) {
       if (e instanceof UnauthorizedException) {
@@ -106,5 +107,4 @@ export class AuthService {
       accessToken: await this.jwtService.signAsync(payload),
     };
   }
-
 }

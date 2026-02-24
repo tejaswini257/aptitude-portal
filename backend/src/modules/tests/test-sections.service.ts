@@ -1,15 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TestSectionsService {
   constructor(private prisma: PrismaService) {}
 
-  async attachSection(
-    testId: string,
-    sectionId: string,
-    timeLimit: number
-  ) {
+  async attachSection(testId: string, sectionId: string, timeLimit: number) {
     return this.prisma.testSection.create({
       data: {
         testId,

@@ -7,12 +7,8 @@ import {
   ValidateIf,
   IsOptional,
 } from 'class-validator';
-import { Type } from "class-transformer";
-import {
-  QuestionType,
-  DifficultyLevel,
-  QuestionUsage,
-} from '@prisma/client';
+import { Type } from 'class-transformer';
+import { QuestionType, DifficultyLevel, QuestionUsage } from '@prisma/client';
 
 export class CreateOptionDto {
   @IsString()
@@ -33,7 +29,7 @@ export class CreateQuestionDto {
   difficulty!: DifficultyLevel;
 
   // Only required if NOT unseen paragraph
-  @ValidateIf(o => o.type !== QuestionType.UNSEEN_PARAGRAPH)
+  @ValidateIf((o) => o.type !== QuestionType.UNSEEN_PARAGRAPH)
   @IsString()
   questionText!: string;
 
@@ -44,9 +40,10 @@ export class CreateQuestionDto {
   marks!: number;
 
   // Only required for MCQ types
-  @ValidateIf(o =>
-    o.type === QuestionType.MCQ_SINGLE ||
-    o.type === QuestionType.MCQ_MULTIPLE
+  @ValidateIf(
+    (o) =>
+      o.type === QuestionType.MCQ_SINGLE ||
+      o.type === QuestionType.MCQ_MULTIPLE,
   )
   @ValidateNested({ each: true })
   @Type(() => CreateOptionDto)

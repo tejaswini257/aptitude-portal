@@ -70,7 +70,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 
 @Injectable()
 export class AdminService implements OnModuleInit {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
     await this.ensureAdminTables();
@@ -106,16 +106,17 @@ export class AdminService implements OnModuleInit {
   }
 
   async getDashboardStats() {
-    const [colleges, companies, students, tests, submissionsAgg] = await Promise.all([
-      this.prisma.college.count(),
-      this.prisma.organization.count({ where: { type: OrgType.COMPANY } }),
-      this.prisma.student.count(),
-      this.prisma.test.count(),
-      this.prisma.submission.aggregate({
-        _count: { id: true },
-        _avg: { score: true }
-      })
-    ]);
+    const [colleges, companies, students, tests, submissionsAgg] =
+      await Promise.all([
+        this.prisma.college.count(),
+        this.prisma.organization.count({ where: { type: OrgType.COMPANY } }),
+        this.prisma.student.count(),
+        this.prisma.test.count(),
+        this.prisma.submission.aggregate({
+          _count: { id: true },
+          _avg: { score: true },
+        }),
+      ]);
 
     return {
       colleges,
@@ -123,7 +124,7 @@ export class AdminService implements OnModuleInit {
       students,
       totalTests: tests,
       totalSubmissions: submissionsAgg._count.id,
-      averageScore: Math.round(submissionsAgg._avg.score || 0)
+      averageScore: Math.round(submissionsAgg._avg.score || 0),
     };
   }
 
@@ -133,9 +134,9 @@ export class AdminService implements OnModuleInit {
         organization: { select: { name: true, type: true } },
         sections: { include: { section: { select: { sectionName: true } } } },
         rules: true,
-        _count: { select: { submissions: true } }
+        _count: { select: { submissions: true } },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -147,7 +148,7 @@ export class AdminService implements OnModuleInit {
       passCount,
       failCount,
       recentSubmissions,
-      avgScoreAgg
+      avgScoreAgg,
     ] = await Promise.all([
       this.prisma.student.count(),
       this.prisma.test.count(),
@@ -159,10 +160,12 @@ export class AdminService implements OnModuleInit {
         orderBy: { submittedAt: 'desc' },
         include: {
           student: { select: { user: { select: { email: true } } } },
-          test: { select: { name: true, organization: { select: { name: true } } } }
-        }
+          test: {
+            select: { name: true, organization: { select: { name: true } } },
+          },
+        },
       }),
-      this.prisma.submission.aggregate({ _avg: { score: true } })
+      this.prisma.submission.aggregate({ _avg: { score: true } }),
     ]);
 
     const formattedRecent = recentSubmissions.map((sub: any) => ({
@@ -172,7 +175,7 @@ export class AdminService implements OnModuleInit {
       orgName: sub.test?.organization?.name || 'Platform',
       score: sub.score,
       status: (sub.score ?? 0) >= 60 ? 'Passed' : 'Failed',
-      submittedAt: sub.submittedAt
+      submittedAt: sub.submittedAt,
     }));
 
     return {
@@ -182,7 +185,7 @@ export class AdminService implements OnModuleInit {
       passCount,
       failCount,
       averageScore: Math.round(avgScoreAgg._avg.score || 0),
-      recentSubmissions: formattedRecent
+      recentSubmissions: formattedRecent,
     };
   }
 
@@ -361,19 +364,19 @@ export class AdminService implements OnModuleInit {
         role: true,
         createdAt: true,
         organization: {
-          select: { name: true, type: true }
-        }
+          select: { name: true, type: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
-    const blockedRecords = await this.prisma.$queryRawUnsafe<Array<{ user_id: string, reason: string, blocked_at: Date }>>(
-      `SELECT user_id, reason, blocked_at FROM blocked_users`
-    );
+    const blockedRecords = await this.prisma.$queryRawUnsafe<
+      Array<{ user_id: string; reason: string; blocked_at: Date }>
+    >(`SELECT user_id, reason, blocked_at FROM blocked_users`);
     const blockedMap = new Map();
-    blockedRecords.forEach(r => blockedMap.set(r.user_id, r));
+    blockedRecords.forEach((r) => blockedMap.set(r.user_id, r));
 
-    return users.map(user => {
+    return users.map((user) => {
       const blockInfo = blockedMap.get(user.id);
       return {
         ...user,
@@ -397,7 +400,7 @@ export class AdminService implements OnModuleInit {
       `,
       userId,
       reason,
-      blockedBy
+      blockedBy,
     );
     return { success: true, message: 'User blocked successfully' };
   }
@@ -405,7 +408,7 @@ export class AdminService implements OnModuleInit {
   async unblockUser(userId: string) {
     await this.prisma.$executeRawUnsafe(
       `DELETE FROM blocked_users WHERE user_id = $1`,
-      userId
+      userId,
     );
     return { success: true, message: 'User unblocked successfully' };
   }

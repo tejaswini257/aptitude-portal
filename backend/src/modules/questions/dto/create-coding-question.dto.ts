@@ -4,9 +4,9 @@ import {
   IsInt,
   IsArray,
   ValidateNested,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { DifficultyLevel, QuestionUsage } from "@prisma/client";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { DifficultyLevel, QuestionUsage } from '@prisma/client';
 
 class TestCaseDto {
   @IsString()
