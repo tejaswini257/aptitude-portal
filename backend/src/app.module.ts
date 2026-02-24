@@ -12,6 +12,7 @@ import { CompanyModule } from './modules/company/company.module';
 import { CompanyTestsModule } from './modules/company-tests/company-tests.module';
 import { DrivesModule } from './modules/drives/drives.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { InstructorModule } from './modules/instructor/instructor.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -29,7 +30,8 @@ import { HealthModule } from './health/health.module';
     CompanyTestsModule,
     DrivesModule,
     AdminModule,
+    InstructorModule,
     HealthModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

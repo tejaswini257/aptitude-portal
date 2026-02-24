@@ -60,6 +60,12 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'coding:attempt',
     'analytics:view',
   ],
+  INSTRUCTOR: [
+    'dashboard:view',
+    'students:view',
+    'tests:manage',
+    'analytics:view',
+  ],
 };
 
 @Injectable()

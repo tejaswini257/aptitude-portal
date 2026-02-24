@@ -62,6 +62,7 @@ export default function TestDetailPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [test, setTest] = useState<TestMeta | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [finalScore, setFinalScore] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -93,8 +94,10 @@ export default function TestDetailPage() {
 
   const startTest = useCallback(async () => {
     try {
-      const res = await api.post("/submissions/start", { testId });
-      setSubmissionId(res.data.id as string);
+      if (!submissionId) {
+        const res = await api.post("/submissions/start", { testId });
+        setSubmissionId(res.data.id as string);
+      }
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
       setError(e?.response?.data?.message || "Failed to start test.");
@@ -133,22 +136,45 @@ export default function TestDetailPage() {
     void fetchScoreIfVisible();
   }, [fetchScoreIfVisible, submitted]);
 
-  const handleAnswer = async (questionId: string, selectedAnswer: string) => {
-    if (!submissionId || submitted) return;
+  const handleNextQuestion = async () => {
+    if (!submissionId || submitted || !selectedAnswer) return;
     try {
+      // 1. Submit current answer
+      const currentQuestion = questions[currentIndex];
       await api.post(`/submissions/${submissionId}/answer`, {
-        questionId,
+        questionId: currentQuestion.id,
         selectedAnswer,
       });
 
+      // 2. Clear local selection & move to next
+      setSelectedAnswer(null);
       if (currentIndex < questions.length - 1) {
         setCurrentIndex((index) => index + 1);
-      } else {
-        setSubmitted(true);
       }
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
       window.alert(e?.response?.data?.message || "Failed to submit answer.");
+    }
+  };
+
+  const handleTestSubmit = async () => {
+    if (!submissionId || submitted || !selectedAnswer) return;
+    try {
+      // 1. Submit the last answer
+      const currentQuestion = questions[currentIndex];
+      await api.post(`/submissions/${submissionId}/answer`, {
+        questionId: currentQuestion.id,
+        selectedAnswer,
+      });
+
+      // 2. Mark as submitted and trigger analytics redirect
+      setSubmitted(true);
+      if (!test?.showResultImmediately) {
+        router.replace('/student/analytics');
+      }
+    } catch (err: unknown) {
+      const e = err as ApiErrorShape;
+      window.alert(e?.response?.data?.message || "Failed to submit final answer.");
     }
   };
 
@@ -174,10 +200,10 @@ export default function TestDetailPage() {
           {test?.showResultImmediately && finalScore != null ? (
             <p className="text-2xl font-bold text-blue-600">Your Score: {finalScore}</p>
           ) : (
-            <p className="text-secondary">Result will be available once evaluation is completed.</p>
+            <p className="text-secondary">Result recorded successfully. You are being redirected to your scorecard...</p>
           )}
-          <button onClick={() => router.push("/student/dashboard")} className="btn btn-primary">
-            Back to Dashboard
+          <button onClick={() => router.replace("/student/analytics")} className="btn btn-primary">
+            View Analytics
           </button>
         </div>
       </div>
@@ -219,16 +245,47 @@ export default function TestDetailPage() {
 
         <h3 className="text-lg font-semibold">{currentQuestion.questionText}</h3>
 
-        <div className="grid gap-2">
-          {(currentQuestion.options || []).map((option) => (
+        <div className="grid gap-3 mb-6">
+          {(currentQuestion.options || []).map((option) => {
+            const isSelected = selectedAnswer === option.optionText;
+            return (
+              <button
+                key={option.id}
+                onClick={() => setSelectedAnswer(option.optionText)}
+                className={`w-full p-4 text-left border rounded-xl transition-all ${isSelected
+                    ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20 text-indigo-900 font-medium"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-gray-700"
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-indigo-600' : 'border-gray-300'}`}>
+                    {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-600" />}
+                  </div>
+                  <span>{option.optionText}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-end pt-4 border-t border-gray-100">
+          {currentIndex < questions.length - 1 ? (
             <button
-              key={option.id}
-              onClick={() => void handleAnswer(currentQuestion.id, option.optionText)}
-              className="btn btn-secondary justify-start text-left"
+              onClick={handleNextQuestion}
+              disabled={!selectedAnswer}
+              className="btn btn-secondary disabled:opacity-50 min-w-32"
             >
-              {option.optionText}
+              Next Question
             </button>
-          ))}
+          ) : (
+            <button
+              onClick={handleTestSubmit}
+              disabled={!selectedAnswer}
+              className="btn btn-primary bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 min-w-32"
+            >
+              Submit Test
+            </button>
+          )}
         </div>
       </div>
     </div>

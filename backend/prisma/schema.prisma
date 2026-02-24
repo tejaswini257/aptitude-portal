@@ -30,6 +30,7 @@ model User {
 
   organization Organization? @relation(fields: [orgId], references: [id])
   student      Student?
+  instructor   Instructor?
 }
 
 
@@ -70,6 +71,7 @@ model Department {
 
   college   College   @relation(fields: [collegeId], references: [id])
   students  Student[]
+  instructors Instructor[]
 
   @@unique([name, collegeId])
   @@index([collegeId])
@@ -97,6 +99,17 @@ model Student {
   @@unique([rollNo, collegeId])
 }
 
+model Instructor {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  departmentId String
+  designation  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
+}
 
 model Test {
   id        String   @id @default(uuid())
@@ -333,6 +346,7 @@ enum UserRole {
   COLLEGE_ADMIN
   COMPANY_ADMIN
   STUDENT
+  INSTRUCTOR
 }
 
 enum CollegeType {
