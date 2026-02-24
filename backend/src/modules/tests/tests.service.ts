@@ -2,11 +2,31 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTestDto } from './dto/create-test.dto';
 
+export interface AuthUser {
+  orgId: string;
+  userId?: string;
+  id?: string;
+  role?: string;
+  [key: string]: any;
+}
+
+interface TestQuestionSnapshot {
+  questionText?: string;
+  type?: string;
+  options?: Array<{
+    id: string;
+    optionCode: string;
+    optionText?: string;
+    text?: string;
+    [key: string]: unknown;
+  }>;
+}
+
 @Injectable()
 export class TestService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async createTest(dto: CreateTestDto, user: any) {
+  async createTest(dto: CreateTestDto, user: AuthUser) {
     const {
       name,
       showResultImmediately,
@@ -99,7 +119,7 @@ export class TestService {
     });
   }
 
-  async findAll(user: any) {
+  async findAll(user: AuthUser) {
     return this.prisma.test.findMany({
       where: {
         orgId: user.orgId,
@@ -111,7 +131,7 @@ export class TestService {
     testId: string,
     questionId: string,
     sectionId: string,
-    user: any,
+    user: AuthUser,
   ) {
     return this.prisma.$transaction(async (tx) => {
       const test = await tx.test.findUnique({
@@ -167,7 +187,7 @@ export class TestService {
     });
   }
 
-  async getBuilder(testId: string, user: any) {
+  async getBuilder(testId: string, user: AuthUser) {
     const test = await this.prisma.test.findFirst({
       where: {
         id: testId,
@@ -244,7 +264,7 @@ export class TestService {
     };
   }
 
-  async removeQuestion(testId: string, testQuestionId: string, user: any) {
+  async removeQuestion(testId: string, testQuestionId: string, user: AuthUser) {
     const test = await this.prisma.test.findFirst({
       where: {
         id: testId,
@@ -266,7 +286,7 @@ export class TestService {
 
     return { message: 'Question removed successfully' };
   }
-  async reorderQuestion(testQuestionId: string, newOrder: number, user: any) {
+  async reorderQuestion(testQuestionId: string, newOrder: number, user: AuthUser) {
     return this.prisma.$transaction(async (tx) => {
       const question = await tx.testQuestion.findUnique({
         where: { id: testQuestionId },
@@ -351,7 +371,7 @@ export class TestService {
     });
   }
 
-  async togglePublish(testId: string, isPublished: boolean, user: any) {
+  async togglePublish(testId: string, isPublished: boolean, user: AuthUser) {
     return this.prisma.$transaction(async (tx) => {
       const test = await tx.test.findFirst({
         where: {
@@ -410,7 +430,7 @@ export class TestService {
     });
   }
 
-  async toggleActive(testId: string, isActive: boolean, user: any) {
+  async toggleActive(testId: string, isActive: boolean, user: AuthUser) {
     return this.prisma.$transaction(async (tx) => {
       const test = await tx.test.findFirst({
         where: {
@@ -455,7 +475,7 @@ export class TestService {
     });
   }
 
-  async previewTest(testId: string, user: any) {
+  async previewTest(testId: string, user: AuthUser) {
     const test = await this.prisma.test.findFirst({
       where: {
         id: testId,
@@ -489,19 +509,21 @@ export class TestService {
     });
 
     // Group by section
-    const grouped: Record<string, any[]> = {};
+    const grouped: Record<string, Record<string, unknown>[]> = {};
 
     for (const tq of testQuestions) {
       if (!grouped[tq.sectionId]) {
         grouped[tq.sectionId] = [];
       }
 
-      const snapshot = tq.snapshot as any;
+      const snapshot = (tq.snapshot as unknown) as TestQuestionSnapshot;
 
       // Remove correct answer flags if present
-      if (snapshot?.options) {
-        snapshot.options = snapshot.options.map((opt: any) => ({
-          text: opt.text,
+      if (snapshot?.options && Array.isArray(snapshot.options)) {
+        snapshot.options = snapshot.options.map((opt) => ({
+          id: opt.id,
+          optionCode: opt.optionCode,
+          optionText: opt.optionText || opt.text || '',
         }));
       }
 
