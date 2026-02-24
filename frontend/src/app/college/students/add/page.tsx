@@ -98,7 +98,8 @@ function AddStudentForm() {
         collegeId: form.collegeId,
         departmentId: form.departmentId,
       });
-      router.push("/college/students");
+      router.push(`/college/departments/${form.departmentId}/students`);
+      router.refresh();
     } catch (err: any) {
       setError(
         err.response?.data?.message || err.message || "Failed to add student"

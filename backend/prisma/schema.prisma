@@ -12,27 +12,26 @@ model Organization {
   name      String
   type      OrgType
   createdAt DateTime @default(now())
-
   college   College?
-  users     User[]
-  tests     Test[]
   drives    Drive[]
+  tests     Test[]
+  users     User[]
 }
-
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      UserRole
-  orgId     String?
-  createdAt DateTime @default(now())
-
-  organization Organization? @relation(fields: [orgId], references: [id])
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  role         UserRole
+  orgId        String?
+  createdAt    DateTime      @default(now())
   student      Student?
+<<<<<<< HEAD
   instructor   Instructor?
+=======
+  organization Organization? @relation(fields: [orgId], references: [id])
+>>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
 }
-
 
 model College {
   id            String       @id @default(uuid())
@@ -46,59 +45,54 @@ model College {
   maxStudents   Int
   isApproved    Boolean      @default(false)
   createdAt     DateTime     @default(now())
-
   organization  Organization @relation(fields: [orgId], references: [id])
-
   departments   Department[]
   students      Student[]
 
   @@index([orgId])
 }
 
-
-
 model Department {
-  id        String   @id @default(uuid())
-  name      String
-  collegeId String
-  createdAt DateTime @default(now())
-
-  hodName      String?
-  email        String?
-  phone        String?
-  totalStudents Int?
+  id            String    @id @default(uuid())
+  name          String
+  collegeId     String
+  createdAt     DateTime  @default(now())
+  email         String?
+  hodName       String?
+  phone         String?
   totalFaculty  Int?
+<<<<<<< HEAD
 
   college   College   @relation(fields: [collegeId], references: [id])
   students  Student[]
   instructors Instructor[]
+=======
+  totalStudents Int?
+  college       College   @relation(fields: [collegeId], references: [id])
+  students      Student[]
+>>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
 
   @@unique([name, collegeId])
   @@index([collegeId])
 }
 
-
-
-
-
 model Student {
-  id           String   @id @default(uuid())
+  id           String       @id @default(uuid())
   rollNo       String
   year         Int
-  userId       String   @unique
+  userId       String       @unique
   collegeId    String
   departmentId String
-  createdAt    DateTime @default(now())
-
-  user       User       @relation(fields: [userId], references: [id])
-  college    College    @relation(fields: [collegeId], references: [id])
-  department Department @relation(fields: [departmentId], references: [id])
-
-  submissions Submission[]
+  createdAt    DateTime     @default(now())
+  college      College      @relation(fields: [collegeId], references: [id])
+  department   Department   @relation(fields: [departmentId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  submissions  Submission[]
 
   @@unique([rollNo, collegeId])
 }
 
+<<<<<<< HEAD
 model Instructor {
   id           String   @id @default(uuid())
   userId       String   @unique
@@ -111,162 +105,159 @@ model Instructor {
   department Department @relation(fields: [departmentId], references: [id])
 }
 
+=======
+>>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
 model Test {
-  id        String   @id @default(uuid())
-  name      String
-  orgId     String
-  createdAt DateTime @default(now())
-
-  showResultImmediately Boolean @default(false)
-  proctoringEnabled     Boolean @default(false)
-
-  organization Organization @relation(fields: [orgId], references: [id])
-
-  rulesId String
-  rules   Rules @relation(fields: [rulesId], references: [id])
-
-  sections     TestSection[]
-  drives       Drive[]
-  submissions  Submission[]
+  id                    String         @id @default(uuid())
+  name                  String
+  showResultImmediately Boolean        @default(false)
+  proctoringEnabled     Boolean        @default(false)
+  createdAt             DateTime       @default(now())
+  orgId                 String
+  rulesId               String
+  isPublished           Boolean        @default(false)
+  endTime               DateTime?
+  isActive              Boolean        @default(false)
+  startTime             DateTime?
+  totalDuration         Int?
+  resultPublishTime     DateTime?
+  durationMode          DurationMode   @default(GLOBAL)
+  drives                Drive[]
+  submissions           Submission[]
+  organization          Organization   @relation(fields: [orgId], references: [id])
+  rules                 Rules          @relation(fields: [rulesId], references: [id])
+  questions             TestQuestion[]
+  sections              TestSection[]
 }
 
-
-
+model TestQuestion {
+  id                 String @id @default(uuid())
+  testId             String
+  sectionId          String
+  originalQuestionId String
+  order              Int
+  marks              Int
+  negativeMarks      Int
+  snapshot           Json
+  test               Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
+}
 
 model TestSection {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
+  timeLimit Int
   testId    String
   sectionId String
-  timeLimit Int
-
-  test    Test    @relation(fields: [testId], references: [id])
-  section Section @relation(fields: [sectionId], references: [id])
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  test      Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
 }
 
 model Section {
-  id          String   @id @default(uuid())
-  sectionName String
-  orgId       String
-  isActive    Boolean  @default(true)
-
+  id           String        @id @default(uuid())
+  sectionName  String
+  orgId        String
+  isActive     Boolean       @default(true)
+  description  String?
+  type         SectionType   @default(MCQ)
   questions    Question[]
   testSections TestSection[]
 }
 
-
-
 model Question {
-  id           String   @id @default(uuid())
-  sectionId    String
-  orgId        String
-  difficulty   DifficultyLevel
-  questionText String
-
-  allowedFor  QuestionUsage
-  createdBy   String
-  creatorRole CreatorRole
-  type        QuestionType
-
-  correctAnswer String?
-  codingMeta    Json?
-  isActive      Boolean @default(true)
-
-  section   Section @relation(fields: [sectionId], references: [id])
-  options   Option[]
-  answers   SubmissionAnswer[]
+  id                  String               @id @default(uuid())
+  sectionId           String
+  type                QuestionType
+  difficulty          DifficultyLevel
+  correctAnswer       String?
+  allowedFor          QuestionUsage
+  codingMeta          Json?
+  createdBy           String
+  creatorRole         CreatorRole
+  isActive            Boolean              @default(true)
+  orgId               String
+  questionText        String
+  marks               Int                  @default(1)
+  order               Int                  @default(1)
+  parentQuestionId    String?
+  createdAt           DateTime             @default(now())
+  codingQuestion      CodingQuestion?
+  codingSubmissions   CodingSubmission[]
+  options             Option[]
+  passageDropdownMeta PassageDropdownMeta?
+  passageWritingMeta  PassageWritingMeta?
+  parentQuestion      Question?            @relation("ParagraphChildren", fields: [parentQuestionId], references: [id])
+  childQuestions      Question[]           @relation("ParagraphChildren")
+  section             Section              @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  answers             SubmissionAnswer[]
+  unseenParagraphMeta UnseenParagraphMeta?
 }
-
-
-
 
 model Submission {
-  id          String   @id @default(uuid())
-  testId      String
-  studentId   String
-  score       Int?
-  submittedAt DateTime @default(now())
-
-  test    Test    @relation(fields: [testId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
-  answers SubmissionAnswer[]
+  id                String             @id @default(uuid())
+  studentId         String
+  testId            String
+  score             Int?
+  submittedAt       DateTime?
+  status            SubmissionStatus
+  startedAt         DateTime           @default(now())
+  codingSubmissions CodingSubmission[]
+  student           Student            @relation(fields: [studentId], references: [id])
+  test              Test               @relation(fields: [testId], references: [id])
+  answers           SubmissionAnswer[]
 }
 
-
-
-
-
 model SubmissionAnswer {
-  id            String @id @default(uuid())
-  submissionId  String
-  questionId    String
+  id             String     @id @default(uuid())
+  submissionId   String
+  questionId     String
   selectedAnswer String?
-  isCorrect     Boolean?
-  marksObtained Int @default(0)
-
-  submission Submission @relation(fields: [submissionId], references: [id])
-  question   Question   @relation(fields: [questionId], references: [id])
+  isCorrect      Boolean?
+  marksObtained  Int        @default(0)
+  question       Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submission     Submission @relation(fields: [submissionId], references: [id])
 
   @@unique([submissionId, questionId])
 }
 
 model PracticeSet {
-  id           String @id @default(uuid())
+  id           String     @id @default(uuid())
   name         String
   orgId        String
   sectionTimer Int
   rulesId      String
   visibility   Visibility
-
-  rules Rules @relation(fields: [rulesId], references: [id])
-
-  questionIds Json
+  questionIds  Json
+  rules        Rules      @relation(fields: [rulesId], references: [id])
 }
-
-
 
 model Rules {
-  id               String @id @default(uuid())
+  id               String        @id @default(uuid())
   totalMarks       Int
-  marksPerQuestion Int
+  marksPerQuestion Int?
   negativeMarking  Boolean
   negativeMarks    Int?
-
-  tests        Test[]
-  practiceSets PracticeSet[]
+  practiceSets     PracticeSet[]
+  tests            Test[]
 }
 
-
-
-
 model Drive {
-  id        String @id @default(uuid())
-  companyId String
-  testId    String
-
-  isOpenDrive Boolean @default(false)
+  id          String         @id @default(uuid())
+  companyId   String
+  testId      String
+  isOpenDrive Boolean        @default(false)
   startDate   DateTime
   endDate     DateTime
   description String?
-
-  company Organization @relation(fields: [companyId], references: [id])
-  test    Test         @relation(fields: [testId], references: [id])
-
-  colleges DriveCollege[]
+  company     Organization   @relation(fields: [companyId], references: [id])
+  test        Test           @relation(fields: [testId], references: [id])
+  colleges    DriveCollege[]
 }
-
-
-
 
 model DriveCollege {
   id        String @id @default(uuid())
   driveId   String
   collegeId String
-
-  drive Drive @relation(fields: [driveId], references: [id])
+  drive     Drive  @relation(fields: [driveId], references: [id])
 }
-
-
-
 
 model ProctoringEvent {
   id                 String   @id @default(uuid())
@@ -281,8 +272,6 @@ model ProctoringEvent {
   timestamp          DateTime @default(now())
 }
 
-
-
 model ActivityLog {
   id        String   @id @default(uuid())
   userId    String
@@ -293,22 +282,19 @@ model ActivityLog {
   timestamp DateTime @default(now())
 }
 
-
-
 model CodingSubmission {
-  id String @id @default(uuid())
-
-  testId String
-  userId String
-
-  code String
-  language String
-  evaluationMode EvaluationMode
-
-  score Int
-  feedback String?
-
-  createdAt DateTime @default(now())
+  id           String     @id @default(uuid())
+  userId       String
+  code         String
+  language     String
+  score        Int        @default(0)
+  feedback     String?
+  createdAt    DateTime   @default(now())
+  questionId   String
+  resultMeta   Json?
+  submissionId String
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
@@ -316,25 +302,58 @@ model Notification {
   recipientId String
   message     String
   type        String
-  isRead      Boolean @default(false)
+  isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
-
 model Option {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   questionId String
   optionCode String
   optionText String
   isCorrect  Boolean
-
-  question Question @relation(fields: [questionId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
 
+model CodingQuestion {
+  id               String   @id @default(uuid())
+  questionId       String   @unique
+  constraints      String?
+  inputFormat      String?
+  outputFormat     String?
+  sampleInput      String?
+  sampleOutput     String?
+  testCases        Json
+  timeLimitMs      Int      @default(1000)
+  memoryLimitMb    Int      @default(256)
+  allowedLanguages Json
+  question         Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
 
+model PassageWritingMeta {
+  id                String   @id @default(uuid())
+  questionId        String   @unique
+  minWords          Int?
+  maxWords          Int?
+  allowManualReview Boolean  @default(true)
+  question          Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
 
+model PassageDropdownMeta {
+  id         String   @id @default(uuid())
+  questionId String   @unique
+  content    String
+  blanks     Json
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
 
-
+model UnseenParagraphMeta {
+  id           String   @id @default(uuid())
+  questionId   String   @unique
+  passage      String
+  subQuestions Json?
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
 
 enum OrgType {
   COLLEGE
@@ -370,8 +389,12 @@ enum TestStatus {
 
 enum QuestionType {
   MCQ
+  MCQ_SINGLE
+  MCQ_MULTIPLE
   CODING
-  APTITUDE
+  PASSAGE_WRITING
+  PASSAGE_DROPDOWN
+  UNSEEN_PARAGRAPH
 }
 
 enum DifficultyLevel {
@@ -408,3 +431,15 @@ enum CreatorRole {
   COMPANY
 }
 
+enum SectionType {
+  MCQ
+  CODING
+  PASSAGE_WRITING
+  PASSAGE_DROPDOWN
+  UNSEEN_PARAGRAPH
+}
+
+enum DurationMode {
+  GLOBAL
+  SECTION
+}

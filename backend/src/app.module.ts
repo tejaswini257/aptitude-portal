@@ -12,8 +12,15 @@ import { CompanyModule } from './modules/company/company.module';
 import { CompanyTestsModule } from './modules/company-tests/company-tests.module';
 import { DrivesModule } from './modules/drives/drives.module';
 import { AdminModule } from './modules/admin/admin.module';
+<<<<<<< HEAD
 import { InstructorModule } from './modules/instructor/instructor.module';
 import { HealthModule } from './health/health.module';
+=======
+import { SectionsModule } from './modules/sections/sections.module';
+import { PracticeSetsModule } from './modules/practice-sets/practice-sets.module';
+
+
+>>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
 
 @Module({
   imports: [
@@ -30,8 +37,13 @@ import { HealthModule } from './health/health.module';
     CompanyTestsModule,
     DrivesModule,
     AdminModule,
+<<<<<<< HEAD
     InstructorModule,
     HealthModule,
+=======
+    SectionsModule,
+    PracticeSetsModule,
+>>>>>>> d91389d827f612a3fc5abc416ed8d834194b8ae9
   ],
 })
 export class AppModule { }

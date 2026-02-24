@@ -6,11 +6,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,              // ✅ ADD THIS
+    transformOptions: {
+      enableImplicitConversion: true, // ✅ ADD THIS
+    },
+  }),
+);
 
   const port = process.env.PORT || 3001;
   const corsOrigin =

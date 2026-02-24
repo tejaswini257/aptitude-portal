@@ -4,15 +4,40 @@ import { LayoutDashboard, Building2, Users, ClipboardList, Briefcase, BarChart3,
 import PortalSidebar from "@/components/PortalSidebar";
 
 const menu = [
-  { name: "Dashboard", path: "/college/dashboard", icon: LayoutDashboard },
-  { name: "Departments", path: "/college/departments", icon: Building2 },
-  { name: "Students", path: "/college/students", icon: Users },
-  { name: "Tests", path: "/college/tests", icon: ClipboardList },
-  { name: "Drives", path: "/college/drives", icon: Briefcase },
-  { name: "Analytics", path: "/college/analytics", icon: BarChart3 },
-  { name: "Companies", path: "/college/companies", icon: Handshake },
+  { name: "Dashboard", path: "/college/dashboard" },
+  { name: "Departments", path: "/college/departments" },
+  { name: "Students", path: "/college/students" },
+  { name: "Tests", path: "/college/tests" },
+  { name: "Practice Sets", path: "/college/practice" },
+  { name: "Drives", path: "/college/drives" },
+  { name: "Analytics", path: "/college/analytics" },
+  { name: "Companies", path: "/college/companies" },
+  { name: "Question Bank", path: "/college/question-bank" },
+
 ];
 
 export default function CollegeSidebar() {
-  return <PortalSidebar title="College Panel" menu={menu} />;
+  const pathname = usePathname();
+
+  return (
+    <aside className="w-64 min-h-screen bg-white border-r p-5">
+      <h2 className="text-lg font-semibold mb-6">College Panel</h2>
+
+      <nav className="space-y-2">
+        {menu.map((item) => (
+          <Link
+            key={item.path}
+            href={item.path}
+            className={`block px-4 py-2 rounded-lg transition ${
+              pathname === item.path
+                ? "bg-emerald-500 text-white"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            {item.name}
+          </Link>
+        ))}
+      </nav>
+    </aside>
+  );
 }

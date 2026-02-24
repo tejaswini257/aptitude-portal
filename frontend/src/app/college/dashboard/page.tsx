@@ -41,13 +41,14 @@ export default function CollegeDashboardPage() {
       return;
     }
 
-    const loadStats = async () => {
+    (async () => {
       try {
         const res = await api.get("/colleges/dashboard/stats");
-        setStats(res.data as Stats);
-      } catch (err: unknown) {
-        const e = err as ApiErrorShape;
-        setError(e?.response?.data?.message || e?.message || "Failed to load stats.");
+        setStats(res.data);
+      } catch (err: any) {
+        setError(
+          err.response?.data?.message || err.message || "Failed to load stats"
+        );
       } finally {
         setLoading(false);
       }
@@ -72,36 +73,59 @@ export default function CollegeDashboardPage() {
     );
   }
 
-  const summary = stats ?? { students: 0, departments: 0, companies: 0, ongoingDrives: 0 };
-  const cards: DashboardCard[] = [
-    { title: "Students", value: summary.students, path: "/college/students", tone: "success" },
+  const s = stats || {
+    students: 0,
+    departments: 0,
+    companies: 0,
+    ongoingDrives: 0,
+  };
+
+  const cards = [
+    {
+      title: "Students",
+      value: s.students,
+      path: "/college/students",
+      color: "bg-emerald-500",
+    },
     {
       title: "Departments",
-      value: summary.departments,
+      value: s.departments,
       path: "/college/departments",
-      tone: "info",
+      color: "bg-blue-500",
     },
-    { title: "Companies", value: summary.companies, path: "/college/companies", tone: "accent" },
-    { title: "Ongoing Drives", value: summary.ongoingDrives, path: "/college/drives", tone: "info" },
+    {
+      title: "Companies",
+      value: s.companies,
+      path: "/college/companies",
+      color: "bg-violet-500",
+    },
+    {
+      title: "Ongoing Drives",
+      value: s.ongoingDrives,
+      path: "/college/drives",
+      color: "bg-amber-500",
+    },
   ];
 
   return (
-    <div className="page space-y-6">
-      <div className="page-header">
-        <div>
-          <h2 className="page-title">College</h2>
-          <p className="page-subtitle">Overview of student participation, departments, and placement activities.</p>
-        </div>
-      </div>
+  <div className="max-w-7xl mx-auto">
+    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dashboard</h1>
+    <p className="text-gray-500 mb-8">Overview of your college</p>
 
-      <div className="dashboard-grid-3">
-        {cards.map((card) => (
-          <Link key={card.title} href={card.path} className={`dashboard-card tone-${card.tone} card-link`}>
-            <p className="dashboard-card-title">{card.title}</p>
-            <h3 className="dashboard-card-value">{card.value}</h3>
-          </Link>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {cards.map((c) => (
+        <Link
+          key={c.title}
+          href={c.path}
+          className="block bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition"
+        >
+          <div className={`w-10 h-10 rounded-lg ${c.color} opacity-90 mb-4`} />
+          <div className="text-2xl font-bold text-gray-900">{c.value}</div>
+          <div className="text-sm text-gray-500">{c.title}</div>
+        </Link>
+      ))}
     </div>
-  );
+  </div>
+);
+
 }

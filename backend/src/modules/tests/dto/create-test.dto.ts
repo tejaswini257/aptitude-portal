@@ -1,17 +1,18 @@
 import {
+  IsArray,
   IsBoolean,
-  IsInt,
-  IsNotEmpty,
+  IsDateString,
   IsOptional,
   IsString,
-  Max,
-  Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateRulesDto } from './create-rules.dto';
+import { CreateTestSectionDto } from './create-test-section.dto';
 
 export class CreateTestDto {
   @IsString()
-  @IsNotEmpty()
-  name!: string;
+  name: string;
 
   @IsOptional()
   @IsInt()
@@ -42,4 +43,32 @@ export class CreateTestDto {
   @IsOptional()
   @IsBoolean()
   proctoringEnabled?: boolean;
+
+  @IsOptional()
+  @IsDateString()
+  startTime?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endTime?: string;
+
+  @IsOptional()
+  @IsString()
+  durationMode?: string;
+
+  @IsOptional()
+  totalDuration?: number;
+
+  @IsOptional()
+  @IsDateString()
+  resultPublishTime?: string;
+
+  @ValidateNested()
+  @Type(() => CreateRulesDto)
+  rules: CreateRulesDto;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateTestSectionDto)
+  sections: CreateTestSectionDto[];
 }

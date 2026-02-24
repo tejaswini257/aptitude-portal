@@ -1,7 +1,9 @@
 "use client";
+import "../../styles/tailwind.css";   // ✅ Correct Tailwind entry
 
 import BrandLogo from "@/components/BrandLogo";
 import CollegeSidebar from "./components/CollegeSidebar";
+import CollegeHeader from "./components/CollegeHeader";
 
 function logout() {
   if (typeof window !== "undefined") {
@@ -17,24 +19,17 @@ export default function CollegeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="portal-shell">
+    <div className="min-h-screen flex bg-gray-50">
+      {/* Sidebar */}
       <CollegeSidebar />
 
-      <div className="portal-shell-main">
-        <header className="portal-header">
-          <div className="portal-header-brand">
-            <BrandLogo compact />
-          </div>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top header */}
+        <CollegeHeader />
 
-          <button
-            onClick={logout}
-            className="btn btn-danger"
-          >
-            Logout
-          </button>
-        </header>
-
-        <main className="portal-content">{children}</main>
+        {/* Page content */}
+        <main className="p-6">{children}</main>
       </div>
     </div>
   );

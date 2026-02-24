@@ -16,34 +16,78 @@ type Student = {
 export default function DepartmentStudentsPage() {
   const { id } = useParams();
   const router = useRouter();
+
   const [students, setStudents] = useState<Student[]>([]);
   const [deptName, setDeptName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ✅ Fetch Students
+  const fetchStudents = async () => {
+    try {
+      const res = await api.get(`/students?departmentId=${id}`);
+      setStudents(res.data || []);
+    } catch (err: any) {
+      setError("Failed to load students");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Single useEffect (NO duplicates)
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       router.replace("/login");
       return;
     }
+
     if (!id) return;
+
     (async () => {
       try {
         const [studentsRes, deptRes] = await Promise.all([
           api.get(`/students?departmentId=${id}`),
           api.get(`/departments/${id}`).catch(() => ({ data: null })),
         ]);
+
         setStudents(studentsRes.data || []);
-        if (deptRes?.data?.name) setDeptName(deptRes.data.name);
+
+        if (deptRes?.data?.name) {
+          setDeptName(deptRes.data.name);
+        }
       } catch (err: any) {
-        setError(err.response?.data?.message || err.message || "Failed to load");
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to load"
+        );
       } finally {
         setLoading(false);
       }
     })();
   }, [id, router]);
 
+  // ✅ Delete Student
+  const handleDelete = async (studentId: string) => {
+    if (!confirm("Delete this student?")) return;
+
+    try {
+      await api.delete(`/students/${studentId}`);
+
+      // Optimistic update
+      setStudents((prev) =>
+        prev.filter((student) => student.id !== studentId)
+      );
+    } catch (err: any) {
+      alert(
+        err.response?.data?.message ||
+          "Failed to delete student"
+      );
+    }
+  };
+
+  // ✅ Safe conditional rendering AFTER hooks
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px] text-gray-500">
@@ -56,7 +100,10 @@ export default function DepartmentStudentsPage() {
     return (
       <div className="text-red-500">
         {error}
-        <Link href="/college/departments" className="block mt-2 text-blue-600">
+        <Link
+          href="/college/departments"
+          className="block mt-2 text-blue-600"
+        >
           ← Back to Departments
         </Link>
       </div>
@@ -74,8 +121,11 @@ export default function DepartmentStudentsPage() {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">
-          {deptName ? `${deptName} – Students` : "Students"}
+          {deptName
+            ? `${deptName} – Students`
+            : "Students"}
         </h1>
+
         <Link
           href={`/college/students/add?departmentId=${id}`}
           className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 inline-block w-fit"
@@ -92,22 +142,56 @@ export default function DepartmentStudentsPage() {
               <th className="p-4">Roll No</th>
               <th className="p-4">Year</th>
               <th className="p-4">Department</th>
+              <th className="p-4">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {students.length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-gray-500">
+                <td
+                  colSpan={5}
+                  className="p-8 text-center text-gray-500"
+                >
                   No students in this department yet.
                 </td>
               </tr>
             ) : (
               students.map((s) => (
-                <tr key={s.id} className="border-t hover:bg-gray-50">
-                  <td className="p-4">{s.user?.email ?? "—"}</td>
+                <tr
+                  key={s.id}
+                  className="border-t hover:bg-gray-50"
+                >
+                  <td className="p-4">
+                    {s.user?.email ?? "—"}
+                  </td>
                   <td className="p-4">{s.rollNo}</td>
                   <td className="p-4">{s.year}</td>
-                  <td className="p-4">{s.department?.name ?? "—"}</td>
+                  <td className="p-4">
+                    {s.department?.name ?? "—"}
+                  </td>
+
+                  <td className="p-4 flex gap-4">
+                    <button
+                      onClick={() =>
+                        router.push(
+                          `/college/departments/${id}/students/${s.id}/edit`
+                        )
+                      }
+                      className="text-blue-600 hover:underline text-sm"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleDelete(s.id)
+                      }
+                      className="text-red-600 hover:underline text-sm"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))
             )}

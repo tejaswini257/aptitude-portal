@@ -13,8 +13,11 @@ export class SubmissionsService {
 
   // ============ START TEST ============
   async startSubmission(testId: string, userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
+    // 🔹 FIX: find student via related User (NOT by userId directly)
+    const student = await this.prisma.student.findFirst({
+      where: {
+        user: { id: userId },
+      },
     });
 
     if (!student) {
@@ -38,101 +41,113 @@ export class SubmissionsService {
 
     if (existing) return existing;
 
+    // 🔹 Create new submission (no hardcoded score = 0)
     return this.prisma.submission.create({
       data: {
         studentId: student.id,
         testId,
-        score: 0,
+        status: "IN_PROGRESS", // or whatever your enum default is
+        startedAt: new Date(),  // if not auto-set
       },
     });
   }
 
   // ============ SUBMIT ANSWER ============
   async submitAnswer(
-    submissionId: string,
-    dto: SubmitAnswerDto,
-    userId: string,
-  ) {
-    const submission = await this.prisma.submission.findUnique({
-      where: { id: submissionId },
-      include: { student: true },
-    });
+  submissionId: string,
+  dto: SubmitAnswerDto,
+  userId: string,
+) {
+  const submission = await this.prisma.submission.findUnique({
+    where: { id: submissionId },
+    include: {
+      student: { include: { user: true } },
+      test: { include: { rules: true } },
+    },
+  });
 
-    if (!submission) {
-      throw new NotFoundException('Submission not found');
-    }
+  if (!submission)
+    throw new NotFoundException("Submission not found");
 
-    if (submission.student.userId !== userId) {
-      throw new ForbiddenException('Unauthorized access');
-    }
+  if (submission.student.user.id !== userId)
+    throw new ForbiddenException("Unauthorized access");
 
-    // Get all questions of this test (use lowercase 'section' for Prisma client compatibility)
-    const includeSections = {
-      section: { include: { questions: true } },
-    };
-    const testSections = await this.prisma.testSection.findMany({
-      where: { testId: submission.testId },
-      include: includeSections as any,
-    });
+  const test = submission.test;
+  const now = new Date();
+  if (submission.status !== "IN_PROGRESS") {
+  throw new BadRequestException("Test already submitted");
+}
 
-    const questions = testSections.flatMap(
-      (ts: any) => ts.section?.questions ?? [],
-    );
+  if (!test.isPublished || !test.isActive)
+    throw new BadRequestException("Test not active");
 
+  if (test.startTime && now < test.startTime)
+    throw new BadRequestException("Test not started");
 
-    const question = questions.find(
-      (q: any) => q.id === dto.questionId,
-    );
+  if (test.endTime && now > test.endTime)
+    throw new BadRequestException("Test ended");
 
-    if (!question) {
-      throw new BadRequestException('Invalid question for this test');
-    }
+  const question = await this.prisma.question.findUnique({
+    where: { id: dto.questionId },
+  });
 
-    const alreadyAnswered =
-      await this.prisma.submissionAnswer.findFirst({
-        where: {
-          submissionId,
-          questionId: dto.questionId,
-        },
-      });
+  if (!question)
+    throw new BadRequestException("Invalid question");
 
-    if (alreadyAnswered) {
-      throw new BadRequestException('Answer already submitted');
-    }
+  const alreadyAnswered = await this.prisma.submissionAnswer.findFirst({
+    where: {
+      submissionId,
+      questionId: dto.questionId,
+    },
+  });
 
-    const isCorrect =
-      String(dto.selectedAnswer) ===
-      String(question.correctAnswer ?? '');
+  if (alreadyAnswered)
+    throw new BadRequestException("Already answered");
 
-    await this.prisma.submissionAnswer.create({
-      data: {
-        submissionId,
-        questionId: dto.questionId,
-        selectedAnswer: String(dto.selectedAnswer),
-        isCorrect,
-        marksObtained: isCorrect ? 1 : 0,
-      },
-    });
+  const rules = test.rules;
 
-    const total = await this.prisma.submissionAnswer.aggregate({
-      where: { submissionId },
-      _sum: { marksObtained: true },
-    });
+  const isCorrect =
+    String(dto.selectedAnswer) ===
+    String(question.correctAnswer ?? "");
 
-    await this.prisma.submission.update({
-      where: { id: submissionId },
-      data: {
-        score: total._sum.marksObtained || 0,
-      },
-    });
+  let marksObtained = 0;
 
-    return { success: true };
+  if (isCorrect) {
+    marksObtained =
+      question.marks ?? rules.marksPerQuestion;
+  } else if (rules.negativeMarking && rules.negativeMarks) {
+    marksObtained = -rules.negativeMarks;
   }
+
+  await this.prisma.submissionAnswer.create({
+    data: {
+      submissionId,
+      questionId: question.id,
+      selectedAnswer: String(dto.selectedAnswer),
+      isCorrect,
+      marksObtained,
+    },
+  });
+
+  await this.prisma.submission.update({
+    where: { id: submissionId },
+    data: {
+      score: {
+        increment: marksObtained,
+      },
+    },
+  });
+
+  return { success: true };
+}
 
   // ============ STUDENT SUBMISSIONS ============
   async getSubmissionsByUser(userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
+    // 🔹 FIX: again, find student via related User
+    const student = await this.prisma.student.findFirst({
+      where: {
+        user: { id: userId },
+      },
     });
 
     if (!student) {
@@ -140,27 +155,59 @@ export class SubmissionsService {
     }
 
     const submissions = await this.prisma.submission.findMany({
-      where: { studentId: student.id },
-      orderBy: { submittedAt: 'desc' },
-    });
+  where: {
+    studentId: student.id,
+  },
+  include: {
+    test: true,
+  },
+});
 
-    const testIds = submissions.map((s) => s.testId);
-
-    const tests = await this.prisma.test.findMany({
-      where: { id: { in: testIds } },
-      select: { id: true, name: true },
-    });
-
-    const testMap = Object.fromEntries(
-      tests.map((t) => [t.id, t]),
-    );
 
     return submissions.map((s) => ({
-      id: s.id,
-      testId: s.testId,
-      score: s.score,
-      submittedAt: s.submittedAt,
-      test: testMap[s.testId] || null,
-    }));
+  id: s.id,
+  testId: s.testId,
+  studentId: s.studentId,
+  score: s.score,
+  submittedAt: s.submittedAt,
+}));
   }
+
+  async submitBulk(
+    submissionId: string,
+    answers: { questionId: string; selectedAnswer: string }[],
+    userId: string,
+  ) {
+    for (const a of answers) {
+      await this.submitAnswer(
+        submissionId,
+        { questionId: a.questionId, selectedAnswer: a.selectedAnswer },
+        userId,
+      );
+    }
+    return this.finishSubmission(submissionId, userId);
+  }
+
+  async finishSubmission(submissionId: string, userId: string) {
+  const submission = await this.prisma.submission.findUnique({
+    where: { id: submissionId },
+    include: { student: { include: { user: true } } },
+  });
+
+  if (!submission)
+    throw new NotFoundException("Submission not found");
+
+  if (submission.student.user.id !== userId)
+    throw new ForbiddenException("Unauthorized");
+
+  if (submission.status !== "IN_PROGRESS")
+    throw new BadRequestException("Already submitted");
+
+  return this.prisma.submission.update({
+    where: { id: submissionId },
+    data: {
+      status: "SUBMITTED",
+    },
+  });
+}
 }

@@ -1,79 +1,118 @@
 import {
+  Body,
   Controller,
   Post,
-  Body,
-  UseGuards,
   Req,
-  Get,
+  UseGuards,
   Param,
-  Patch,
+  Get,
   Delete,
-  Query,
+  Patch,
 } from '@nestjs/common';
-import { TestsService } from './tests.service';
+import { TestService } from './tests.service';
 import { CreateTestDto } from './dto/create-test.dto';
-import { UpdateTestDto } from './dto/update-test.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
 
 @Controller('tests')
 @UseGuards(JwtAuthGuard)
-export class TestsController {
-  constructor(private readonly testsService: TestsService) {}
+export class TestController {
+  constructor(private readonly testService: TestService) {}
 
-  // ✅ CREATE — College Admin + Company Admin
   @Post()
-@UseGuards(RolesGuard)
-@Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-create(@Body() dto: CreateTestDto, @Req() req: any) {
-  return this.testsService.create(dto, req.user.orgId);
+  async createTest(
+    @Body() dto: CreateTestDto,
+    @Req() req: any,
+  ) {
+    return this.testService.createTest(dto, req.user);
+  }
+
+  @Get()
+async findAll(@Req() req: any) {
+  return this.testService.findAll(req.user);
 }
 
+  @Post(':id/questions')
+async addQuestion(
+  @Param('id') testId: string,
+  @Body() body: { questionId: string; sectionId: string },
+  @Req() req: any,
+) {
+  return this.testService.addQuestionToTest(
+    testId,
+    body.questionId,
+    body.sectionId,
+    req.user,
+  );
+}
 
-  // ✅ GET ALL (scoped to org). ?withAttemptCount=1 for college/company dashboard
-  @Get()
-  findAll(@Req() req: any, @Query('withAttemptCount') withAttemptCount?: string) {
-    const orgId = req.user?.orgId;
-    return this.testsService.findAll(orgId, withAttemptCount === '1' || withAttemptCount === 'true');
-  }
+@Get(':id/builder')
+async getBuilder(
+  @Param('id') testId: string,
+  @Req() req: any,
+) {
+  return this.testService.getBuilder(testId, req.user);
+}
 
-  // ✅ GET SUBMISSIONS FOR TEST (college/company admin) - must be before :id
-  @Get(':id/submissions')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  getTestSubmissions(@Param('id') id: string, @Req() req: any) {
-    return this.testsService.getSubmissionsForTest(id, req.user.orgId);
-  }
+@Delete(':testId/questions/:testQuestionId')
+async removeQuestion(
+  @Param('testId') testId: string,
+  @Param('testQuestionId') testQuestionId: string,
+  @Req() req: any,
+) {
+  return this.testService.removeQuestion(
+    testId,
+    testQuestionId,
+    req.user,
+  );
+}
 
-  // ✅ GET ONE (scoped to org)
-  @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: any) {
-    return this.testsService.findOne(id, req.user.orgId);
-  }
+@Patch('questions/:testQuestionId/reorder')
+async reorderQuestion(
+  @Param('testQuestionId') testQuestionId: string,
+  @Body() body: { newOrder: number },
+  @Req() req: any,
+) {
+  return this.testService.reorderQuestion(
+    testQuestionId,
+    body.newOrder,
+    req.user,
+  );
+}
 
-  // ✅ UPDATE
-  @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateTestDto) {
-    return this.testsService.update(id, dto);
-  }
+@Patch(':id/publish')
+async togglePublish(
+  @Param('id') testId: string,
+  @Body() body: { isPublished: boolean },
+  @Req() req: any,
+) {
+  return this.testService.togglePublish(
+    testId,
+    body.isPublished,
+    req.user,
+  );
+}
 
-  // ✅ DELETE (scoped to org)
-  @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.COLLEGE_ADMIN, UserRole.COMPANY_ADMIN)
-  remove(@Param('id') id: string, @Req() req: any) {
-    return this.testsService.remove(id, req.user.orgId);
-  }
+@Patch(':id/active')
+async toggleActive(
+  @Param('id') testId: string,
+  @Body() body: { isActive: boolean },
+  @Req() req: any,
+) {
+  return this.testService.toggleActive(
+    testId,
+    body.isActive,
+    req.user,
+  );
+}
 
-  // ✅ STUDENT: GET QUESTIONS
-  @Get(':id/questions')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
-  getTestQuestions(@Param('id') id: string) {
-    return this.testsService.getQuestionsForTest(id);
-  }
+@Get(':id/preview')
+async previewTest(
+  @Param('id') testId: string,
+  @Req() req: any,
+) {
+  return this.testService.previewTest(
+    testId,
+    req.user,
+  );
+}
 }
