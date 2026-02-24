@@ -2,7 +2,9 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import api from "@/interceptors/axios";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 
 type Option = { id: string; optionText: string };
 
@@ -32,7 +34,7 @@ type MySubmission = {
 type ApiErrorShape = {
   response?: {
     data?: {
-      message?: string;
+      message?: string | string[];
     };
   };
 };
@@ -57,7 +59,7 @@ export default function TestDetailPage() {
   const testId = params.testId;
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
@@ -100,10 +102,12 @@ export default function TestDetailPage() {
       }
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      setError(e?.response?.data?.message || "Failed to start test.");
-      setLoading(false);
+      const msg = e?.response?.data?.message;
+      const errorStr = Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to start test.");
+      setError(errorStr);
+      toast.error(`Attempt Error: ${errorStr}`);
     }
-  }, [testId]);
+  }, [testId, submissionId]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -113,7 +117,10 @@ export default function TestDetailPage() {
       setQuestions(flattenQuestions(sections));
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      setError(e?.response?.data?.message || "Failed to load test.");
+      const msg = e?.response?.data?.message;
+      const errorStr = Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to load test metadata.");
+      setError(errorStr);
+      toast.error(`Loading Error: ${errorStr}`);
     } finally {
       setLoading(false);
     }
@@ -139,47 +146,68 @@ export default function TestDetailPage() {
   const handleNextQuestion = async () => {
     if (!submissionId || submitted || !selectedAnswer) return;
     try {
-      // 1. Submit current answer
       const currentQuestion = questions[currentIndex];
       await api.post(`/submissions/${submissionId}/answer`, {
         questionId: currentQuestion.id,
         selectedAnswer,
       });
 
-      // 2. Clear local selection & move to next
       setSelectedAnswer(null);
       if (currentIndex < questions.length - 1) {
         setCurrentIndex((index) => index + 1);
       }
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      window.alert(e?.response?.data?.message || "Failed to submit answer.");
+      const msg = e?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to submit answer."));
     }
   };
 
   const handleTestSubmit = async () => {
     if (!submissionId || submitted || !selectedAnswer) return;
     try {
-      // 1. Submit the last answer
       const currentQuestion = questions[currentIndex];
       await api.post(`/submissions/${submissionId}/answer`, {
         questionId: currentQuestion.id,
         selectedAnswer,
       });
 
-      // 2. Mark as submitted and trigger analytics redirect
       setSubmitted(true);
       if (!test?.showResultImmediately) {
         router.replace('/student/analytics');
+      } else {
+        toast.success("Test Submitted Successfully!");
       }
     } catch (err: unknown) {
       const e = err as ApiErrorShape;
-      window.alert(e?.response?.data?.message || "Failed to submit final answer.");
+      const msg = e?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to submit final answer."));
     }
   };
 
-  if (loading) return <p className="text-secondary">Loading test...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return (
+    <div className="page flex items-center justify-center p-12">
+      <div className="animate-pulse flex flex-col items-center gap-3 text-secondary">
+        <div className="w-8 h-8 rounded-full border-4 border-t-blue-600 border-blue-200 animate-spin"></div>
+        <p className="font-medium text-lg">Initializing Examination...</p>
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="page flex flex-col items-center justify-center p-12 max-w-2xl mx-auto text-center space-y-4">
+      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
+        <AlertCircle size={32} />
+      </div>
+      <h2 className="text-2xl font-bold text-gray-900">Unable to Start Test</h2>
+      <p className="text-gray-600 mb-6 bg-red-50 p-4 rounded-lg border border-red-100 w-full font-mono text-sm">
+        {error}
+      </p>
+      <button onClick={() => router.push("/student/dashboard")} className="btn bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-2">
+        <ArrowLeft size={16} /> Return to Dashboard
+      </button>
+    </div>
+  );
 
   if (questions.length === 0) {
     return (
@@ -253,8 +281,8 @@ export default function TestDetailPage() {
                 key={option.id}
                 onClick={() => setSelectedAnswer(option.optionText)}
                 className={`w-full p-4 text-left border rounded-xl transition-all ${isSelected
-                    ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20 text-indigo-900 font-medium"
-                    : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-gray-700"
+                  ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20 text-indigo-900 font-medium"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-gray-700"
                   }`}
               >
                 <div className="flex items-center gap-3">

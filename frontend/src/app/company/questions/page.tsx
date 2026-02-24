@@ -10,17 +10,54 @@ const initialQuestions = [
 ];
 
 export default function QuestionsPage() {
-  const [questions, setQuestions] = useState(initialQuestions);
+  const [questions, setQuestions] = useState(initialQuestions); // TODO: fetch from backend
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All Types");
 
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [newQuestionForm, setNewQuestionForm] = useState({
+    title: "",
+    type: "Aptitude",
+    difficulty: "Medium",
+    correctAnswer: "",
+    options: ["", "", "", ""],
+    problemStatement: "",
+    inputFormat: "",
+    outputFormat: "",
+    constraints: "",
+  });
 
   const filteredQuestions = questions.filter(q => {
     const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === "All Types" || q.type === typeFilter;
     return matchesSearch && matchesType;
   });
+
+  const handleCreateQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Connect to backend API
+    const newQ = {
+      id: Math.random(),
+      title: newQuestionForm.title,
+      type: newQuestionForm.type,
+      difficulty: newQuestionForm.difficulty,
+      usages: 0,
+    };
+    setQuestions([newQ, ...questions]);
+    setIsAddingQuestion(false);
+    setNewQuestionForm({
+      title: "",
+      type: "Aptitude",
+      difficulty: "Medium",
+      correctAnswer: "",
+      options: ["", "", "", ""],
+      problemStatement: "",
+      inputFormat: "",
+      outputFormat: "",
+      constraints: "",
+    });
+  };
 
   const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +74,7 @@ export default function QuestionsPage() {
           <h2 className="page-title">Question Bank</h2>
           <p className="page-subtitle">Manage aptitude and coding questions used in company tests.</p>
         </div>
-        <button className="btn btn-primary">
+        <button onClick={() => setIsAddingQuestion(true)} className="btn btn-primary">
           <Plus size={16} className="mr-2" />
           Add Question
         </button>
@@ -171,6 +208,142 @@ export default function QuestionsPage() {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Modal */}
+      {isAddingQuestion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-default">
+              <h3 className="text-lg font-bold text-primary">Create New Question</h3>
+              <button onClick={() => setIsAddingQuestion(false)} className="text-secondary hover:text-primary transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateQuestion} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-sm font-medium text-secondary mb-1">Question Text *</label>
+                <textarea
+                  value={newQuestionForm.title}
+                  onChange={(e) => setNewQuestionForm({ ...newQuestionForm, title: e.target.value })}
+                  className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[100px]"
+                  placeholder="Enter the main question text..."
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-secondary mb-1">Type</label>
+                  <select
+                    value={newQuestionForm.type}
+                    onChange={(e) => setNewQuestionForm({ ...newQuestionForm, type: e.target.value })}
+                    className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary outline-none"
+                  >
+                    <option value="Aptitude">Aptitude</option>
+                    <option value="Coding">Coding</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-secondary mb-1">Difficulty</label>
+                  <select
+                    value={newQuestionForm.difficulty}
+                    onChange={(e) => setNewQuestionForm({ ...newQuestionForm, difficulty: e.target.value })}
+                    className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary outline-none"
+                  >
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                  </select>
+                </div>
+              </div>
+
+              {newQuestionForm.type === 'Aptitude' ? (
+                <div className="space-y-3 pt-4 border-t border-default">
+                  <p className="text-sm font-medium text-secondary">Options (Provide exactly 4)</p>
+                  {newQuestionForm.options.map((opt, optIndex) => (
+                    <div key={optIndex} className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="correctOption"
+                        checked={newQuestionForm.correctAnswer === opt && opt.trim() !== ""}
+                        onChange={() => setNewQuestionForm({ ...newQuestionForm, correctAnswer: opt })}
+                        required={newQuestionForm.type === 'Aptitude'}
+                      />
+                      <input
+                        type="text"
+                        value={opt}
+                        onChange={(e) => {
+                          const newOpts = [...newQuestionForm.options];
+                          newOpts[optIndex] = e.target.value;
+                          setNewQuestionForm({ ...newQuestionForm, options: newOpts });
+                        }}
+                        className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        placeholder={`Option ${optIndex + 1}`}
+                        required={newQuestionForm.type === 'Aptitude'}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4 pt-4 border-t border-default animate-in fade-in duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-secondary mb-1">Problem Description</label>
+                    <textarea
+                      value={newQuestionForm.problemStatement}
+                      onChange={(e) => setNewQuestionForm({ ...newQuestionForm, problemStatement: e.target.value })}
+                      className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[120px]"
+                      placeholder="Explain the coding challenge algorithms or scenarios in detail..."
+                      required={newQuestionForm.type === 'Coding'}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-secondary mb-1">Input Format</label>
+                      <textarea
+                        value={newQuestionForm.inputFormat}
+                        onChange={(e) => setNewQuestionForm({ ...newQuestionForm, inputFormat: e.target.value })}
+                        className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[80px]"
+                        placeholder="e.g., First line contains integer N..."
+                        required={newQuestionForm.type === 'Coding'}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary mb-1">Output Format</label>
+                      <textarea
+                        value={newQuestionForm.outputFormat}
+                        onChange={(e) => setNewQuestionForm({ ...newQuestionForm, outputFormat: e.target.value })}
+                        className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[80px]"
+                        placeholder="e.g., Print the total sum..."
+                        required={newQuestionForm.type === 'Coding'}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary mb-1">Constraints</label>
+                    <input
+                      type="text"
+                      value={newQuestionForm.constraints}
+                      onChange={(e) => setNewQuestionForm({ ...newQuestionForm, constraints: e.target.value })}
+                      className="w-full px-3 py-2 bg-surface border border-default rounded-md text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="e.g., 1 <= N <= 10^5"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 flex justify-end gap-3 border-t border-default mt-6">
+                <button type="button" onClick={() => setIsAddingQuestion(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Create Question
                 </button>
               </div>
             </form>

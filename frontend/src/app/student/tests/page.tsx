@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import api from "@/interceptors/axios";
 
 
@@ -68,12 +69,12 @@ export default function TestsPage() {
                   Published: {new Date(test.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <button
-                onClick={() => router.push(`/student/tests/${test.id}`)}
-                className="btn btn-primary"
+              <Link
+                href={`/student/tests/${test.id}`}
+                className="btn btn-primary text-center inline-block"
               >
                 Start Test
-              </button>
+              </Link>
             </div>
           ))}
         </div>
