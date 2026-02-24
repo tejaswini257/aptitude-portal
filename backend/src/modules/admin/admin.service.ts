@@ -127,6 +127,65 @@ export class AdminService implements OnModuleInit {
     };
   }
 
+  async getAllTestsGlobally() {
+    return this.prisma.test.findMany({
+      include: {
+        organization: { select: { name: true, type: true } },
+        sections: { include: { section: { select: { sectionName: true } } } },
+        rules: true,
+        _count: { select: { submissions: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async getPlatformAnalyticsOverview() {
+    const [
+      totalCandidates,
+      totalTests,
+      totalSubmissions,
+      passCount,
+      failCount,
+      recentSubmissions,
+      avgScoreAgg
+    ] = await Promise.all([
+      this.prisma.student.count(),
+      this.prisma.test.count(),
+      this.prisma.submission.count(),
+      this.prisma.submission.count({ where: { score: { gte: 60 } } }),
+      this.prisma.submission.count({ where: { score: { lt: 60 } } }),
+      this.prisma.submission.findMany({
+        take: 10,
+        orderBy: { submittedAt: 'desc' },
+        include: {
+          student: { select: { user: { select: { email: true } } } },
+          test: { select: { name: true, organization: { select: { name: true } } } }
+        }
+      }),
+      this.prisma.submission.aggregate({ _avg: { score: true } })
+    ]);
+
+    const formattedRecent = recentSubmissions.map((sub: any) => ({
+      id: sub.id,
+      studentName: sub.student?.user?.email || 'Unknown',
+      testName: sub.test?.name || 'Unknown',
+      orgName: sub.test?.organization?.name || 'Platform',
+      score: sub.score,
+      status: (sub.score ?? 0) >= 60 ? 'Passed' : 'Failed',
+      submittedAt: sub.submittedAt
+    }));
+
+    return {
+      totalCandidates,
+      totalTests,
+      totalSubmissions,
+      passCount,
+      failCount,
+      averageScore: Math.round(avgScoreAgg._avg.score || 0),
+      recentSubmissions: formattedRecent
+    };
+  }
+
   async getRolePermissions() {
     const rows = await this.prisma.$queryRawUnsafe<
       Array<{ role: string; permissions: unknown; updated_at: Date }>

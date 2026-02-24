@@ -10,10 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
-import {
-  CompanyTestsService,
-  CreateCompanyTestDto,
-} from './company-tests.service';
+import { CompanyTestsService } from './company-tests.service';
+import { CreateCompanyTestDto } from './dto/create-test.dto';
 import { JwtGuard } from '../../common/guards/jwt.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { SubsciptionGuard } from '../../common/guards/subsciption.guard';

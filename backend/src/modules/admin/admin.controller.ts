@@ -35,6 +35,16 @@ export class AdminController {
     return this.adminService.getDashboardStats();
   }
 
+  @Get('analytics/overview')
+  getPlatformAnalytics() {
+    return this.adminService.getPlatformAnalyticsOverview();
+  }
+
+  @Get('tests')
+  getAllTests() {
+    return this.adminService.getAllTestsGlobally();
+  }
+
   @Get('roles')
   getRoles() {
     return this.adminService.getRolePermissions();

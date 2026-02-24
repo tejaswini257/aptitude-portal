@@ -3,24 +3,7 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { QuestionType, DifficultyLevel, QuestionUsage, CreatorRole } from '@prisma/client';
 
-export class CreateCompanyTestDto {
-  name!: string;
-  rulesId?: string | null;
-  durationMinutes?: number;
-  marksPerQuestion?: number;
-  negativeMarking?: boolean;
-  negativeMarks?: number;
-  showResultImmediately?: boolean;
-  proctoringEnabled?: boolean;
-  questions?: Array<{
-    title: string;
-    type: QuestionType;
-    difficulty: DifficultyLevel;
-    correctAnswer: string;
-    options: string[];
-  }>;
-}
-
+import { CreateCompanyTestDto } from './dto/create-test.dto';
 @Injectable()
 export class CompanyTestsService {
   constructor(private readonly prisma: PrismaService) { }
