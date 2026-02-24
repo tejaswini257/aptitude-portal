@@ -1,17 +1,26 @@
 import {
-  IsString,
   IsEnum,
-  IsOptional,
-  IsArray,
   IsBoolean,
-  IsNumber,
+  IsString,
+  IsInt,
+  ValidateNested,
+  ValidateIf,
+  IsOptional,
 } from 'class-validator';
+import { Type } from "class-transformer";
 import {
   QuestionType,
   DifficultyLevel,
   QuestionUsage,
-  CreatorRole,
 } from '@prisma/client';
+
+export class CreateOptionDto {
+  @IsString()
+  text!: string;
+
+  @IsBoolean()
+  isCorrect!: boolean;
+}
 
 export class CreateQuestionDto {
   @IsString()
@@ -23,26 +32,27 @@ export class CreateQuestionDto {
   @IsEnum(DifficultyLevel)
   difficulty!: DifficultyLevel;
 
-  @IsEnum(QuestionUsage)
-  allowedFor!: QuestionUsage;
-
+  // Only required if NOT unseen paragraph
+  @ValidateIf(o => o.type !== QuestionType.UNSEEN_PARAGRAPH)
   @IsString()
   questionText!: string;
 
-  @IsOptional()
-  correctAnswer?: string;
+  @IsEnum(QuestionUsage)
+  allowedFor!: QuestionUsage;
 
-  @IsOptional()
-  codingMeta?: any;
-
-  @IsOptional()
-  @IsArray()
-  options?: {
-    optionCode: string;
-    optionText: string;
-    isCorrect: boolean;
-  }[];
-
-  @IsNumber()
+  @IsInt()
   marks!: number;
+
+  // Only required for MCQ types
+  @ValidateIf(o =>
+    o.type === QuestionType.MCQ_SINGLE ||
+    o.type === QuestionType.MCQ_MULTIPLE
+  )
+  @ValidateNested({ each: true })
+  @Type(() => CreateOptionDto)
+  options?: CreateOptionDto[];
+
+  // Optional meta containers
+  @IsOptional()
+  unseenParagraphMeta?: any;
 }

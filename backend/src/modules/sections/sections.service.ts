@@ -1,6 +1,7 @@
 // src/modules/sections/sections.service.ts
 
 import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
+import { SectionType } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateSectionDto } from "./dto/create-section.dto";
 
@@ -22,11 +23,14 @@ export class SectionsService {
       throw new BadRequestException("Section with this name already exists");
     }
 
+    // DTO allows UNSEEN_PARAGRAPH; ensure Prisma receives valid SectionType (run `npx prisma generate` if schema was updated)
+    const sectionType: SectionType = createSectionDto.type as SectionType;
+
     return this.prisma.section.create({
       data: {
         sectionName: createSectionDto.sectionName,
         description: createSectionDto.description,
-        type: createSectionDto.type,
+        type: sectionType,
         orgId,
       },
     });
@@ -51,6 +55,18 @@ export class SectionsService {
       include: {
         questions: {
           orderBy: { order: "asc" },
+          include: {
+            options: true,
+            codingQuestion: true,
+            passageWritingMeta: true,
+            passageDropdownMeta: true,
+            unseenParagraphMeta: true,
+            parentQuestion: {
+              include: {
+                unseenParagraphMeta: true,
+              },
+            },
+          },
         },
       },
     });
@@ -75,6 +91,49 @@ export class SectionsService {
       },
       include: {
         section: true,
+      },
+    });
+  }
+
+  // ✅ Delete Section (cascade will remove questions/options; remove test section links first)
+  async delete(id: string, orgId: string) {
+    const section = await this.prisma.section.findFirst({
+      where: { id, orgId },
+    });
+
+    if (!section) {
+      throw new NotFoundException("Section not found");
+    }
+
+    await this.prisma.testSection.deleteMany({
+      where: { sectionId: id },
+    });
+
+    await this.prisma.question.deleteMany({
+      where: { sectionId: id },
+    });
+
+    return this.prisma.section.delete({
+      where: { id },
+    });
+  }
+
+  // ✅ Update Section (title, description)
+  async update(
+    id: string,
+    orgId: string,
+    data: { sectionName?: string; description?: string },
+  ) {
+    const section = await this.prisma.section.findFirst({
+      where: { id, orgId },
+    });
+    if (!section) throw new NotFoundException("Section not found");
+
+    return this.prisma.section.update({
+      where: { id },
+      data: {
+        ...(data.sectionName != null && { sectionName: data.sectionName }),
+        ...(data.description !== undefined && { description: data.description }),
       },
     });
   }

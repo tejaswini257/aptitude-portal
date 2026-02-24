@@ -46,6 +46,8 @@ export class SubmissionsService {
       data: {
         studentId: student.id,
         testId,
+        status: "IN_PROGRESS", // or whatever your enum default is
+        startedAt: new Date(),  // if not auto-set
       },
     });
   }

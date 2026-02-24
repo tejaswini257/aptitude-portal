@@ -1,12 +1,19 @@
-import { SectionType } from "@prisma/client";
 import {
-  IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from "class-validator";
+
+const SECTION_TYPES = [
+  "MCQ",
+  "CODING",
+  "PASSAGE_WRITING",
+  "PASSAGE_DROPDOWN",
+  "UNSEEN_PARAGRAPH",
+] as const;
 
 export class CreateSectionDto {
   @IsString()
@@ -20,6 +27,6 @@ export class CreateSectionDto {
   @MaxLength(250)
   description?: string;
 
-  @IsEnum(SectionType)
-  type!: SectionType;
+  @IsIn(SECTION_TYPES)
+  type!: (typeof SECTION_TYPES)[number];
 }

@@ -1,25 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import api from "@/interceptors/axios";
 
 export default function QuestionBankPage() {
   const [search, setSearch] = useState("");
+  const [sections, setSections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Temporary mock data
-  const sections = [
-    { id: "1", name: "Quantitative Aptitude", questionCount: 25 },
-    { id: "2", name: "Logical Reasoning", questionCount: 18 },
-    { id: "3", name: "Verbal Ability", questionCount: 30 },
-  ];
+  useEffect(() => {
+    fetchSections();
+  }, []);
+
+  const fetchSections = async () => {
+    try {
+      const res = await api.get("/sections");
+      setSections(res.data);
+    } catch (err) {
+      console.error("Failed to fetch sections");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredSections = sections.filter((section) =>
-    section.name.toLowerCase().includes(search.toLowerCase())
+    section.sectionName.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Question Bank</h1>
@@ -30,49 +44,61 @@ export default function QuestionBankPage() {
 
         <Link
           href="/college/question-bank/create"
-          className="px-4 py-2 bg-black text-white rounded-lg hover:opacity-90 transition"
+          className="px-4 py-2 bg-black text-white rounded-lg"
         >
           + Create Section
         </Link>
       </div>
 
-      {/* Search */}
-      <div>
-        <input
-          type="text"
-          placeholder="Search sections..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="Search sections..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full border rounded-lg px-4 py-2"
+      />
 
-      {/* Section Grid */}
       {filteredSections.length === 0 ? (
         <div className="text-center py-10 text-gray-500">
           No sections found.
         </div>
       ) : (
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSections.map((section) => (
             <div
               key={section.id}
-              className="border rounded-xl p-5 hover:shadow-md transition bg-white"
+              className="border rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition"
             >
-              <h2 className="text-lg font-medium mb-2">{section.name}</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                {section.sectionName}
+              </h2>
               <p className="text-sm text-gray-500 mb-4">
-                {section.questionCount} Questions
+                {section._count?.questions ?? 0} Questions
               </p>
-
-              <div className="flex justify-between items-center">
+              <div className="flex flex-wrap gap-3">
                 <Link
                   href={`/college/question-bank/${section.id}`}
-                  className="text-sm text-blue-600 hover:underline"
+                  className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition"
                 >
-                  Manage Questions →
+                  Manage Questions
                 </Link>
-
-                <button className="text-sm text-red-500 hover:underline">
+                <button
+                  onClick={async () => {
+                    if (
+                      !confirm(
+                        "Delete this section? All questions inside it will be removed."
+                      )
+                    )
+                      return;
+                    try {
+                      await api.delete(`/sections/${section.id}`);
+                      fetchSections();
+                    } catch (err: any) {
+                      alert(err?.response?.data?.message || "Failed to delete");
+                    }
+                  }}
+                  className="inline-flex items-center px-4 py-2 border border-red-300 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition"
+                >
                   Delete
                 </button>
               </div>

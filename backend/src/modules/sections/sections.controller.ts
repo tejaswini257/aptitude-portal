@@ -2,10 +2,12 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Body,
   Req,
   Param,
   UseGuards,
+  Delete,
 } from "@nestjs/common";
 import { SectionsService } from "./sections.service";
 import { JwtGuard } from "../../common/guards/jwt.guard";
@@ -35,20 +37,40 @@ export class SectionsController {
     return this.service.findAll(orgId);
   }
 
-  // ✅ Get Single Section (for Question Builder page)
-  @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
-  @Get(":id")
-  findOne(@Param("id") id: string, @Req() req: any) {
-    const orgId = req.user.orgId;
-    return this.service.findOne(id, orgId);
-  }
-
-  // ✅ Get Sections Attached to Test
+  // ✅ Get Sections Attached to Test (must be before :id)
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
   @Get("test/:testId")
   findByTest(@Param("testId") testId: string, @Req() req: any) {
     const orgId = req.user?.orgId;
     if (!orgId) return [];
     return this.service.findByTest(testId, orgId);
+  }
+
+  // ✅ Get Single Section (for Question Builder page)
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
+  @Get(":id")
+  findOne(@Param("id") id: string, @Req() req: any) {
+    const orgId = req.user?.orgId;
+    return this.service.findOne(id, orgId);
+  }
+
+  // ✅ Update Section (title, description)
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() body: { sectionName?: string; description?: string },
+    @Req() req: any,
+  ) {
+    const orgId = req.user?.orgId;
+    return this.service.update(id, orgId, body);
+  }
+
+  // ✅ Delete Section
+  @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
+  @Delete(":id")
+  delete(@Param("id") id: string, @Req() req: any) {
+    const orgId = req.user?.orgId;
+    return this.service.delete(id, orgId);
   }
 }

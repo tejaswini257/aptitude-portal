@@ -1,58 +1,52 @@
 import {
-  IsString,
-  IsBoolean,
-  IsOptional,
-  IsInt,
-  ValidateNested,
   IsArray,
-  Min,
-} from "class-validator";
-import { Type } from "class-transformer";
-
-class RulesDto {
-  @IsInt()
-  @Min(1)
-  totalMarks!: number;
-
-  @IsInt()
-  @Min(1)
-  marksPerQuestion!: number;
-
-  @IsBoolean()
-  negativeMarking!: boolean;
-
-  @IsOptional()
-  @IsInt()
-  negativeMarks?: number;
-}
-
-class SectionInputDto {
-  @IsString()
-  sectionId!: string;
-
-  @IsInt()
-  @Min(1)
-  timeLimit!: number;
-}
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateRulesDto } from './create-rules.dto';
+import { CreateTestSectionDto } from './create-test-section.dto';
 
 export class CreateTestDto {
   @IsString()
-  name!: string;
+  name: string;
 
-  @IsBoolean()
   @IsOptional()
+  @IsBoolean()
   showResultImmediately?: boolean;
 
-  @IsBoolean()
   @IsOptional()
+  @IsBoolean()
   proctoringEnabled?: boolean;
 
+  @IsOptional()
+  @IsDateString()
+  startTime?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endTime?: string;
+
+  @IsOptional()
+  @IsString()
+  durationMode?: string;
+
+  @IsOptional()
+  totalDuration?: number;
+
+  @IsOptional()
+  @IsDateString()
+  resultPublishTime?: string;
+
   @ValidateNested()
-  @Type(() => RulesDto)
-  rules!: RulesDto;
+  @Type(() => CreateRulesDto)
+  rules: CreateRulesDto;
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => SectionInputDto)
-  sections!: SectionInputDto[];
+  @Type(() => CreateTestSectionDto)
+  sections: CreateTestSectionDto[];
 }

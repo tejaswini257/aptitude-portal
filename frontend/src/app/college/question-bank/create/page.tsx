@@ -9,7 +9,7 @@ export default function CreateSectionPage() {
   const router = useRouter();
 
   const [sectionName, setSectionName] = useState("");
-  const [type, setType] = useState<"MCQ" | "CODING">("MCQ");
+  const [type, setType] = useState<"MCQ" | "CODING" | "PASSAGE_WRITING" | "PASSAGE_DROPDOWN" | "UNSEEN_PARAGRAPH">("MCQ");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -69,7 +69,7 @@ export default function CreateSectionPage() {
       <div>
         <h1 className="text-2xl font-semibold">Create Question Bank Section</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Create a reusable section for MCQ or Coding questions.
+          Create a reusable section for MCQ, Coding, Passage Writing, Passage Dropdown, or Unseen Paragraph questions.
         </p>
       </div>
 
@@ -107,31 +107,28 @@ export default function CreateSectionPage() {
             Question Bank Type
           </label>
 
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setType("MCQ")}
-              className={`px-4 py-2 rounded-lg border transition ${
-                type === "MCQ"
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              MCQ
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setType("CODING")}
-              className={`px-4 py-2 rounded-lg border transition ${
-                type === "CODING"
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              Coding
-            </button>
-          </div>
+          <div className="flex gap-4 flex-wrap">
+  {[
+    { label: "MCQ", value: "MCQ" },
+    { label: "Coding", value: "CODING" },
+    { label: "Passage Writing", value: "PASSAGE_WRITING" },
+    { label: "Passage Dropdown", value: "PASSAGE_DROPDOWN" },
+    { label: "Unseen Paragraph", value: "UNSEEN_PARAGRAPH" }
+  ].map((option) => (
+    <button
+      key={option.value}
+      type="button"
+      onClick={() => setType(option.value as any)}
+      className={`px-4 py-2 rounded-lg border transition ${
+        type === option.value
+          ? "bg-emerald-500 text-white border-emerald-500"
+          : "hover:bg-gray-100"
+      }`}
+    >
+      {option.label}
+    </button>
+  ))}
+</div>
         </div>
 
         {/* Description */}

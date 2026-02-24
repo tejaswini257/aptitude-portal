@@ -37,10 +37,12 @@ export default function CollegeTestsPage() {
     proctoringEnabled: false,
     rules: {
       totalMarks: 100,
-      marksPerQuestion: 1,
       negativeMarking: false,
       negativeMarks: 0,
     },
+    durationMode: "GLOBAL",
+    totalDuration: 60,
+    resultPublishTime: "",
     sections: [
       {
         sectionId: "",
@@ -137,11 +139,14 @@ export default function CollegeTestsPage() {
     try {
       setCreating(true);
 
-      await api.post("/tests", {
+      const res = await api.post("/tests", {
         name: form.name,
         showResultImmediately: form.showResultImmediately,
         proctoringEnabled: form.proctoringEnabled,
         rules: form.rules,
+        durationMode: form.durationMode,
+        totalDuration: form.durationMode === "GLOBAL" ? form.totalDuration : null,
+        resultPublishTime: !form.showResultImmediately ? form.resultPublishTime : null,
         sections: form.sections,
       });
 
@@ -152,14 +157,19 @@ export default function CollegeTestsPage() {
         proctoringEnabled: false,
         rules: {
           totalMarks: 100,
-          marksPerQuestion: 1,
           negativeMarking: false,
           negativeMarks: 0,
         },
+        durationMode: "GLOBAL",
+        totalDuration: 60,
+        resultPublishTime: "",
         sections: [{ sectionId: "", timeLimit: 30 }],
       });
 
       fetchTests();
+      if (res.data?.id) {
+        router.push(`/college/tests/${res.data.id}/builder`);
+      }
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to create test");
     } finally {
@@ -243,6 +253,71 @@ export default function CollegeTestsPage() {
               Enable Proctoring
             </label>
           </div>
+
+          {!form.showResultImmediately && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Result Publish Time
+              </label>
+              <input
+                type="datetime-local"
+                value={form.resultPublishTime}
+                onChange={(e) =>
+                  setForm({ ...form, resultPublishTime: e.target.value })
+                }
+                className="w-full border rounded-lg px-3 py-2"
+                required={!form.showResultImmediately}
+              />
+            </div>
+          )}
+
+          {/* Duration Settings */}
+          <div className="mt-4 border-t pt-4">
+            <h4 className="font-medium text-gray-800 mb-3">Duration Settings</h4>
+            <div className="flex gap-4 mb-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="durationMode"
+                  value="GLOBAL"
+                  checked={form.durationMode === "GLOBAL"}
+                  onChange={(e) =>
+                    setForm({ ...form, durationMode: e.target.value })
+                  }
+                />
+                Global Duration
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="durationMode"
+                  value="SECTION"
+                  checked={form.durationMode === "SECTION"}
+                  onChange={(e) =>
+                    setForm({ ...form, durationMode: e.target.value })
+                  }
+                />
+                Section-wise Duration
+              </label>
+            </div>
+            
+            {form.durationMode === "GLOBAL" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Total Test Duration (minutes)
+                </label>
+                <input
+                  type="number"
+                  value={form.totalDuration}
+                  onChange={(e) =>
+                    setForm({ ...form, totalDuration: Number(e.target.value) })
+                  }
+                  className="w-full sm:w-1/2 border rounded-lg px-3 py-2"
+                  min={1}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ================= Rules ================= */}
@@ -260,22 +335,6 @@ export default function CollegeTestsPage() {
                   rules: {
                     ...form.rules,
                     totalMarks: Number(e.target.value),
-                  },
-                })
-              }
-              className="border rounded-lg px-3 py-2"
-            />
-
-            <input
-              type="number"
-              placeholder="Marks Per Question"
-              value={form.rules.marksPerQuestion}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  rules: {
-                    ...form.rules,
-                    marksPerQuestion: Number(e.target.value),
                   },
                 })
               }
@@ -345,17 +404,19 @@ export default function CollegeTestsPage() {
                 ))}
               </select>
 
-              <input
-                type="number"
-                placeholder="Time (mins)"
-                value={sec.timeLimit}
-                onChange={(e) => {
-                  const updated = [...form.sections];
-                  updated[index].timeLimit = Number(e.target.value);
-                  setForm({ ...form, sections: updated });
-                }}
-                className="border rounded-lg px-3 py-2 w-1/3"
-              />
+              {form.durationMode === "SECTION" && (
+                <input
+                  type="number"
+                  placeholder="Time (mins)"
+                  value={sec.timeLimit}
+                  onChange={(e) => {
+                    const updated = [...form.sections];
+                    updated[index].timeLimit = Number(e.target.value);
+                    setForm({ ...form, sections: updated });
+                  }}
+                  className="border rounded-lg px-3 py-2 w-1/3"
+                />
+              )}
 
               <button
                 type="button"
