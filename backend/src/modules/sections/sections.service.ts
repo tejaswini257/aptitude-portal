@@ -7,7 +7,7 @@ import { CreateSectionDto } from "./dto/create-section.dto";
 
 @Injectable()
 export class SectionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // ✅ Create Section
   async create(createSectionDto: CreateSectionDto, orgId: string) {
@@ -31,15 +31,21 @@ export class SectionsService {
         sectionName: createSectionDto.sectionName,
         description: createSectionDto.description,
         type: sectionType,
+        isQuestionBank: createSectionDto.isQuestionBank ?? false,
         orgId,
       },
     });
   }
 
-  // ✅ Get All Sections (for Question Bank page)
-  async findAll(orgId: string) {
+  // ✅ Get All Sections (can filter by isQuestionBank)
+  async findAll(orgId: string, isQuestionBank?: boolean) {
+    const whereClause: any = { orgId };
+    if (isQuestionBank !== undefined) {
+      whereClause.isQuestionBank = isQuestionBank;
+    }
+
     return this.prisma.section.findMany({
-      where: { orgId },
+      where: whereClause,
       include: {
         _count: {
           select: { questions: true },

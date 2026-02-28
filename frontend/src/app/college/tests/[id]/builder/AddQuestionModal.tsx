@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import api from "@/interceptors/axios";
+import CodingQuestionForm from "@/app/college/question-bank/[sectionId]/CodingQuestionForm";
+import MCQQuestionForm from "@/app/college/question-bank/[sectionId]/MCQQuestionForm";
+import PassageWritingForm from "@/app/college/question-bank/[sectionId]/PassageWritingForm";
+import PassageDropdownForm from "@/app/college/question-bank/[sectionId]/PassageDropdownForm";
+import UnseenParagraphForm from "@/app/college/question-bank/[sectionId]/UnseenParagraphForm";
 
 export default function AddQuestionModal({
   testId,
@@ -16,11 +21,15 @@ export default function AddQuestionModal({
 }) {
   const [activeTab, setActiveTab] = useState<"bank" | "create">("bank");
 
-  // Bank state
   const [questions, setQuestions] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [filterBankId, setFilterBankId] = useState("");
+  const [questionBanks, setQuestionBanks] = useState<any[]>([]);
+  const [selectedCreateType, setSelectedCreateType] = useState<
+    "MCQ" | "CODING" | "PASSAGE_WRITING" | "PASSAGE_DROPDOWN" | "UNSEEN_PARAGRAPH"
+  >("MCQ");
 
   // Create state
   const [newQuestion, setNewQuestion] = useState({
@@ -28,6 +37,7 @@ export default function AddQuestionModal({
     difficulty: "EASY",
     questionText: "",
     marks: 1,
+    selectedBankId: "",
     options: [
       { text: "", isCorrect: true },
       { text: "", isCorrect: false },
@@ -35,16 +45,32 @@ export default function AddQuestionModal({
   });
 
   useEffect(() => {
+    fetchQuestionBanks();
+  }, []);
+
+  const fetchQuestionBanks = async () => {
+    try {
+      const res = await api.get("/sections?isQuestionBank=true");
+      setQuestionBanks(res.data);
+      if (res.data?.length > 0) {
+        setNewQuestion(prev => ({ ...prev, selectedBankId: res.data[0].id }));
+      }
+    } catch(err) {
+      console.error(err);
+    }
+  }
+
+  useEffect(() => {
     if (activeTab === "bank") {
       fetchQuestions();
     }
-  }, [search, type, difficulty, activeTab]);
+  }, [search, type, difficulty, filterBankId, activeTab]);
 
   const fetchQuestions = async () => {
     try {
       const res = await api.get("/questions/bank", {
         params: {
-          sectionId,
+          sectionId: filterBankId || undefined,
           search,
           type,
           difficulty,
@@ -72,9 +98,12 @@ export default function AddQuestionModal({
 
   const handleCreateAndAdd = async () => {
     try {
-      // 1. Create the question in the bank
+      // If a bank is selected, save there, otherwise save directly to test section
+      const targetSectionId = newQuestion.selectedBankId || sectionId;
+
+      // 1. Create the question in the target section
       const createRes = await api.post("/questions", {
-        sectionId,
+        sectionId: targetSectionId,
         type: newQuestion.type,
         difficulty: newQuestion.difficulty,
         questionText: newQuestion.questionText,
@@ -86,7 +115,7 @@ export default function AddQuestionModal({
       const questionId = createRes.data?.id;
       if (!questionId) throw new Error("Failed to create question");
 
-      // 2. Add to test
+      // 2. Add to test (Always required because tests read from TestQuestion table)
       await addToTest(questionId);
     } catch (err) {
       console.error(err);
@@ -137,6 +166,17 @@ export default function AddQuestionModal({
                   onChange={(e) => setSearch(e.target.value)}
                   className="border px-3 py-2 rounded-lg w-full"
                 />
+
+                <select
+                  value={filterBankId}
+                  onChange={(e) => setFilterBankId(e.target.value)}
+                  className="border px-2 py-2 rounded-lg"
+                >
+                  <option value="">All Question Banks</option>
+                  {questionBanks.map((qb) => (
+                    <option key={qb.id} value={qb.id}>{qb.sectionName}</option>
+                  ))}
+                </select>
 
                 <select
                   value={type}
@@ -197,120 +237,79 @@ export default function AddQuestionModal({
 
           {activeTab === "create" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                  <select
-                    value={newQuestion.type}
-                    onChange={(e) =>
-                      setNewQuestion({ ...newQuestion, type: e.target.value })
-                    }
-                    className="w-full border rounded-lg px-3 py-2"
-                  >
-                    <option value="MCQ_SINGLE">MCQ Single</option>
-                    <option value="MCQ_MULTIPLE">MCQ Multiple</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
-                  <select
-                    value={newQuestion.difficulty}
-                    onChange={(e) =>
-                      setNewQuestion({ ...newQuestion, difficulty: e.target.value })
-                    }
-                    className="w-full border rounded-lg px-3 py-2"
-                  >
-                    <option value="EASY">Easy</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HARD">Hard</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Marks</label>
-                  <input
-                    type="number"
-                    value={newQuestion.marks}
-                    onChange={(e) =>
-                      setNewQuestion({ ...newQuestion, marks: Number(e.target.value) })
-                    }
-                    className="w-full border rounded-lg px-3 py-2"
-                  />
-                </div>
-              </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Question Text</label>
-                <textarea
-                  value={newQuestion.questionText}
-                  onChange={(e) =>
-                    setNewQuestion({ ...newQuestion, questionText: e.target.value })
-                  }
-                  rows={3}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Save to Question Bank (Optional)</label>
+                <select
+                  value={newQuestion.selectedBankId}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, selectedBankId: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2"
-                  placeholder="Enter the question text here..."
-                />
+                >
+                  <option value="">-- None (Save directly to this test section) --</option>
+                  {questionBanks.map((qb) => (
+                    <option key={qb.id} value={qb.id}>{qb.sectionName}</option>
+                  ))}
+                </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Options</label>
-                {newQuestion.options.map((opt, i) => (
-                  <div key={i} className="flex gap-3 mb-3 items-center">
-                    <input
-                      type={newQuestion.type === "MCQ_SINGLE" ? "radio" : "checkbox"}
-                      name="isCorrect"
-                      checked={opt.isCorrect}
-                      onChange={(e) => {
-                        const newOpts = [...newQuestion.options];
-                        if (newQuestion.type === "MCQ_SINGLE") {
-                          newOpts.forEach((o) => (o.isCorrect = false));
-                        }
-                        newOpts[i].isCorrect = e.target.checked;
-                        setNewQuestion({ ...newQuestion, options: newOpts });
-                      }}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                    <input
-                      value={opt.text}
-                      onChange={(e) => {
-                        const newOpts = [...newQuestion.options];
-                        newOpts[i].text = e.target.value;
-                        setNewQuestion({ ...newQuestion, options: newOpts });
-                      }}
-                      className="flex-1 border rounded-lg px-3 py-2"
-                      placeholder={`Option ${i + 1}`}
-                    />
-                    <button
-                      onClick={() => {
-                        const newOpts = newQuestion.options.filter((_, idx) => idx !== i);
-                        setNewQuestion({ ...newQuestion, options: newOpts });
-                      }}
-                      className="text-red-500 hover:text-red-700 px-2"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-                <button
-                  onClick={() => {
-                    setNewQuestion({
-                      ...newQuestion,
-                      options: [...newQuestion.options, { text: "", isCorrect: false }],
-                    });
-                  }}
-                  className="text-emerald-600 font-medium text-sm hover:underline mt-2 inline-block"
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Question Type to Add
+                </label>
+                <select
+                  value={selectedCreateType}
+                  onChange={(e) => setSelectedCreateType(e.target.value as any)}
+                  className="w-full border rounded-lg px-3 py-2"
                 >
-                  + Add Option
-                </button>
+                  <option value="MCQ">MCQ</option>
+                  <option value="CODING">Coding</option>
+                  <option value="PASSAGE_WRITING">Passage Writing</option>
+                  <option value="PASSAGE_DROPDOWN">Passage Dropdown</option>
+                  <option value="UNSEEN_PARAGRAPH">Unseen Paragraph</option>
+                </select>
               </div>
 
-              <div className="flex justify-end pt-4 border-t">
-                <button
-                  onClick={handleCreateAndAdd}
-                  disabled={!newQuestion.questionText.trim() || newQuestion.options.length < 2}
-                  className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition-colors"
-                >
-                  Create & Add to Test
-                </button>
+              <div className="mt-4 border-t pt-4">
+                {selectedCreateType === "MCQ" && (
+                  <MCQQuestionForm
+                    sectionId={newQuestion.selectedBankId || sectionId}
+                    mode="create"
+                    onQuestionSaved={(data) => {
+                      if (data?.id) addToTest(data.id);
+                    }}
+                  />
+                )}
+                {selectedCreateType === "CODING" && (
+                  <CodingQuestionForm
+                    sectionId={newQuestion.selectedBankId || sectionId}
+                    onQuestionSaved={(data) => {
+                      if (data?.id) addToTest(data.id);
+                    }}
+                  />
+                )}
+                {selectedCreateType === "PASSAGE_WRITING" && (
+                  <PassageWritingForm
+                    sectionId={newQuestion.selectedBankId || sectionId}
+                    onQuestionSaved={(data) => {
+                      if (data?.id) addToTest(data.id);
+                    }}
+                  />
+                )}
+                {selectedCreateType === "PASSAGE_DROPDOWN" && (
+                  <PassageDropdownForm
+                    sectionId={newQuestion.selectedBankId || sectionId}
+                    onQuestionSaved={(data) => {
+                      if (data?.id) addToTest(data.id);
+                    }}
+                  />
+                )}
+                {selectedCreateType === "UNSEEN_PARAGRAPH" && (
+                  <UnseenParagraphForm
+                    sectionId={newQuestion.selectedBankId || sectionId}
+                    onQuestionSaved={(data) => {
+                      if (data?.id) addToTest(data.id);
+                    }}
+                  />
+                )}
               </div>
             </div>
           )}

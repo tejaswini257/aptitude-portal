@@ -29,6 +29,10 @@ export default function SectionDetailPage() {
   const [editSection, setEditSection] = useState(false);
   const [sectionNameEdit, setSectionNameEdit] = useState("");
   const [descriptionEdit, setDescriptionEdit] = useState("");
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedQuestionType, setSelectedQuestionType] = useState<
+    "MCQ" | "CODING" | "PASSAGE_WRITING" | "PASSAGE_DROPDOWN" | "UNSEEN_PARAGRAPH"
+  >("MCQ");
 
   useEffect(() => {
     fetchSection();
@@ -124,7 +128,13 @@ export default function SectionDetailPage() {
           </button>
         )}
         <button
-          onClick={() => router.back()}
+          onClick={() => {
+            if (section.questions.length === 0) {
+              setShowCancelModal(true);
+            } else {
+              router.back();
+            }
+          }}
           className="px-4 py-2 border rounded-lg hover:bg-gray-100"
         >
           ← Back
@@ -134,47 +144,66 @@ export default function SectionDetailPage() {
 
     {/* ================= BUILDER ================= */}
     <div className="bg-white border rounded-xl p-6 shadow-sm">
-      {section.type === "MCQ" && (
-        <MCQQuestionForm
-          sectionId={section.id}
-          mode="create"
-          onQuestionSaved={fetchSection}
-        />
-      )}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Select Question Type to Add
+        </label>
+        <select
+          value={selectedQuestionType}
+          onChange={(e) => setSelectedQuestionType(e.target.value as any)}
+          className="w-full max-w-sm border rounded-lg px-3 py-2"
+        >
+          <option value="MCQ">MCQ</option>
+          <option value="CODING">Coding</option>
+          <option value="PASSAGE_WRITING">Passage Writing</option>
+          <option value="PASSAGE_DROPDOWN">Passage Dropdown</option>
+          <option value="UNSEEN_PARAGRAPH">Unseen Paragraph</option>
+        </select>
+      </div>
 
-      {section.type === "CODING" && (
-         <CodingQuestionForm
-        sectionId={sectionId}
-        setQuestions={setQuestions}
-      />
-      )}
+      <div className="mt-4 border-t pt-4">
+        {selectedQuestionType === "MCQ" && (
+          <MCQQuestionForm
+            sectionId={section.id}
+            mode="create"
+            onQuestionSaved={fetchSection}
+          />
+        )}
 
-      {section.type === "PASSAGE_WRITING" && (
-        <PassageWritingForm
-          sectionId={section.id}
-          onQuestionSaved={fetchSection}
-        />
-      )}
+        {selectedQuestionType === "CODING" && (
+          <CodingQuestionForm
+            sectionId={sectionId}
+            onQuestionSaved={fetchSection}
+          />
+        )}
 
-      {section.type === "PASSAGE_DROPDOWN" && (
-        <PassageDropdownForm
-          sectionId={section.id}
-          onQuestionSaved={fetchSection}
-        />
-      )}
+        {selectedQuestionType === "PASSAGE_WRITING" && (
+          <PassageWritingForm
+            sectionId={section.id}
+            onQuestionSaved={fetchSection}
+          />
+        )}
 
-      {section.type === "UNSEEN_PARAGRAPH" && (
-        <UnseenParagraphForm
-          sectionId={section.id}
-          passages={(section.questions || [])
-            .filter((q: any) => q?.unseenParagraphMeta?.passage)
-            .map((q: any) => ({
-              id: q.id,
-              passage: q.unseenParagraphMeta.passage,
-            }))}
-          onQuestionSaved={fetchSection}
-        />
-      )}
+        {selectedQuestionType === "PASSAGE_DROPDOWN" && (
+          <PassageDropdownForm
+            sectionId={section.id}
+            onQuestionSaved={fetchSection}
+          />
+        )}
+
+        {selectedQuestionType === "UNSEEN_PARAGRAPH" && (
+          <UnseenParagraphForm
+            sectionId={section.id}
+            passages={(section.questions || [])
+              .filter((q: any) => q?.unseenParagraphMeta?.passage)
+              .map((q: any) => ({
+                id: q.id,
+                passage: q.unseenParagraphMeta.passage,
+              }))}
+            onQuestionSaved={fetchSection}
+          />
+        )}
+      </div>
     </div>
 
     {/* ================= QUESTION LIST ================= */}
@@ -495,6 +524,65 @@ export default function SectionDetailPage() {
         ))}
           </>
         )}
+      </div>
+    )}
+
+    {/* ================= FINAL SAVE ACTION ================= */}
+    {section.questions.length > 0 && (
+      <div className="flex justify-end gap-3 mt-8">
+        <button
+          onClick={() => {
+            alert("Question Bank saved successfully!");
+            router.push("/college/question-bank");
+          }}
+          className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow-sm font-medium"
+        >
+          Finish & Save Question Bank
+        </button>
+      </div>
+    )}
+
+    {/* ================= CANCEL CONFIRMATION MODAL ================= */}
+    {showCancelModal && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-2">Wait! No Questions Added</h2>
+            <p className="text-gray-600 mb-6 font-medium">
+              You haven't added any questions to this Question Bank yet. Would you like to save it as an empty draft, or delete it completely?
+            </p>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={async () => {
+                  try {
+                    await api.delete(`/sections/${section.id}`);
+                    router.push("/college/question-bank");
+                  } catch (err: any) {
+                    alert(err?.response?.data?.message || "Failed to delete");
+                  }
+                }}
+                className="px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
+              >
+                Delete Question Bank
+              </button>
+              
+              <button
+                onClick={() => router.push("/college/question-bank")}
+                className="px-4 py-2 border hover:bg-gray-50 rounded-lg transition"
+              >
+                Save as Draft
+              </button>
+
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-lg transition"
+              >
+                Continue Editing
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     )}
   </div>

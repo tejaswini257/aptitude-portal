@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
-export default function TestDetailsRedirect(props: any) {
-  redirect(`/college/tests/${props.params.id}/builder`);
+export default async function TestDetailsRedirect(props: any) {
+  const params = await props.params;
+  redirect(`/college/tests/${params.id}/builder`);
 }
 

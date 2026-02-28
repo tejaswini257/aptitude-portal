@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsIn,
   IsNotEmpty,
   IsOptional,
@@ -13,6 +14,7 @@ const SECTION_TYPES = [
   "PASSAGE_WRITING",
   "PASSAGE_DROPDOWN",
   "UNSEEN_PARAGRAPH",
+  "MIXED"
 ] as const;
 
 export class CreateSectionDto {
@@ -26,6 +28,10 @@ export class CreateSectionDto {
   @IsString()
   @MaxLength(250)
   description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isQuestionBank?: boolean;
 
   @IsIn(SECTION_TYPES)
   type!: (typeof SECTION_TYPES)[number];

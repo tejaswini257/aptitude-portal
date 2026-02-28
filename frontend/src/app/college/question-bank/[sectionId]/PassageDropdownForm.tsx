@@ -12,7 +12,7 @@ interface Blank {
 
 interface Props {
   sectionId: string;
-  onQuestionSaved?: () => void;
+  onQuestionSaved?: (data?: any) => void;
 }
 
 export default function PassageDropdownForm({
@@ -159,7 +159,7 @@ const isValid = !validationError && content.trim().length > 0;
     try {
       setLoading(true);
 
-      await api.post("/questions", {
+      const res = await api.post("/questions", {
         sectionId,
         type: "PASSAGE_DROPDOWN",
         difficulty,
@@ -172,7 +172,7 @@ const isValid = !validationError && content.trim().length > 0;
         },
       });
 
-      if (onQuestionSaved) onQuestionSaved();
+      if (onQuestionSaved) onQuestionSaved(res.data);
 
       // Reset
       setQuestionText("");
@@ -280,23 +280,6 @@ const isValid = !validationError && content.trim().length > 0;
               </button>
             </div>
 
-            <div>
-              <label className="text-sm">
-                Marks
-              </label>
-              <input
-                type="number"
-                value={blank.marks}
-                onChange={(e) =>
-                  updateBlank(
-                    index,
-                    "marks",
-                    Number(e.target.value)
-                  )
-                }
-                className="border rounded-lg px-2 py-1 ml-2 w-20"
-              />
-            </div>
 
             <div>
               <label className="text-sm font-medium">

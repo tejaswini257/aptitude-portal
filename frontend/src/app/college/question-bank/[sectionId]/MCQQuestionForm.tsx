@@ -11,7 +11,7 @@ export default function MCQQuestionForm({
   questionId,
 }: {
   sectionId: string;
-  onQuestionSaved: () => void;
+  onQuestionSaved: (data?: any) => void;
   mode?: "create" | "edit";
   initialData?: any;
   questionId?: string;
@@ -22,7 +22,7 @@ export default function MCQQuestionForm({
   const [difficulty, setDifficulty] = useState(
     initialData?.difficulty || "EASY"
   );
-  const [marks, setMarks] = useState(initialData?.marks ?? 1);
+  const marks = 1;
   const [mcqType, setMcqType] = useState(
     initialData?.type || "MCQ_SINGLE"
   );
@@ -103,11 +103,10 @@ export default function MCQQuestionForm({
       };
 
       if (mode === "create") {
-  await api.post("/questions", payload);
+  const res = await api.post("/questions", payload);
 
   // 🔥 RESET FORM
   setQuestionText("");
-  setMarks(1);
   setDifficulty("EASY");
   setMcqType("MCQ_SINGLE");
   setAllowedFor("BOTH");
@@ -115,12 +114,12 @@ export default function MCQQuestionForm({
     { text: "", isCorrect: false },
     { text: "", isCorrect: false },
   ]);
-
+  
+  onQuestionSaved(res.data);
 } else {
   await api.patch(`/questions/${questionId}`, payload);
+  onQuestionSaved();
 }
-
-onQuestionSaved();
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to save question");
     } finally {
@@ -147,18 +146,6 @@ onQuestionSaved();
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Marks
-          </label>
-          <input
-            type="number"
-            min={1}
-            value={marks}
-            onChange={(e) => setMarks(Number(e.target.value))}
-            className="w-full border rounded-lg px-3 py-2"
-          />
-        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Difficulty

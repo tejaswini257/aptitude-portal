@@ -51,18 +51,18 @@ export default function CollegeTestsPage() {
     ],
   });
 
-  const togglePublish = async (id: string) => {
+  const togglePublish = async (id: string, currentStatus: boolean) => {
     try {
-      await api.patch(`/tests/${id}/toggle-publish`, {});
+      await api.patch(`/tests/${id}/publish`, { isPublished: !currentStatus });
       fetchTests();
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to toggle publish");
     }
   };
 
-  const toggleActive = async (id: string) => {
+  const toggleActive = async (id: string, currentStatus: boolean) => {
     try {
-      await api.patch(`/tests/${id}/toggle-active`, {});
+      await api.patch(`/tests/${id}/active`, { isActive: !currentStatus });
       fetchTests();
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to toggle active");
@@ -88,7 +88,7 @@ export default function CollegeTestsPage() {
   // ==============================
   const fetchSections = async () => {
     try {
-      const res = await api.get("/sections");
+      const res = await api.get("/sections?isQuestionBank=false");
       setSections(res.data || []);
     } catch (err: any) {
       console.error("Failed to fetch sections", err?.response?.data?.message);
@@ -119,6 +119,8 @@ export default function CollegeTestsPage() {
   try {
     const res = await api.post("/sections", {
       sectionName: newSectionName,
+      type: "MIXED",
+      isQuestionBank: false,
     });
 
     setSections((prev) => [...prev, res.data]);
@@ -167,8 +169,10 @@ export default function CollegeTestsPage() {
       });
 
       fetchTests();
+
       if (res.data?.id) {
-        router.push(`/college/tests/${res.data.id}/builder`);
+        // use window.location to strictly reload and redirect to bypass the undefined param cache issue
+        window.location.href = `/college/tests/${res.data.id}/builder`;
       }
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to create test");
@@ -180,7 +184,7 @@ export default function CollegeTestsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px] text-gray-500">
-        Loading tests…
+        Loading practice sets…
       </div>
     );
   }
@@ -189,12 +193,12 @@ export default function CollegeTestsPage() {
     <div>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Tests</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Practice Sets</h1>
         <button
           onClick={() => setShowCreate(true)}
           className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
         >
-          + Create Test
+          + Create Practice Set
         </button>
       </div>
 
@@ -205,17 +209,17 @@ export default function CollegeTestsPage() {
     <div className="bg-white rounded-xl w-full max-w-3xl shadow-xl max-h-[90vh] overflow-y-auto">
 
       <div className="p-6 border-b">
-        <h2 className="text-xl font-semibold">Create Test</h2>
+        <h2 className="text-xl font-semibold">Create Practice Set</h2>
       </div>
 
       <form onSubmit={handleCreate} className="p-6 space-y-8">
 
         {/* ================= Test Details ================= */}
         <div>
-          <h3 className="font-semibold mb-4 text-gray-800">Test Details</h3>
+          <h3 className="font-semibold mb-4 text-gray-800">Practice Set Details</h3>
 
           <input
-            placeholder="Test Name"
+            placeholder="Practice Set Name"
             value={form.name}
             onChange={(e) =>
               setForm({ ...form, name: e.target.value })
@@ -304,7 +308,7 @@ export default function CollegeTestsPage() {
             {form.durationMode === "GLOBAL" && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Total Test Duration (minutes)
+                  Total Duration (minutes)
                 </label>
                 <input
                   type="number"
@@ -476,7 +480,7 @@ export default function CollegeTestsPage() {
             disabled={creating}
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg disabled:opacity-60"
           >
-            {creating ? "Creating…" : "Create Test"}
+            {creating ? "Creating…" : "Create Practice Set"}
           </button>
         </div>
 
@@ -490,7 +494,7 @@ export default function CollegeTestsPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left">
-              <th className="p-4">Test Name</th>
+              <th className="p-4">Practice Set Name</th>
               <th className="p-4">Created</th>
               <th className="p-4">Students Attempted</th>
               <th className="p-4">Show Result</th>
@@ -501,7 +505,7 @@ export default function CollegeTestsPage() {
             {tests.length === 0 ? (
               <tr>
                 <td colSpan={5} className="p-8 text-center text-gray-500">
-                  No tests yet. Create one to get started.
+                  No practice sets yet. Create one to get started.
                 </td>
               </tr>
             ) : (
@@ -530,7 +534,7 @@ export default function CollegeTestsPage() {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          togglePublish(t.id);
+          togglePublish(t.id, t.isPublished);
         }}
         className={`px-3 py-1 rounded text-sm font-medium ${
           t.isPublished
@@ -547,7 +551,7 @@ export default function CollegeTestsPage() {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          toggleActive(t.id);
+          toggleActive(t.id, t.isActive);
         }}
         className={`px-3 py-1 rounded text-sm font-medium ${
           t.isActive

@@ -61,8 +61,15 @@ const questions = currentSection?.questions || [];
     <div className="p-6 space-y-6">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">{test.name} - Builder</h1>
+      <div className="flex flex-col mb-4">
+        <button
+          onClick={() => router.push("/college/tests")}
+          className="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1 w-fit mb-2"
+        >
+          &larr; Back to Practice Sets
+        </button>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold">{test.test?.name || "Practice Set"} - Builder</h1>
         <div className="flex gap-3">
           <button
             onClick={() => router.push(`/college/tests/${id}/preview`)}
@@ -77,82 +84,19 @@ const questions = currentSection?.questions || [];
       <div className="flex gap-3">
         {test.sections.map((s: any) => (
           <button
-            key={s.sectionId}
-            onClick={() => setSelectedSection(s.sectionId)}
+            key={s.id}
+            onClick={() => setSelectedSection(s.id)}
             className={`px-4 py-2 rounded ${
-              selectedSection === s.sectionId
+              selectedSection === s.id
                 ? "bg-emerald-500 text-white"
                 : "bg-gray-200"
             }`}
           >
-            {s.section?.sectionName}
+            {s.sectionName}
           </button>
         ))}
       </div>
-{/* QUESTIONS LIST */}
-<div className="space-y-4">
-  {questions.length === 0 && (
-    <p>No questions added yet.</p>
-  )}
 
-  {questions.map((q: any, index: number) => (
-    <div
-      key={q.id}
-      className="border rounded-lg p-4 bg-white flex justify-between items-center"
-    >
-      <div>
-        <div className="font-medium">
-          Q{index + 1}. {q.questionText}
-        </div>
-        <div className="text-sm text-gray-500">
-          Marks: {q.marks} | Negative: {q.negativeMarks}
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={async () => {
-            if (index > 0) {
-              await api.patch(`/tests/questions/${q.id}/reorder`, {
-                newOrder: index,
-              });
-              fetchBuilder();
-            }
-          }}
-          className="px-2 py-1 bg-gray-200 rounded"
-        >
-          ↑
-        </button>
-
-        <button
-          onClick={async () => {
-            if (index < questions.length - 1) {
-              await api.patch(`/tests/questions/${q.id}/reorder`, {
-                newOrder: index + 2,
-              });
-              fetchBuilder();
-            }
-          }}
-          className="px-2 py-1 bg-gray-200 rounded"
-        >
-          ↓
-        </button>
-
-        <button
-          onClick={async () => {
-            await api.delete(
-              `/tests/${id}/questions/${q.id}`
-            );
-            fetchBuilder();
-          }}
-          className="px-2 py-1 bg-red-500 text-white rounded"
-        >
-          Remove
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
 
       {/* ADD QUESTION */}
       <div>
@@ -170,10 +114,10 @@ const questions = currentSection?.questions || [];
       {questions.length === 0 && <p>No questions added yet.</p>}
 
 {questions.map((q: any, index: number) => (
-  <div key={q.id} className="border rounded-lg p-4 bg-white flex justify-between items-center">
+  <div key={q.id} className="border rounded-lg p-4 mt-4 bg-white flex justify-between items-center">
     <div>
       <div className="font-medium">
-        Q{index + 1}. {q.questionText}
+        Q{index + 1}. {q.snapshot?.questionText || q.questionText || "(Paragraph Question / Unseen)"}
       </div>
       <div className="text-sm text-gray-500">
         Marks: {q.marks} | Negative: {q.negativeMarks}
@@ -219,6 +163,15 @@ const questions = currentSection?.questions || [];
     </div>
   </div>
 ))}
+
+      {showAddModal && (
+        <AddQuestionModal
+          testId={id as string}
+          sectionId={selectedSection}
+          onClose={() => setShowAddModal(false)}
+          onAdded={fetchBuilder}
+        />
+      )}
     </div>
   );
 }

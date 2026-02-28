@@ -5,7 +5,7 @@ import api from "@/interceptors/axios";
 
 interface Props {
   sectionId: string;
-  onQuestionSaved?: () => void;
+  onQuestionSaved?: (data?: any) => void;
 }
 
 export default function PassageWritingForm({
@@ -14,7 +14,7 @@ export default function PassageWritingForm({
 }: Props) {
   const [questionText, setQuestionText] = useState("");
   const [difficulty, setDifficulty] = useState("EASY");
-  const [marks, setMarks] = useState(5);
+  const marks = 1;
   const [allowedFor, setAllowedFor] = useState("BOTH");
 
   const [minWords, setMinWords] = useState(150);
@@ -40,7 +40,7 @@ export default function PassageWritingForm({
     try {
       setLoading(true);
 
-      await api.post("/questions", {
+      const res = await api.post("/questions", {
         sectionId,
         type: "PASSAGE_WRITING",
         difficulty,
@@ -54,13 +54,12 @@ export default function PassageWritingForm({
         },
       });
 
-      if (onQuestionSaved) onQuestionSaved();
+      if (onQuestionSaved) onQuestionSaved(res.data);
 
       // Reset form
       setQuestionText("");
       setMinWords(150);
       setMaxWords(300);
-      setMarks(5);
     } catch (err: any) {
       setError(
         err?.response?.data?.message || "Failed to create question"
@@ -104,16 +103,6 @@ export default function PassageWritingForm({
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm mb-2">Marks</label>
-          <input
-            type="number"
-            min={1}
-            value={marks}
-            onChange={(e) => setMarks(Number(e.target.value))}
-            className="border rounded-lg px-3 py-2 w-24"
-          />
-        </div>
 
         <div>
           <label className="block text-sm mb-2">Allowed For</label>

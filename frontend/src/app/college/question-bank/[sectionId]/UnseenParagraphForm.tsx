@@ -18,7 +18,7 @@ export default function UnseenParagraphForm({
   passages = [],
 }: {
   sectionId: string;
-  onQuestionSaved: () => void;
+  onQuestionSaved: (data?: any) => void;
   passages?: { id: string; passage: string; subQuestions?: SubQuestion[] }[];
 }) {
   const [selectedPassageId, setSelectedPassageId] = useState("");
@@ -189,18 +189,20 @@ if (!selectedPassageId && !passage.trim()) {
     try {
       setLoading(true);
 
+      let responseData;
       if (selectedPassageId) {
         // UPDATE existing unseen paragraph
-        await api.patch(`/questions/${selectedPassageId}`, {
+        const res = await api.patch(`/questions/${selectedPassageId}`, {
           unseenParagraphMeta: {
             passage,
             subQuestions,
           },
           marks: totalMarks,
         });
+        responseData = res.data;
       } else {
         // CREATE new unseen paragraph
-        await api.post("/questions", {
+        const res = await api.post("/questions", {
           sectionId,
           type: "UNSEEN_PARAGRAPH",
           difficulty,
@@ -211,12 +213,13 @@ if (!selectedPassageId && !passage.trim()) {
             subQuestions,
           },
         });
+        responseData = res.data;
       }
 
       setSelectedPassageId("");
       setPassage("");
       setSubQuestions([]);
-      onQuestionSaved();
+      onQuestionSaved(responseData);
 
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to save");
@@ -330,20 +333,6 @@ if (!selectedPassageId && !passage.trim()) {
             placeholder="Question text"
           />
 
-          <div className="flex items-center gap-2">
-  <label className="text-sm font-medium">Marks:</label>
-  <input
-    type="number"
-    min={1}
-    value={q.marks}
-    onChange={(e) =>
-      updateSubQuestion(q.id, {
-        marks: Math.max(1, Number(e.target.value)),
-      })
-    }
-    className="border w-20 px-2 py-1 rounded"
-  />
-</div>
 
           {/* MCQ Options */}
 {q.type !== "TEXT" && (
@@ -425,9 +414,7 @@ if (!selectedPassageId && !passage.trim()) {
         </div>
       ))}
 
-      <div className="font-semibold">
-        Total Marks: {totalMarks}
-      </div>
+
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 

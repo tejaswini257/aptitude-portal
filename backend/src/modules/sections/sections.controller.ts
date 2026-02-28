@@ -8,6 +8,7 @@ import {
   Param,
   UseGuards,
   Delete,
+  Query,
 } from "@nestjs/common";
 import { SectionsService } from "./sections.service";
 import { JwtGuard } from "../../common/guards/jwt.guard";
@@ -19,7 +20,7 @@ import { CreateSectionDto } from "./dto/create-section.dto";
 @Controller("sections")
 @UseGuards(JwtGuard, RolesGuard)
 export class SectionsController {
-  constructor(private readonly service: SectionsService) {}
+  constructor(private readonly service: SectionsService) { }
 
   // ✅ Create Section
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
@@ -32,9 +33,13 @@ export class SectionsController {
   // ✅ Get All Sections
   @Roles(UserRole.COLLEGE_ADMIN, UserRole.SUPER_ADMIN)
   @Get()
-  findAll(@Req() req: any) {
+  findAll(
+    @Req() req: any,
+    @Query("isQuestionBank") isQuestionBank?: string
+  ) {
     const orgId = req.user.orgId;
-    return this.service.findAll(orgId);
+    const isQb = isQuestionBank === "true" ? true : isQuestionBank === "false" ? false : undefined;
+    return this.service.findAll(orgId, isQb);
   }
 
   // ✅ Get Sections Attached to Test (must be before :id)

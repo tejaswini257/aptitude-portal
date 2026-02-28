@@ -15,7 +15,7 @@ export default function QuestionBankPage() {
 
   const fetchSections = async () => {
     try {
-      const res = await api.get("/sections");
+      const res = await api.get("/sections?isQuestionBank=true");
       setSections(res.data);
     } catch (err) {
       console.error("Failed to fetch sections");

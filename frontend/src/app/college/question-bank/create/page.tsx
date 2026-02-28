@@ -9,7 +9,6 @@ export default function CreateSectionPage() {
   const router = useRouter();
 
   const [sectionName, setSectionName] = useState("");
-  const [type, setType] = useState<"MCQ" | "CODING" | "PASSAGE_WRITING" | "PASSAGE_DROPDOWN" | "UNSEEN_PARAGRAPH">("MCQ");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -37,7 +36,8 @@ export default function CreateSectionPage() {
       const res = await api.post("/sections", {
         sectionName,
         description: description || undefined,
-        type,
+        type: "MIXED",
+        isQuestionBank: true,
       });
 
       const createdSection = res.data;
@@ -101,35 +101,6 @@ export default function CreateSectionPage() {
           )}
         </div>
 
-        {/* Question Bank Type */}
-        <div>
-          <label className="block text-sm font-medium mb-3">
-            Question Bank Type
-          </label>
-
-          <div className="flex gap-4 flex-wrap">
-  {[
-    { label: "MCQ", value: "MCQ" },
-    { label: "Coding", value: "CODING" },
-    { label: "Passage Writing", value: "PASSAGE_WRITING" },
-    { label: "Passage Dropdown", value: "PASSAGE_DROPDOWN" },
-    { label: "Unseen Paragraph", value: "UNSEEN_PARAGRAPH" }
-  ].map((option) => (
-    <button
-      key={option.value}
-      type="button"
-      onClick={() => setType(option.value as any)}
-      className={`px-4 py-2 rounded-lg border transition ${
-        type === option.value
-          ? "bg-emerald-500 text-white border-emerald-500"
-          : "hover:bg-gray-100"
-      }`}
-    >
-      {option.label}
-    </button>
-  ))}
-</div>
-        </div>
 
         {/* Description */}
         <div>

@@ -456,18 +456,14 @@ export class TestService {
         );
       }
 
-      // Optional: Validate start & end time
+      // Optional: Validate start & end time if they exist
       if (isActive) {
-        if (!test.startTime || !test.endTime) {
-          throw new BadRequestException(
-            'Start time and end time must be set before activating',
-          );
-        }
-
-        if (new Date(test.startTime) >= new Date(test.endTime)) {
-          throw new BadRequestException(
-            'Invalid test schedule',
-          );
+        if (test.startTime && test.endTime) {
+          if (new Date(test.startTime) >= new Date(test.endTime)) {
+            throw new BadRequestException(
+              'Invalid test schedule: Start time must be before end time',
+            );
+          }
         }
       }
 

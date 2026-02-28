@@ -6,29 +6,35 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
-  new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,              // ✅ ADD THIS
-    transformOptions: {
-      enableImplicitConversion: true, // ✅ ADD THIS
-    },
-  }),
-);
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,              // ✅ ADD THIS
+      transformOptions: {
+        enableImplicitConversion: true, // ✅ ADD THIS
+      },
+    }),
+  );
 
   const port = process.env.PORT || 3001;
   const corsOrigin =
     process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
 
   const allowedOrigins = corsOrigin
-  .split(',')
-  .map((o) => o.trim())
-  .filter(Boolean);
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization','Cache-Control'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
     credentials: true,
   });
 

@@ -132,6 +132,7 @@ model Section {
   isActive     Boolean       @default(true)
   description  String?
   type         SectionType   @default(MCQ)
+  isQuestionBank Boolean     @default(false)
   questions    Question[]
   testSections TestSection[]
 }
@@ -410,6 +411,7 @@ enum SectionType {
   PASSAGE_WRITING
   PASSAGE_DROPDOWN
   UNSEEN_PARAGRAPH
+  MIXED
 }
 
 enum DurationMode {

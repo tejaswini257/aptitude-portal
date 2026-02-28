@@ -5,7 +5,7 @@ import api from "@/interceptors/axios";
 
 const languageOptions = ["cpp", "java", "python", "javascript"];
 
-export default function CodingQuestionForm({ sectionId, setQuestions }) {
+export default function CodingQuestionForm({ sectionId, onQuestionSaved }: { sectionId: string, onQuestionSaved: (data?: any) => void }) {
   const [form, setForm] = useState({
     difficulty: "EASY" as "EASY" | "MEDIUM" | "HARD",
     questionText: "",
@@ -67,7 +67,7 @@ export default function CodingQuestionForm({ sectionId, setQuestions }) {
   });
 
   // 👇 This is the important line
-  setQuestions((prev) => [...prev, res.data]);
+  if (onQuestionSaved) onQuestionSaved(res.data);
 
   alert("Coding question created successfully");
 };
